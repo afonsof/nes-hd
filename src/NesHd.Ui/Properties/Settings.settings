@@ -1,0 +1,147 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="NesHd.Ui.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Win_X" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">195</Value>
+    </Setting>
+    <Setting Name="Win_Y" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">99</Value>
+    </Setting>
+    <Setting Name="Win_H" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">563</Value>
+    </Setting>
+    <Setting Name="Win_W" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">521</Value>
+    </Setting>
+    <Setting Name="ShowDebugger" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="DebuggerWin_X" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="DebuggerWin_Y" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="DebuggerWin_H" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">600</Value>
+    </Setting>
+    <Setting Name="DebuggerWin_W" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">600</Value>
+    </Setting>
+    <Setting Name="Recents" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GFXDevice" Type="NesHd.Core.Output.Video.GraphicDevices" Scope="User">
+      <Value Profile="(Default)">SlimDX</Value>
+    </Setting>
+    <Setting Name="TV" Type="NesHd.Core.TVFORMAT" Scope="User">
+      <Value Profile="(Default)">NTSC</Value>
+    </Setting>
+    <Setting Name="Size" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Stretch</Value>
+    </Setting>
+    <Setting Name="NoLimiter" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="SoundEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="SnapshotsFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.\\Snapshots</Value>
+    </Setting>
+    <Setting Name="SnapshotFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.bmp</Value>
+    </Setting>
+    <Setting Name="StateFloder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.\\StateSaves</Value>
+    </Setting>
+    <Setting Name="PaletteFormat" Type="NesHd.Core.PaletteFormat" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Square1" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Square2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="DMC" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Noize" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Triangle" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Browser_X" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">195</Value>
+    </Setting>
+    <Setting Name="Browser_Y" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">99</Value>
+    </Setting>
+    <Setting Name="Browser_H" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">563</Value>
+    </Setting>
+    <Setting Name="Browser_W" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">521</Value>
+    </Setting>
+    <Setting Name="ShowBrowser" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Folders" Type="NesHd.Ui.MFolderCollection" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Container1" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">213</Value>
+    </Setting>
+    <Setting Name="Container2" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">186</Value>
+    </Setting>
+    <Setting Name="Column_Name" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">180</Value>
+    </Setting>
+    <Setting Name="Column_Size" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">84</Value>
+    </Setting>
+    <Setting Name="Column_Mapper" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">86</Value>
+    </Setting>
+    <Setting Name="View" Type="System.Windows.Forms.View" Scope="User">
+      <Value Profile="(Default)">Details</Value>
+    </Setting>
+    <Setting Name="AutoSaveSRAM" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="PauseWhenFocusLost" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Volume" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-500</Value>
+    </Setting>
+    <Setting Name="Fullscreen" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ShowMenuAndStatus" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Stereo" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ControlProfiles" Type="NesHd.Ui.ControlProfilesCollection" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CurrentControlProfile" Type="NesHd.Ui.ControlProfile" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="VRC6Pulse1" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="VRC6Pulse2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="VRC6Sawtooth" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -1,0 +1,142 @@
+Version 0.1 :
+=============
+* First NesHd Build
+
+Version 1.0.1.23 :
+==================
+* Added undocumented opcodes for cpu.
+* PPU VRAM Toggle fixed.
+
+Version 1.0.0.0 :
+==================
+* Added Control Profiles.
+* Added new sound channels (VRC6 Pulse 1 & 2, Sawtooth).
+* Fixed DMC sound channel.
+* Browser improved so now you can add folders in subfolders, change settings
+for subfolders ...
+* Fixed save/load state for sound.
+* Fixed path settings when paths specified with .\
+
+Version 0.9.2.0 :
+==================
+* Added Stereo / Mono sound support
+* Bug Fixed : APU timing, length counter.
+* Bug Fixed : can't load a rom that read only or located on DVD/CD...
+* Bug Fixed : error thrown when you try to save S-RAM where there's no rom loaded. 
+
+Version 0.9.1.1 :
+==================
+* Added mappers # 6, 8, 17, 19, 21, 23, 24, 81, 113.
+* Added new sound mixer.
+* Added sound volume controler.
+* Added fullscreen toggle ability.
+* Search engine in the browser improved to be faster.
+* Bug fixed: roms loaded twice when you select a folder in the browser.
+
+Version 0.9.0.122 :
+==================
+All My Nes rewritten in this version, the entire nes engine and the win forms
+and the compatibility increased.
+This time, you can call it EMULATOR !!
+* The main window improved and bugs removed.
+* CPU fixed (about 15 opcodes , timing).
+* PPU changed to use 32-bit color instead 16-bit one.
+* PPU sprite 0 hit accurate.
+* Use two palettes for NTSC and PAL.
+* More accurate in scanlines timing.
+* Added mappers # 33, 48, 61, 65, 69, 78, 79, 80, 82, 91.
+* Mapper # 16 fixed, 100%.
+* Mapper # 18 fixed, 60%.
+* Emulation speed increased using new optimised and clean code.
+* Vertical scroll fixed (for games that use HUD in the bottom, like "The jungle Book" and 
+"Power Ranger 2").
+* APU (sound) now is accurate about 98% , still needs good mixer for amplifying and any glitches 
+may found belongs to the mass mixer.
+* Added ZAPPER support (not for all games, all i know that  "Duck Hunt" works good).
+* Browser improved.
+* A lot of bugs fixed and the games that didn't work work now !!
+(e.g : galaxian, Battle City ...)
+* Settings for each user.
+* Added command lines.
+* Added new debugger instructions.
+* Added soft / hard reset.
+* Added save S-RAM as.
+* Auto save S-RAM option.
+
+Version 0.8.2.32 :
+==================
+* Rectangle 1 / 2 apu sound channel fixed.
+* Apu timing fixed.
+* Scroll vertical fixed, Zilda works great. 
+* Added : video mode "SlimDX ARGB 32-Bit" can take screenshots now.
+
+Version 0.8.1.15 :
+==================
+* APU fixed (new sound engine that increase the emulator speed to 150 fps generaly when you enable the Speed Throttling.)
+All sound channels rewritten and the Triangle, Noize and DMC channels work 100%. Still some small bugs with the Rectangle 1 and 2.
+Now some games work (like Karateka).
+* Added wave recorder that records the sound with one audio format in this version (PCM 16-bit, 44100 Hz, MONO).
+* Save / Load state fixed (100% works with any game and the ability to save in different 10 state slots).
+* New video mode "SlimDX ARGB 32-Bit"
+* Added debugger (BETA).
+
+
+Version 0.7.25.12 :
+===================
+* Added SlimDX insteat Managed DirectX.
+* Added full Joystick support.
+* Added Video modes insteat the default one.
+* Added mapper # 255 for "xxx in 1" carts (above 1 Mega Bytes cart sizes)
+* APU improved (the Noize channel).
+* Other Core improvements.
+
+
+Version 0.6.4.6 :
+=================
+* Add support for mappers # : 13, 15, 16, 18, 32, 34, 41 and 225.
+* Browser is sizeable now (and other improvements).
+* Bugs fixed:
+  > Mapper # 4 IRQ timer (Teenage Mutant Ninja Turtles - Tournament Fighters game works great!!)
+  > Sprite0 hit, Super Mario Bros (Orginal ver) works now.
+  > VBLANK (which caused a bad scroll in some games like Castlequest and Castlevania)
+  > Rename folder in the browser (when you enter nothing)
+
+
+Version 0.5.2.3 :
+=================
+Still BETA !!
+* Browser improved !!
+* Added save / load state
+* Sound improvement (mario sounds good)
+* PAL, NTSC & speed throttling
+* Frame limiter (thanks bro)
+
+
+Version 0.4.1.2 :
+=================
+Still BETA !!
+* Add sound !!
+
+
+Version 0.3.1.1 : 
+=================
+Up To BETA !!
+* PPU improved, more games are playable (more than 900 games)
+* Add support for mappers #: 4, 7, 9, 10, 11, 22, 34, 64 and 66
+* Draw size can be changed also video filters
+* Supports 16-bit & 32-bit colors in video
+* Debugger removed.
+
+
+Version 0.2.1.1 : 
+=================
+Still Alpha !!
+* PPU improved, more games are playable. 
+* Supports for rar,zip and 7z archives. 
+* Debugger !!
+* Switch between draw mode
+
+
+Version 0.1.1.0 :
+=================
+ALPHA first release.

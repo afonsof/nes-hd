@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NesHd.Core", "src\NesHd.Core\NesHd.Core.csproj", "{7AE1F4DC-359A-4625-B8A6-EB9C54DF5AF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NesHd.Ui", "src\NesHd.Ui\NesHd.Ui.csproj", "{7888A32F-3981-4E9C-AD5D-14DC043D19BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7AE1F4DC-359A-4625-B8A6-EB9C54DF5AF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AE1F4DC-359A-4625-B8A6-EB9C54DF5AF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AE1F4DC-359A-4625-B8A6-EB9C54DF5AF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AE1F4DC-359A-4625-B8A6-EB9C54DF5AF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7888A32F-3981-4E9C-AD5D-14DC043D19BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7888A32F-3981-4E9C-AD5D-14DC043D19BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7888A32F-3981-4E9C-AD5D-14DC043D19BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7888A32F-3981-4E9C-AD5D-14DC043D19BC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

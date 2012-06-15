@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7AE1F4DC-359A-4625-B8A6-EB9C54DF5AF0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NesHd.Core</RootNamespace>
+    <AssemblyName>NesHd.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SlimDx, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\SlimDx.1.0\SlimDx.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="APU\APU.cs" />
+    <Compile Include="APU\Chn_DMC.cs" />
+    <Compile Include="APU\Chn_Noize.cs" />
+    <Compile Include="APU\Chn_Rectangle1.cs" />
+    <Compile Include="APU\Chn_Rectangle2.cs" />
+    <Compile Include="APU\Chn_Triangle.cs" />
+    <Compile Include="APU\Chn_VRC6Pulse1.cs" />
+    <Compile Include="APU\Chn_VRC6Pulse2.cs" />
+    <Compile Include="Debugger\DEBUG.cs" />
+    <Compile Include="Input\InputDevice.cs" />
+    <Compile Include="Input\InputManager.cs" />
+    <Compile Include="Input\JoyButton.cs" />
+    <Compile Include="Input\Joypad.cs" />
+    <Compile Include="Input\TIMER.cs" />
+    <Compile Include="Input\Zapper.cs" />
+    <Compile Include="Memory\Mappers\Mapper04.cs" />
+    <Compile Include="Memory\Mappers\Mapper03.cs" />
+    <Compile Include="Memory\Mappers\Mapper02.cs" />
+    <Compile Include="Memory\Mappers\Mapper01.cs" />
+    <Compile Include="Memory\Mappers\Mapper00.cs" />
+    <Compile Include="Memory\Mappers\IMapper.cs" />
+    <Compile Include="Memory\MAP.cs" />
+    <Compile Include="Memory\Cart.cs" />
+    <Compile Include="CPU\CPU.cs" />
+    <Compile Include="Memory\Mappers\Mapper05.cs" />
+    <Compile Include="Memory\Mappers\Mapper06.cs" />
+    <Compile Include="Memory\Mappers\Mapper07.cs" />
+    <Compile Include="Memory\Mappers\Mapper08.cs" />
+    <Compile Include="Memory\Mappers\Mapper09.cs" />
+    <Compile Include="Memory\Mappers\Mapper10.cs" />
+    <Compile Include="Memory\Mappers\Mapper11.cs" />
+    <Compile Include="Memory\Mappers\Mapper113.cs" />
+    <Compile Include="Memory\Mappers\Mapper17.cs" />
+    <Compile Include="Memory\Mappers\Mapper19.cs" />
+    <Compile Include="Memory\Mappers\Mapper21.cs" />
+    <Compile Include="Memory\Mappers\Mapper23.cs" />
+    <Compile Include="Memory\Mappers\Mapper24.cs" />
+    <Compile Include="Memory\Mappers\Mapper33_48.cs" />
+    <Compile Include="Memory\Mappers\Mapper13.cs" />
+    <Compile Include="Memory\Mappers\Mapper15.cs" />
+    <Compile Include="Memory\Mappers\Mapper16.cs" />
+    <Compile Include="Memory\Mappers\Mapper18.cs" />
+    <Compile Include="Memory\Mappers\Mapper22.cs" />
+    <Compile Include="Memory\Mappers\Mapper225_255.cs" />
+    <Compile Include="Memory\Mappers\Mapper32.cs" />
+    <Compile Include="Memory\Mappers\Mapper34.cs" />
+    <Compile Include="Memory\Mappers\Mapper41.cs" />
+    <Compile Include="Memory\Mappers\Mapper61.cs" />
+    <Compile Include="Memory\Mappers\Mapper64.cs" />
+    <Compile Include="Memory\Mappers\Mapper65.cs" />
+    <Compile Include="Memory\Mappers\Mapper66.cs" />
+    <Compile Include="Memory\Mappers\Mapper69.cs" />
+    <Compile Include="Memory\Mappers\Mapper71.cs" />
+    <Compile Include="Memory\Mappers\Mapper78.cs" />
+    <Compile Include="Memory\Mappers\Mapper79.cs" />
+    <Compile Include="Memory\Mappers\Mapper80.cs" />
+    <Compile Include="Memory\Mappers\Mapper82.cs" />
+    <Compile Include="Memory\Mappers\Mapper91.cs" />
+    <Compile Include="Memory\Memory.cs" />
+    <Compile Include="Misc\Paletter.cs" />
+    <Compile Include="Misc\State.cs" />
+    <Compile Include="NesEngine.cs" />
+    <Compile Include="Output\Audio\Devices\SoundDeviceGeneral16.cs" />
+    <Compile Include="Output\Audio\IAudioDevice.cs" />
+    <Compile Include="Output\Video\HiRes.cs" />
+    <Compile Include="Output\Video\Devices\Video_GDIHiRes.cs" />
+    <Compile Include="Output\Video\Devices\SlimDX\Video_SlimDX.cs" />
+    <Compile Include="Output\Video\Devices\SlimDX\Frm_SlimDXOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Output\Video\Devices\SlimDX\Frm_SlimDXOptions.Designer.cs">
+      <DependentUpon>Frm_SlimDXOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Output\Video\IGraphicDevice.cs" />
+    <Compile Include="Output\Video\Devices\Video_GDI.cs" />
+    <Compile Include="Output\Video\VideoModeSettings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>VideoModeSettings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="PPU\PaletteFormat.cs" />
+    <Compile Include="PPU\PPU.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="APU\WaveRecorder.cs" />
+    <Compile Include="APU\Chn_VRC6Sawtooth.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Output\Video\Devices\SlimDX\Frm_SlimDXOptions.resx">
+      <DependentUpon>Frm_SlimDXOptions.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Output\Video\VideoModeSettings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>VideoModeSettings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

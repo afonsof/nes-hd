@@ -1,0 +1,24 @@
+﻿command lines:
+==============
+
+The rom path must be the first command line to send, then the switches like this:
+("RomPath" -switch1 x -switch2 -switch3 x......)
+YOU MUST SEND THE ROM PATH FIRST AND YOU CAN'T USE COMMAND LINES WITHOUT
+THE ROM PATH.
+
+List of the available command lines:
+====================================
+
+* -cm : show this list !!
+* -ls x : load the state from slot number x (x = slot number from 0 to 9)
+* -ss x : select the state slot number x (x = slot number from 0 to 9)
+* -pal : select the PAL region
+* -ntsc : select the NTSC region
+* -st x : Enable / Disable no limiter (x=0 disable, x=1 enable)
+* -s x : switch the size (x=x1 use size X1 '256x240', x=x2 use size X2 '512x480', x=str use Stretch)
+* -r <WavePath> : record the audio wave into <WavePath>
+* -p <PaletteFilePath> : load the palette <PaletteFilePath> and use it
+* -w_size w h : resize the window (W=width, h=height)
+* -w_pos x y : move the window into a specific location (x=X coordinate, y=Y coordinate)
+* -w_max : maximize the window
+* -w_min : minimize the window
