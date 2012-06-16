@@ -2,7 +2,7 @@
 
 namespace NesHd.Core.APU
 {
-    public class Chn_VRC6Sawtooth
+    public class ChnVrc6Sawtooth
     {
         private byte Accum;
         private byte AccumRate;

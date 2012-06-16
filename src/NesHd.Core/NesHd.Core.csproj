@@ -79,13 +79,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APU\Apu.cs" />
-    <Compile Include="APU\Chn_DMC.cs" />
-    <Compile Include="APU\Chn_Noize.cs" />
-    <Compile Include="APU\Chn_Rectangle1.cs" />
-    <Compile Include="APU\Chn_Rectangle2.cs" />
-    <Compile Include="APU\Chn_Triangle.cs" />
-    <Compile Include="APU\Chn_VRC6Pulse1.cs" />
-    <Compile Include="APU\Chn_VRC6Pulse2.cs" />
+    <Compile Include="APU\ChnDmc.cs" />
+    <Compile Include="APU\ChnNoize.cs" />
+    <Compile Include="APU\ChnRectangle1.cs" />
+    <Compile Include="APU\ChnRectangle2.cs" />
+    <Compile Include="APU\ChnTriangle.cs" />
+    <Compile Include="APU\ChnVrc6Pulse1.cs" />
+    <Compile Include="APU\ChnVrc6Pulse2.cs" />
     <Compile Include="Debugger\Debug.cs" />
     <Compile Include="Debugger\DebugArg.cs" />
     <Compile Include="Debugger\DebugStatus.cs" />
@@ -117,13 +117,13 @@
     <Compile Include="Memory\Mappers\Mapper21.cs" />
     <Compile Include="Memory\Mappers\Mapper23.cs" />
     <Compile Include="Memory\Mappers\Mapper24.cs" />
-    <Compile Include="Memory\Mappers\Mapper33_48.cs" />
+    <Compile Include="Memory\Mappers\Mapper33.cs" />
     <Compile Include="Memory\Mappers\Mapper13.cs" />
     <Compile Include="Memory\Mappers\Mapper15.cs" />
     <Compile Include="Memory\Mappers\Mapper16.cs" />
     <Compile Include="Memory\Mappers\Mapper18.cs" />
     <Compile Include="Memory\Mappers\Mapper22.cs" />
-    <Compile Include="Memory\Mappers\Mapper225_255.cs" />
+    <Compile Include="Memory\Mappers\Mapper225255.cs" />
     <Compile Include="Memory\Mappers\Mapper32.cs" />
     <Compile Include="Memory\Mappers\Mapper34.cs" />
     <Compile Include="Memory\Mappers\Mapper41.cs" />
@@ -148,8 +148,8 @@
     <Compile Include="Output\Audio\Devices\SoundDeviceGeneral16.cs" />
     <Compile Include="Output\Audio\IAudioDevice.cs" />
     <Compile Include="Output\Video\HiRes.cs" />
-    <Compile Include="Output\Video\Devices\Video_GDIHiRes.cs" />
-    <Compile Include="Output\Video\Devices\SlimDX\Video_SlimDX.cs" />
+    <Compile Include="Output\Video\Devices\VideoGdiHiRes.cs" />
+    <Compile Include="Output\Video\Devices\SlimDX\VideoSlimDx.cs" />
     <Compile Include="Output\Video\Devices\SlimDX\Frm_SlimDXOptions.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -157,18 +157,18 @@
       <DependentUpon>Frm_SlimDXOptions.cs</DependentUpon>
     </Compile>
     <Compile Include="Output\Video\IGraphicDevice.cs" />
-    <Compile Include="Output\Video\Devices\Video_GDI.cs" />
+    <Compile Include="Output\Video\Devices\VideoGdi.cs" />
     <Compile Include="Output\Video\VideoModeSettings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>VideoModeSettings.settings</DependentUpon>
     </Compile>
     <Compile Include="PPU\PaletteFormat.cs" />
-    <Compile Include="PPU\PPU.cs" />
+    <Compile Include="PPU\Ppu.cs" />
     <Compile Include="PPU\UseInternalPaletteMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="APU\WaveRecorder.cs" />
-    <Compile Include="APU\Chn_VRC6Sawtooth.cs" />
+    <Compile Include="APU\ChnVrc6Sawtooth.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Output\Video\Devices\SlimDX\Frm_SlimDXOptions.resx">

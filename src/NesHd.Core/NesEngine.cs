@@ -15,20 +15,20 @@ namespace NesHd.Core
     /// </summary>
     public class NesEngine
     {
-        public NesEngine(TVFORMAT TvFormat, PaletteFormat PlFormat)
+        public NesEngine(TvFormat tvFormat, PaletteFormat plFormat)
         {
-            AutoSaveSRAM = true;
+            AutoSaveSram = true;
             Debug.WriteLine(this, "Initializeing the nes emulation engine...", DebugStatus.None);
-            this.TvFormat = TvFormat;
+            TvFormat = tvFormat;
             //Initialize Engine
             Memory = new Memory.Memory(this);
-            Cpu = new Cpu(Memory, TvFormat, this);
-            Cpu.PauseToggle += _CPU_PauseToggle;
-            Ppu = new Ppu(TvFormat, PlFormat, this);
+            Cpu = new Cpu(Memory, tvFormat, this);
+            Cpu.PauseToggle += CpuPauseToggle;
+            Ppu = new Ppu(tvFormat, plFormat, this);
             Debug.WriteLine(this, "Nes initialized ok.", DebugStatus.Cool);
         }
 
-        public TVFORMAT TvFormat { get; private set; }
+        public TvFormat TvFormat { get; private set; }
 
         public Cpu Cpu { get; private set; }
 
@@ -40,9 +40,9 @@ namespace NesHd.Core
 
         public bool SoundEnabled { get; set; }
 
-        public bool AutoSaveSRAM { get; set; }
+        public bool AutoSaveSram { get; set; }
 
-        private void _CPU_PauseToggle(object sender, EventArgs e)
+        private void CpuPauseToggle(object sender, EventArgs e)
         {
             //Rise the pause event
             if (PauseToggle != null)
@@ -102,8 +102,8 @@ namespace NesHd.Core
             Apu.Shutdown();
             if (Apu.RECODER.IsRecording)
                 Apu.RECODER.Stop();
-            if (Memory.Map.Cartridge.IsSaveRam & AutoSaveSRAM)
-                SaveSRAM(Memory.Map.Cartridge.SaveFilename);
+            if (Memory.Map.Cartridge.IsSaveRam & AutoSaveSram)
+                SaveSram(Memory.Map.Cartridge.SaveFilename);
             Cpu.ON = false;
         }
 
@@ -112,12 +112,12 @@ namespace NesHd.Core
             Cpu.SoftReset();
         }
 
-        public void SaveSRAM(string FilePath)
+        public void SaveSram(string filePath)
         {
             //If we have save RAM, try to save it
             try
             {
-                using (var writer = File.OpenWrite(FilePath))
+                using (var writer = File.OpenWrite(filePath))
                 {
                     writer.Write(Memory.SRam, 0, 0x2000);
                     Debug.WriteLine(this, "SRAM saved !!", DebugStatus.Cool);
@@ -129,23 +129,23 @@ namespace NesHd.Core
             }
         }
 
-        public void SetupInput(InputManager Manager, Joypad Joy1, Joypad Joy2)
+        public void SetupInput(InputManager manager, Joypad joy1, Joypad joy2)
         {
-            Memory.InputManager = Manager;
-            Memory.Joypad1 = Joy1;
-            Memory.Joypad2 = Joy2;
+            Memory.InputManager = manager;
+            Memory.Joypad1 = joy1;
+            Memory.Joypad2 = joy2;
         }
 
-        public void SetupOutput(IGraphicDevice VideoDevice, IAudioDevice AudioDevice)
+        public void SetupOutput(IGraphicDevice videoDevice, IAudioDevice audioDevice)
         {
-            Ppu.OutputDevice = VideoDevice;
-            Apu = new Apu(this, AudioDevice);
+            Ppu.OutputDevice = videoDevice;
+            Apu = new Apu(this, audioDevice);
         }
 
-        public void SetupTv(TVFORMAT tvFormat, PaletteFormat palleteFormat)
+        public void SetupTv(TvFormat tvFormat, PaletteFormat palleteFormat)
         {
             Pause();
-            Cpu.SetTVFormat(tvFormat);
+            Cpu.SetTvFormat(tvFormat);
             Ppu.SetTvFormat(tvFormat, palleteFormat);
         }
 
@@ -154,9 +154,9 @@ namespace NesHd.Core
         public event EventHandler<EventArgs> PauseToggle;
     }
 
-    public enum TVFORMAT
+    public enum TvFormat
     {
-        NTSC,
-        PAL
+        Ntsc,
+        Pal
     }
 }

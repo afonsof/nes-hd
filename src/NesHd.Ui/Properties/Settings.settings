@@ -35,7 +35,7 @@
     <Setting Name="GFXDevice" Type="NesHd.Core.Output.Video.GraphicDevices" Scope="User">
       <Value Profile="(Default)">SlimDX</Value>
     </Setting>
-    <Setting Name="TV" Type="NesHd.Core.TVFORMAT" Scope="User">
+    <Setting Name="TV" Type="NesHd.Core.TvFormat" Scope="User">
       <Value Profile="(Default)">NTSC</Value>
     </Setting>
     <Setting Name="Size" Type="System.String" Scope="User">

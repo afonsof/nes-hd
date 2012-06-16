@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Drawing;
+using System.Globalization;
 using System.IO;
 using NesHd.Core.Debugger;
 
@@ -90,6 +92,11 @@ namespace NesHd.Core.Memory
         public string RomPath { get; private set; }
 
         public uint MirroringBase { get; set; }
+
+        public int BitmapOffset { get; set; }
+        public int BitmapWidth { get; set; }
+        public int[][] Bitmap { get; set; }
+        public int Multi = 4;
 
         public bool LoadCart(string filePath)
         {
@@ -213,6 +220,32 @@ namespace NesHd.Core.Memory
                         _memory.Map.Engine.Ppu.FixScroll = true;
 
                     #endregion
+
+                    var buffer = new byte[4];
+                    reader.Read(buffer, 0, 4);
+                    var offset = BitConverter.ToInt32(buffer, 0);
+                    BitmapOffset = offset;
+
+                    buffer = new byte[4];
+                    reader.Read(buffer, 0, 4);
+                    var imageSize = BitConverter.ToInt32(buffer, 0);
+
+                    buffer = new byte[imageSize];
+                    reader.Read(buffer, 0, imageSize);
+                    var bmp = (Bitmap)Image.FromStream(new MemoryStream(buffer));
+
+                    BitmapWidth = bmp.Width;
+
+                    Bitmap = new int[bmp.Width][];
+                    for (var x = 0; x < bmp.Width; x++)
+                    {
+                        Bitmap[x] = new int[bmp.Height];
+
+                        for (var y = 0; y < bmp.Height; y++)
+                        {
+                            Bitmap[x][y] = bmp.GetPixel(x, y).ToArgb();
+                        }
+                    }
                 }
             }
             catch

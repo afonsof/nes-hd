@@ -2,7 +2,7 @@
 
 namespace NesHd.Core.APU
 {
-    public class Chn_Rectangle1
+    public class ChnRectangle2
     {
         private readonly byte[] LENGTH_COUNTER_TABLE =
             {
@@ -74,7 +74,7 @@ namespace NesHd.Core.APU
                 {
                     _SweepCount = _SweepRate;
                     if (_SweepDirection)
-                        _FreqTimer -= (_FreqTimer >> _SweepShift) + 1;
+                        _FreqTimer -= (_FreqTimer >> _SweepShift);
                     else
                         _FreqTimer += (_FreqTimer >> _SweepShift);
                     CheckSweepForceSilence();
@@ -132,6 +132,7 @@ namespace NesHd.Core.APU
                 }
                 if (WaveStatus)
                 {
+                    //return 0;
                     return (short) (-1*(_DecayDiable ? _Volume : _Envelope));
                 }
                 return (_DecayDiable ? _Volume : _Envelope);
@@ -141,61 +142,61 @@ namespace NesHd.Core.APU
 
         public void SaveState(StateHolder st)
         {
-            st.Rectangle1_Enabled = _Enabled;
-            st.Rectangle1_Volume = _Volume;
-            st.Rectangle1_Envelope = _Envelope;
-            st.Rectangle1_Frequency = _Frequency;
-            st.Rectangle1_SampleCount = _SampleCount;
-            st.Rectangle1_RenderedLength = _RenderedLength;
-            st.Rectangle1_DutyCycle = _DutyCycle;
-            st.Rectangle1_FreqTimer = _FreqTimer;
-            st.Rectangle1_DecayCount = _DecayCount;
-            st.Rectangle1_DecayTimer = _DecayTimer;
-            st.Rectangle1_DecayDiable = _DecayDiable;
-            st.Rectangle1_DecayReset = _DecayReset;
-            st.Rectangle1_DecayLoopEnable = _DecayLoopEnable;
-            st.Rectangle1_LengthCount = _LengthCount;
-            st.Rectangle1_SweepShift = _SweepShift;
-            st.Rectangle1_SweepDirection = _SweepDirection;
-            st.Rectangle1_SweepRate = _SweepRate;
-            st.Rectangle1_SweepEnable = _SweepEnable;
-            st.Rectangle1_SweepCount = _SweepCount;
-            st.Rectangle1_SweepReset = _SweepReset;
-            st.Rectangle1_SweepForceSilence = _SweepForceSilence;
-            st.Rectangle1DutyPercentage = DutyPercentage;
-            st.Rectangle1WaveStatus = WaveStatus;
+            st.Rectangle2_Enabled = _Enabled;
+            st.Rectangle2_Volume = _Volume;
+            st.Rectangle2_Envelope = _Envelope;
+            st.Rectangle2_Frequency = _Frequency;
+            st.Rectangle2_SampleCount = _SampleCount;
+            st.Rectangle2_RenderedLength = _RenderedLength;
+            st.Rectangle2_DutyCycle = _DutyCycle;
+            st.Rectangle2_FreqTimer = _FreqTimer;
+            st.Rectangle2_DecayCount = _DecayCount;
+            st.Rectangle2_DecayTimer = _DecayTimer;
+            st.Rectangle2_DecayDiable = _DecayDiable;
+            st.Rectangle2_DecayReset = _DecayReset;
+            st.Rectangle2_DecayLoopEnable = _DecayLoopEnable;
+            st.Rectangle2_LengthCount = _LengthCount;
+            st.Rectangle2_SweepShift = _SweepShift;
+            st.Rectangle2_SweepDirection = _SweepDirection;
+            st.Rectangle2_SweepRate = _SweepRate;
+            st.Rectangle2_SweepEnable = _SweepEnable;
+            st.Rectangle2_SweepCount = _SweepCount;
+            st.Rectangle2_SweepReset = _SweepReset;
+            st.Rectangle2_SweepForceSilence = _SweepForceSilence;
+            st.Rectangle2DutyPercentage = DutyPercentage;
+            st.Rectangle2WaveStatus = WaveStatus;
         }
 
         public void LoadState(StateHolder st)
         {
-            _Enabled = st.Rectangle1_Enabled;
-            _Volume = st.Rectangle1_Volume;
-            _Envelope = st.Rectangle1_Envelope;
-            _Frequency = st.Rectangle1_Frequency;
-            _SampleCount = st.Rectangle1_SampleCount;
-            _RenderedLength = st.Rectangle1_RenderedLength;
-            _DutyCycle = st.Rectangle1_DutyCycle;
-            _FreqTimer = st.Rectangle1_FreqTimer;
-            _DecayCount = st.Rectangle1_DecayCount;
-            _DecayTimer = st.Rectangle1_DecayTimer;
-            _DecayDiable = st.Rectangle1_DecayDiable;
-            _DecayReset = st.Rectangle1_DecayReset;
-            _DecayLoopEnable = st.Rectangle1_DecayLoopEnable;
-            _LengthCount = st.Rectangle1_LengthCount;
-            _SweepShift = st.Rectangle1_SweepShift;
-            _SweepDirection = st.Rectangle1_SweepDirection;
-            _SweepRate = st.Rectangle1_SweepRate;
-            _SweepEnable = st.Rectangle1_SweepEnable;
-            _SweepCount = st.Rectangle1_SweepCount;
-            _SweepReset = st.Rectangle1_SweepReset;
-            _SweepForceSilence = st.Rectangle1_SweepForceSilence;
-            DutyPercentage = st.Rectangle1DutyPercentage;
-            WaveStatus = st.Rectangle1WaveStatus;
+            _Enabled = st.Rectangle2_Enabled;
+            _Volume = st.Rectangle2_Volume;
+            _Envelope = st.Rectangle2_Envelope;
+            _Frequency = st.Rectangle2_Frequency;
+            _SampleCount = st.Rectangle2_SampleCount;
+            _RenderedLength = st.Rectangle2_RenderedLength;
+            _DutyCycle = st.Rectangle2_DutyCycle;
+            _FreqTimer = st.Rectangle2_FreqTimer;
+            _DecayCount = st.Rectangle2_DecayCount;
+            _DecayTimer = st.Rectangle2_DecayTimer;
+            _DecayDiable = st.Rectangle2_DecayDiable;
+            _DecayReset = st.Rectangle2_DecayReset;
+            _DecayLoopEnable = st.Rectangle2_DecayLoopEnable;
+            _LengthCount = st.Rectangle2_LengthCount;
+            _SweepShift = st.Rectangle2_SweepShift;
+            _SweepDirection = st.Rectangle2_SweepDirection;
+            _SweepRate = st.Rectangle2_SweepRate;
+            _SweepEnable = st.Rectangle2_SweepEnable;
+            _SweepCount = st.Rectangle2_SweepCount;
+            _SweepReset = st.Rectangle2_SweepReset;
+            _SweepForceSilence = st.Rectangle2_SweepForceSilence;
+            DutyPercentage = st.Rectangle2DutyPercentage;
+            WaveStatus = st.Rectangle2WaveStatus;
         }
 
         #region Registers
 
-        public void Write_4000(byte data)
+        public void Write_4004(byte data)
         {
             _DecayDiable = ((data & 0x10) != 0); //bit 4
             _DecayLoopEnable = ((data & 0x20) != 0); //bit 5
@@ -216,7 +217,7 @@ namespace NesHd.Core.APU
                 _Volume = _Envelope;
         }
 
-        public void Write_4001(byte data)
+        public void Write_4005(byte data)
         {
             _SweepShift = (byte) (data & 0x7); //bit 0 - 2
             _SweepDirection = ((data & 0x8) != 0); //bit 3
@@ -226,13 +227,13 @@ namespace NesHd.Core.APU
             CheckSweepForceSilence();
         }
 
-        public void Write_4002(byte data)
+        public void Write_4006(byte data)
         {
             _FreqTimer = ((_FreqTimer & 0x0700) | data);
             CheckSweepForceSilence();
         }
 
-        public void Write_4003(byte data)
+        public void Write_4007(byte data)
         {
             _FreqTimer = ((_FreqTimer & 0x00FF) | (data & 0x07) << 8); //Bit 0 - 2
             //if (_Enabled)

@@ -11,7 +11,12 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
     public class VideoSlimDx : IGraphicDevice, IDisposable
     {
         private readonly int _firstLinesTCut;
-        private readonly int _scanLines = 240;
+
+        private const int Multi = 4;
+
+        private readonly int _scanLines = 240 * Multi;
+        private const int Width = 256 * Multi;
+
         private readonly Control _surface;
         private int _buffSize = 229376;
         private bool _initialized;
@@ -32,19 +37,19 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
         public Direct3D D3D = new Direct3D();
         private DisplayMode _mode;
 
-        public VideoSlimDx(TVFORMAT tvFormat, Control surface)
+        public VideoSlimDx(TvFormat tvFormat, Control surface)
         {
             if (surface == null)
                 return;
             _surface = surface;
             switch (tvFormat)
             {
-                case TVFORMAT.NTSC:
-                    _scanLines = 224;
+                case TvFormat.Ntsc:
+                    _scanLines = 224 * Multi;
                     _firstLinesTCut = 8;
                     break;
-                case TVFORMAT.PAL:
-                    _scanLines = 240;
+                case TvFormat.Pal:
+                    _scanLines = 240 * Multi;
                     _firstLinesTCut = 0;
                     break;
             }
@@ -103,13 +108,13 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
                     {
                         //Extract the colors of each pixel
                         //To arrange the B,G,R,A
-                        var liner = ((line - _firstLinesTCut)*256) + i;
-                        var buffPos = liner*4;
-                        _displayData[buffPos] = (byte) (scanlineBuffer[i] & 0xFF);
+                        var liner = ((line - _firstLinesTCut) * 256) + i;
+                        var buffPos = liner * 4;
+                        _displayData[buffPos] = (byte)(scanlineBuffer[i] & 0xFF);
                         buffPos++; //Blue
-                        _displayData[buffPos] = (byte) (((scanlineBuffer[i] & 0xFF00) >> 8));
+                        _displayData[buffPos] = (byte)(((scanlineBuffer[i] & 0xFF00) >> 8));
                         buffPos++; //Green
-                        _displayData[buffPos] = (byte) (((scanlineBuffer[i] & 0xFF0000) >> 0x10));
+                        _displayData[buffPos] = (byte)(((scanlineBuffer[i] & 0xFF0000) >> 0x10));
                         buffPos++; //Red
                         _displayData[buffPos] = 0xFF; //Alpha
                     }
@@ -118,6 +123,13 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
         }
 
         public void DrawPixel(int x, int y, int color)
+        {
+            x *= Multi;
+            y *= Multi;
+            DrawAbsolutePixel(x, y, color);
+        }
+
+        public void DrawAbsolutePixel(int x, int y, int color)
         {
             if (!(_canRender & _isRendering))
             {
@@ -128,13 +140,13 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
             {
                 return;
             }
-            var liner = ((y - _firstLinesTCut)*256) + x;
-            var buffPos = liner*4;
-            _displayData[buffPos] = (byte) (color & 0xFF);
+            var liner = ((y - _firstLinesTCut) * Width) + x;
+            var buffPos = liner * 4;
+            _displayData[buffPos] = (byte)(color & 0xFF);
             buffPos++; //Blue
-            _displayData[buffPos] = (byte) ((color & 0xFF00) >> 8);
+            _displayData[buffPos] = (byte)((color & 0xFF00) >> 8);
             buffPos++; //Green
-            _displayData[buffPos] = (byte) (((color & 0xFF0000) >> 0x10));
+            _displayData[buffPos] = (byte)(((color & 0xFF0000) >> 0x10));
             buffPos++; //Red
             _displayData[buffPos] = 0xFF; //Alpha
         }
@@ -180,12 +192,12 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
 
         public unsafe void TakeSnapshot(string snapPath, string format)
         {
-            var bmp = new Bitmap(256, _scanLines);
-            var bmpData32 = bmp.LockBits(new Rectangle(0, 0, 256, _scanLines), ImageLockMode.WriteOnly,
+            var bmp = new Bitmap(Width, _scanLines);
+            var bmpData32 = bmp.LockBits(new Rectangle(0, 0, Width, _scanLines), ImageLockMode.WriteOnly,
                                          PixelFormat.Format32bppRgb);
-            var numPtr32 = (int*) bmpData32.Scan0;
+            var numPtr32 = (int*)bmpData32.Scan0;
             var j = 0;
-            for (var i = (_firstLinesTCut*256); i < 61440 - (_firstLinesTCut*256); i++)
+            for (var i = (_firstLinesTCut * Width); i < 61440 - (_firstLinesTCut * Width); i++)
             {
                 var valBlue = (_displayData[j]);
                 j++;
@@ -195,7 +207,7 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
                 j++;
                 var valAlpha = (_displayData[j]);
                 j++;
-                numPtr32[i - (_firstLinesTCut*256)] =
+                numPtr32[i - (_firstLinesTCut * Width)] =
                     (valAlpha << 24 | //Alpha
                      valRed << 16 | //Red
                      valGreen << 8 | //Green
@@ -289,18 +301,18 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
                 {
                     D3D = new Direct3D();
                     _presentParams = new PresentParameters
-                                         {
-                                             BackBufferWidth = 256,
-                                             BackBufferHeight = _scanLines,
-                                             Windowed = true,
-                                             SwapEffect = SwapEffect.Discard,
-                                             Multisample = MultisampleType.None,
-                                             PresentationInterval = PresentInterval.Immediate
-                                         };
+                    {
+                        BackBufferWidth = Width,
+                        BackBufferHeight = _scanLines,
+                        Windowed = true,
+                        SwapEffect = SwapEffect.Discard,
+                        Multisample = MultisampleType.None,
+                        PresentationInterval = PresentInterval.Immediate
+                    };
                     _displayDevice = new Device(D3D, 0, DeviceType.Hardware, _surface.Handle,
-                                                CreateFlags.SoftwareVertexProcessing, new[] {_presentParams});
-                    _displayRect = new Rectangle(0, 0, 256, _scanLines);
-                    _buffSize = (256*_scanLines)*4;
+                                                CreateFlags.SoftwareVertexProcessing, new[] { _presentParams });
+                    _displayRect = new Rectangle(0, 0, Width, _scanLines);
+                    _buffSize = (Width * _scanLines) * 4;
                     _displayData = new byte[_buffSize];
                     CreateDisplayObjects(_displayDevice);
                     _initialized = true;
@@ -312,27 +324,27 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
                     D3D = new Direct3D();
                     _mode = FindSupportedMode();
                     _presentParams = new PresentParameters
-                                         {
-                                             BackBufferFormat = _mode.Format,
-                                             BackBufferCount = 1,
-                                             BackBufferWidth = _mode.Width,
-                                             BackBufferHeight = _mode.Height,
-                                             Windowed = false,
-                                             FullScreenRefreshRateInHertz = _mode.RefreshRate,
-                                             SwapEffect = SwapEffect.Discard,
-                                             Multisample = MultisampleType.None,
-                                             PresentationInterval = PresentInterval.Immediate
-                                         };
+                    {
+                        BackBufferFormat = _mode.Format,
+                        BackBufferCount = 1,
+                        BackBufferWidth = _mode.Width,
+                        BackBufferHeight = _mode.Height,
+                        Windowed = false,
+                        FullScreenRefreshRateInHertz = _mode.RefreshRate,
+                        SwapEffect = SwapEffect.Discard,
+                        Multisample = MultisampleType.None,
+                        PresentationInterval = PresentInterval.Immediate
+                    };
                     _displayDevice = new Device(D3D, 0, DeviceType.Hardware, _surface.Parent.Handle,
-                                                CreateFlags.SoftwareVertexProcessing, new[] {_presentParams})
-                                         {
-                                             ShowCursor = false,
-                                         };
+                                                CreateFlags.SoftwareVertexProcessing, new[] { _presentParams })
+                    {
+                        ShowCursor = false,
+                    };
                     _displayDevice.SetRenderState(RenderState.PointScaleEnable, true);
                     _displayDevice.SetRenderState(RenderState.PointSpriteEnable, true);
-                    _displayRect = new Rectangle(0, 0, 256, _scanLines);
-                    _position = new Vector3((_mode.Width - 256)/2, (_mode.Height - _scanLines)/2, 0);
-                    _buffSize = (256*_scanLines)*4;
+                    _displayRect = new Rectangle(0, 0, Width, _scanLines);
+                    _position = new Vector3((_mode.Width - Width) / 2, (_mode.Height - _scanLines) / 2, 0);
+                    _buffSize = (Width * _scanLines) * 4;
                     _displayData = new byte[_buffSize];
                     CreateDisplayObjects(_displayDevice);
                     _initialized = true;
@@ -358,8 +370,8 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
         private void CreateDisplayObjects(Device device)
         {
             _displaySprite = new Sprite(device);
-            _backBuffer = new Texture(device, 256, _scanLines, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.SystemMemory);
-            _nesDisplay = new Texture(device, 256, _scanLines, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
+            _backBuffer = new Texture(device, Width, _scanLines, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.SystemMemory);
+            _nesDisplay = new Texture(device, Width, _scanLines, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
         }
 
         private void UpdateDisplayTexture()

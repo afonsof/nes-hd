@@ -2,7 +2,7 @@
 
 namespace NesHd.Core.APU
 {
-    public class Chn_DMC
+    public class ChnDmc
     {
         private readonly double[] DMC_FREQUENCY =
             {
@@ -29,7 +29,7 @@ namespace NesHd.Core.APU
         private double _RenderedLength;
         private double _SampleCount;
 
-        public Chn_DMC(NesEngine NesEmu)
+        public ChnDmc(NesEngine NesEmu)
         {
             _engine = NesEmu;
         }

@@ -800,11 +800,11 @@ namespace NesHd.Core.Memory
                     CurrentMapper.SetUpMapperDefaults();
                     break;
                 case 225:
-                    CurrentMapper = new Mapper225_255(this);
+                    CurrentMapper = new Mapper225255(this);
                     CurrentMapper.SetUpMapperDefaults();
                     break;
                 case 255:
-                    CurrentMapper = new Mapper225_255(this);
+                    CurrentMapper = new Mapper225255(this);
                     CurrentMapper.SetUpMapperDefaults();
                     break;
             }

@@ -2,7 +2,7 @@
 
 namespace NesHd.Core.APU
 {
-    public class Chn_Noize
+    public class ChnNoize
     {
         private readonly byte[] LENGTH_COUNTER_TABLE =
             {

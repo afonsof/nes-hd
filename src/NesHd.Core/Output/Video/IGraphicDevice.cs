@@ -62,6 +62,8 @@
         /// <param name="color">The 32-bit (RGB) color of the pixel</param>
         void DrawPixel(int x, int y, int color);
 
+        void DrawAbsolutePixel(int x, int y, int color);
+
         /// <summary>
         /// After you complete the buffer, call this to draw the buffer 
         /// into the screen (at the end of the frame, scanline # 240)

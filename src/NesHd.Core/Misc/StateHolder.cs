@@ -354,7 +354,7 @@ namespace NesHd.Core.Misc
             CycleCounter = _engine.Cpu.CycleCounter;
             _cyclesPerScanline = _engine.Cpu.CyclesPerScanline;
             _opCode = _engine.Cpu.OpCode;
-            _prevPc = _engine.Cpu.PrevPC;
+            _prevPc = _engine.Cpu.PrevPc;
 
             #endregion
 
@@ -590,7 +590,7 @@ namespace NesHd.Core.Misc
             //MAPPER 225
             if (_engine.Memory.Map.Cartridge.MapperNo == 225)
             {
-                var map225 = (Mapper225_255) _engine.Memory.Map.CurrentMapper;
+                var map225 = (Mapper225255) _engine.Memory.Map.CurrentMapper;
                 Mapper225_reg0 = map225.Mapper225_reg0;
                 Mapper225_reg1 = map225.Mapper225_reg1;
                 Mapper225_reg2 = map225.Mapper225_reg2;
@@ -606,9 +606,9 @@ namespace NesHd.Core.Misc
             if (_engine.Memory.Map.Cartridge.MapperNo == 33)
             {
                 var map33 = (Mapper33) _engine.Memory.Map.CurrentMapper;
-                mapper33_type1 = map33.type1;
-                mapper33_IRQCounter = map33.IRQCounter;
-                mapper33_IRQEabled = map33.IRQEabled;
+                mapper33_type1 = map33.Type1;
+                mapper33_IRQCounter = map33.IrqCounter;
+                mapper33_IRQEabled = map33.IrqEabled;
             }
             //MAPPER 41
             if (_engine.Memory.Map.Cartridge.MapperNo == 41)
@@ -671,7 +671,7 @@ namespace NesHd.Core.Misc
             _engine.Cpu.CycleCounter = CycleCounter;
             _engine.Cpu.CyclesPerScanline = _cyclesPerScanline;
             _engine.Cpu.OpCode = _opCode;
-            _engine.Cpu.PrevPC = _prevPc;
+            _engine.Cpu.PrevPc = _prevPc;
 
             #endregion
 
@@ -907,7 +907,7 @@ namespace NesHd.Core.Misc
             //MAPPER 225
             if (_engine.Memory.Map.Cartridge.MapperNo == 225)
             {
-                var map225 = (Mapper225_255) _engine.Memory.Map.CurrentMapper;
+                var map225 = (Mapper225255) _engine.Memory.Map.CurrentMapper;
                 map225.Mapper225_reg0 = Mapper225_reg0;
                 map225.Mapper225_reg1 = Mapper225_reg1;
                 map225.Mapper225_reg2 = Mapper225_reg2;
@@ -923,9 +923,9 @@ namespace NesHd.Core.Misc
             if (_engine.Memory.Map.Cartridge.MapperNo == 33)
             {
                 var map33 = (Mapper33) _engine.Memory.Map.CurrentMapper;
-                map33.type1 = mapper33_type1;
-                map33.IRQCounter = mapper33_IRQCounter;
-                map33.IRQEabled = mapper33_IRQEabled;
+                map33.Type1 = mapper33_type1;
+                map33.IrqCounter = mapper33_IRQCounter;
+                map33.IrqEabled = mapper33_IRQEabled;
             }
             //MAPPER 41
             if (_engine.Memory.Map.Cartridge.MapperNo == 41)

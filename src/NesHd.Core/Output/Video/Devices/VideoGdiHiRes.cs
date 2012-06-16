@@ -41,19 +41,19 @@ namespace NesHd.Core.Output.Video.Devices
         private int _screenX;
         private int _screenY;
 
-        public VideoGdiHiRes(TVFORMAT tvFormat, Control surface, string pPath, int chrPages)
+        public VideoGdiHiRes(TvFormat tvFormat, Control surface, string pPath, int chrPages)
         {
             if (surface == null)
                 return;
             Debug.WriteLine(this, "Initializeing GDI ...", DebugStatus.None);
             switch (tvFormat)
             {
-                case TVFORMAT.NTSC:
+                case TvFormat.Ntsc:
                     _scanlinesToCut = 8;
                     _scanlines = 224;
                     _bitmap = new Bitmap(512, 448);
                     break;
-                case TVFORMAT.PAL:
+                case TvFormat.Pal:
                     _scanlinesToCut = 0;
                     _scanlines = 240;
                     _bitmap = new Bitmap(512, 480);
@@ -131,6 +131,11 @@ namespace NesHd.Core.Output.Video.Devices
                     _numPtr[liner2] = color;
                 }
             }
+        }
+
+        public void DrawAbsolutePixel(int x, int y, int color)
+        {
+            throw new System.NotImplementedException();
         }
 
         public void RenderFrame()

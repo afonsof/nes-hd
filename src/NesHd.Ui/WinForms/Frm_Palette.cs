@@ -127,13 +127,13 @@ namespace NesHd.Ui.WinForms
         private void radioButton4_pal_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton4_pal.Checked)
-                ShowPalette(Paletter.PALPalette);
+                ShowPalette(Paletter.PalPalette);
         }
 
         private void radioButton5_ntsc_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton5_ntsc.Checked)
-                ShowPalette(Paletter.NTSCPalette);
+                ShowPalette(Paletter.NtscPalette);
         }
 
         private void radioButton2_useExternal_CheckedChanged(object sender, EventArgs e)

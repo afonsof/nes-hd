@@ -5,9 +5,9 @@ namespace NesHd.Core.Memory.Mappers
     internal class Mapper33 : IMapper
     {
         private readonly Map _map;
-        public byte IRQCounter;
-        public bool IRQEabled;
-        public bool type1 = true;
+        public byte IrqCounter;
+        public bool IrqEabled;
+        public bool Type1 = true;
 
         public Mapper33(Map map)
         {
@@ -21,7 +21,7 @@ namespace NesHd.Core.Memory.Mappers
             if (address == 0x8000)
             {
                 _map.Switch8KPrgRom((data & 0x1F)*2, 0);
-                if (type1)
+                if (Type1)
                 {
                     if ((data & 0x40) == 0x40)
                     {
@@ -64,27 +64,27 @@ namespace NesHd.Core.Memory.Mappers
                 //Type 2 registers
             else if (address == 0xC000)
             {
-                type1 = false;
-                IRQCounter = data;
+                Type1 = false;
+                IrqCounter = data;
             }
             else if (address == 0xC001)
             {
-                type1 = false;
-                IRQCounter = data;
+                Type1 = false;
+                IrqCounter = data;
             }
             else if (address == 0xC002)
             {
-                type1 = false;
-                IRQEabled = true;
+                Type1 = false;
+                IrqEabled = true;
             }
             else if (address == 0xC003)
             {
-                type1 = false;
-                IRQEabled = false;
+                Type1 = false;
+                IrqEabled = false;
             }
             else if (address == 0xE000)
             {
-                type1 = false;
+                Type1 = false;
                 if ((data & 0x40) == 0x40)
                 {
                     _map.Cartridge.Mirroring = Mirroring.Horizontal;
@@ -105,10 +105,10 @@ namespace NesHd.Core.Memory.Mappers
 
         public void TickScanlineTimer()
         {
-            if (IRQEabled)
+            if (IrqEabled)
             {
-                IRQCounter++;
-                if (IRQCounter == 0xFF)
+                IrqCounter++;
+                if (IrqCounter == 0xFF)
                 {
                     _map.Engine.Cpu.IRQNextTime = true;
                 }

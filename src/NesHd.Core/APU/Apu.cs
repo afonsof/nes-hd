@@ -22,16 +22,15 @@ namespace NesHd.Core.APU
         public WaveRecorder RECODER = new WaveRecorder();
         public bool STEREO;
         private int W_Pos; //Write position
-        private Chn_DMC _Chn_DMC;
-        private Chn_Noize _Chn_NOZ;
+        private ChnDmc _Chn_DMC;
+        private ChnNoize _Chn_NOZ;
         //Channels
-        private Chn_Rectangle1 _Chn_REC1;
-        private Chn_Rectangle2 _Chn_REC2;
-        private Chn_Triangle _Chn_TRL;
-        private Chn_VRC6Pulse1 _Chn_VRC6Pulse1;
-        private Chn_VRC6Pulse2 _Chn_VRC6Pulse2;
-        private Chn_VRC6Sawtooth _Chn_VRC6Sawtooth;
-        private Control _Control;
+        private ChnRectangle1 _Chn_REC1;
+        private ChnRectangle2 _Chn_REC2;
+        private ChnTriangle _Chn_TRL;
+        private ChnVrc6Pulse1 _Chn_VRC6Pulse1;
+        private ChnVrc6Pulse2 _Chn_VRC6Pulse2;
+        private ChnVrc6Sawtooth _Chn_VRC6Sawtooth;
         private bool _Enabled_DMC = true;
         private bool _Enabled_NOZ = true;
         private bool _Enabled_REC1 = true;
@@ -50,7 +49,6 @@ namespace NesHd.Core.APU
         public Apu(NesEngine NesEmu, IAudioDevice SoundDevice)
         {
             _engine = NesEmu;
-            _Control = SoundDevice.SoundDevice;
             STEREO = SoundDevice.Stereo;
             InitDirectSound(SoundDevice.SoundDevice);
         }
@@ -72,12 +70,15 @@ namespace NesHd.Core.APU
             wav.BlockAlignment = (short) (wav.Channels*wav.BitsPerSample/8);
             BufferSize = wav.AverageBytesPerSecond;
             //Description
-            var des = new SoundBufferDescription();
-            des.Format = wav;
-            des.SizeInBytes = BufferSize;
+            var des = new SoundBufferDescription
+                          {
+                              Format = wav,
+                              SizeInBytes = BufferSize,
+                              Flags =
+                                  BufferFlags.ControlVolume | BufferFlags.ControlFrequency | BufferFlags.ControlPan |
+                                  BufferFlags.ControlEffects
+                          };
             //des.Flags = BufferFlags.GlobalFocus | BufferFlags.Software;
-            des.Flags = BufferFlags.ControlVolume | BufferFlags.ControlFrequency | BufferFlags.ControlPan |
-                        BufferFlags.ControlEffects;
             //buffer
             DATA = new byte[BufferSize];
             buffer = new SecondarySoundBuffer(_SoundDevice, des);
@@ -89,14 +90,14 @@ namespace NesHd.Core.APU
 
         private void InitChannels()
         {
-            _Chn_REC1 = new Chn_Rectangle1();
-            _Chn_REC2 = new Chn_Rectangle2();
-            _Chn_TRL = new Chn_Triangle();
-            _Chn_NOZ = new Chn_Noize();
-            _Chn_DMC = new Chn_DMC(_engine);
-            _Chn_VRC6Pulse1 = new Chn_VRC6Pulse1();
-            _Chn_VRC6Pulse2 = new Chn_VRC6Pulse2();
-            _Chn_VRC6Sawtooth = new Chn_VRC6Sawtooth();
+            _Chn_REC1 = new ChnRectangle1();
+            _Chn_REC2 = new ChnRectangle2();
+            _Chn_TRL = new ChnTriangle();
+            _Chn_NOZ = new ChnNoize();
+            _Chn_DMC = new ChnDmc(_engine);
+            _Chn_VRC6Pulse1 = new ChnVrc6Pulse1();
+            _Chn_VRC6Pulse2 = new ChnVrc6Pulse2();
+            _Chn_VRC6Sawtooth = new ChnVrc6Sawtooth();
         }
 
         public void RenderFrame()
@@ -525,42 +526,42 @@ namespace NesHd.Core.APU
             set { _PAL = value; }
         }
 
-        public Chn_DMC DMC
+        public ChnDmc DMC
         {
             get { return _Chn_DMC; }
         }
 
-        public Chn_Noize NOIZE
+        public ChnNoize NOIZE
         {
             get { return _Chn_NOZ; }
         }
 
-        public Chn_Rectangle1 RECT1
+        public ChnRectangle1 RECT1
         {
             get { return _Chn_REC1; }
         }
 
-        public Chn_Rectangle2 RECT2
+        public ChnRectangle2 RECT2
         {
             get { return _Chn_REC2; }
         }
 
-        public Chn_Triangle TRIANGLE
+        public ChnTriangle TRIANGLE
         {
             get { return _Chn_TRL; }
         }
 
-        public Chn_VRC6Pulse1 VRC6PULSE1
+        public ChnVrc6Pulse1 VRC6PULSE1
         {
             get { return _Chn_VRC6Pulse1; }
         }
 
-        public Chn_VRC6Pulse2 VRC6PULSE2
+        public ChnVrc6Pulse2 VRC6PULSE2
         {
             get { return _Chn_VRC6Pulse2; }
         }
 
-        public Chn_VRC6Sawtooth VRC6SAWTOOTH
+        public ChnVrc6Sawtooth VRC6SAWTOOTH
         {
             get { return _Chn_VRC6Sawtooth; }
         }

@@ -11,19 +11,19 @@ namespace NesHd.Core.Misc
         /// <summary>
         /// The state saver / loader
         /// </summary>
-        /// <param name="NesEmu">The current system you want to save / load state from / into</param>
-        public State(NesEngine NesEmu)
+        /// <param name="engine">The current system you want to save / load state from / into</param>
+        public State(NesEngine engine)
         {
-            _engine = NesEmu;
+            _engine = engine;
         }
 
-        public bool SaveState(string FilePath)
+        public bool SaveState(string filePath)
         {
             try
             {
                 _engine.Pause();
                 Holder.LoadNesData(_engine);
-                var fs = new FileStream(FilePath, FileMode.Create);
+                var fs = new FileStream(filePath, FileMode.Create);
                 var formatter = new BinaryFormatter();
                 formatter.Serialize(fs, Holder);
                 fs.Close();

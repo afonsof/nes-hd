@@ -218,7 +218,7 @@ namespace NesHd.Core.Memory
                     default:
                         if (Map.Cartridge.MapperNo == 225 | Map.Cartridge.MapperNo == 255)
                         {
-                            var map225 = (Mapper225_255)Map.CurrentMapper;
+                            var map225 = (Mapper225255)Map.CurrentMapper;
                             return map225.ReadRegisters(address);
                         }
                         break;

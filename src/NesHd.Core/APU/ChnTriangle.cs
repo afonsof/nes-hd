@@ -2,7 +2,7 @@
 
 namespace NesHd.Core.APU
 {
-    public class Chn_Triangle
+    public class ChnTriangle
     {
         /*byte[] LENGTH_COUNTER_TABLE = 
              {

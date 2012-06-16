@@ -10,18 +10,18 @@ namespace NesHd.Core.Output.Audio.Devices
 
     public class SoundDeviceGeneral16 : IAudioDevice
     {
-        private readonly Control _Control;
+        private readonly Control _control;
 
-        public SoundDeviceGeneral16(Control Cont)
+        public SoundDeviceGeneral16(Control control)
         {
-            _Control = Cont;
+            _control = control;
         }
 
         #region IAudioDevice Members
 
         public Control SoundDevice
         {
-            get { return _Control; }
+            get { return _control; }
         }
 
         public bool Stereo { get; set; }

@@ -2,7 +2,7 @@
 
 namespace NesHd.Core.APU
 {
-    public class Chn_VRC6Pulse1
+    public class ChnVrc6Pulse2
     {
         private double DutyPercentage;
         private short OUT;
@@ -40,7 +40,7 @@ namespace NesHd.Core.APU
             return 0;
         }
 
-        public void Write9000(byte data)
+        public void WriteA000(byte data)
         {
             _Volume = (byte) (data & 0x0F); //Bit 0 - 3
             _DutyCycle = (data >> 4); //Bit 4 - 7
@@ -64,7 +64,7 @@ namespace NesHd.Core.APU
                 DutyPercentage = 1.0;
         }
 
-        public void Write9001(byte data)
+        public void WriteA001(byte data)
         {
             _FreqTimer = (_FreqTimer & 0x0F00) | data;
             //Update freq
@@ -72,7 +72,7 @@ namespace NesHd.Core.APU
             _RenderedLength = 44100/_Frequency;
         }
 
-        public void Write9002(byte data)
+        public void WriteA002(byte data)
         {
             _FreqTimer = (_FreqTimer & 0x00FF) | ((data & 0x0F) << 8);
             _Enabled = (data & 0x80) != 0;
@@ -83,30 +83,30 @@ namespace NesHd.Core.APU
 
         public void SaveState(StateHolder st)
         {
-            st.VRC6Pulse1_Volume = _Volume;
-            st.VRC6Pulse1DutyPercentage = DutyPercentage;
-            st.VRC6Pulse1_DutyCycle = _DutyCycle;
-            st.VRC6Pulse1_FreqTimer = _FreqTimer;
-            st.VRC6Pulse1_Enabled = _Enabled;
-            st.VRC6Pulse1_Frequency = _Frequency;
-            st.VRC6Pulse1_SampleCount = _SampleCount;
-            st.VRC6Pulse1_RenderedLength = _RenderedLength;
-            st.VRC6Pulse1WaveStatus = WaveStatus;
-            st.VRC6Pulse1OUT = OUT;
+            st.VRC6Pulse2_Volume = _Volume;
+            st.VRC6Pulse2DutyPercentage = DutyPercentage;
+            st.VRC6Pulse2_DutyCycle = _DutyCycle;
+            st.VRC6Pulse2_FreqTimer = _FreqTimer;
+            st.VRC6Pulse2_Enabled = _Enabled;
+            st.VRC6Pulse2_Frequency = _Frequency;
+            st.VRC6Pulse2_SampleCount = _SampleCount;
+            st.VRC6Pulse2_RenderedLength = _RenderedLength;
+            st.VRC6Pulse2WaveStatus = WaveStatus;
+            st.VRC6Pulse2OUT = OUT;
         }
 
         public void LoadState(StateHolder st)
         {
-            _Volume = st.VRC6Pulse1_Volume;
-            DutyPercentage = st.VRC6Pulse1DutyPercentage;
-            _DutyCycle = st.VRC6Pulse1_DutyCycle;
-            _FreqTimer = st.VRC6Pulse1_FreqTimer;
-            _Enabled = st.VRC6Pulse1_Enabled;
-            _Frequency = st.VRC6Pulse1_Frequency;
-            _SampleCount = st.VRC6Pulse1_SampleCount;
-            _RenderedLength = st.VRC6Pulse1_RenderedLength;
-            WaveStatus = st.VRC6Pulse1WaveStatus;
-            OUT = st.VRC6Pulse1OUT;
+            _Volume = st.VRC6Pulse2_Volume;
+            DutyPercentage = st.VRC6Pulse2DutyPercentage;
+            _DutyCycle = st.VRC6Pulse2_DutyCycle;
+            _FreqTimer = st.VRC6Pulse2_FreqTimer;
+            _Enabled = st.VRC6Pulse2_Enabled;
+            _Frequency = st.VRC6Pulse2_Frequency;
+            _SampleCount = st.VRC6Pulse2_SampleCount;
+            _RenderedLength = st.VRC6Pulse2_RenderedLength;
+            WaveStatus = st.VRC6Pulse2WaveStatus;
+            OUT = st.VRC6Pulse2OUT;
         }
     }
 }

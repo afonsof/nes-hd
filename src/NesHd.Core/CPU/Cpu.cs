@@ -23,8 +23,8 @@ namespace NesHd.Core.CPU
         public bool IRQNextTime;
         //Clocks and timing stuff
         public byte OpCode;
-        private bool Paused; //To ensure the cpu is paused
-        public ushort PrevPC;
+        private bool _paused; //To ensure the cpu is paused
+        public ushort PrevPc;
         public byte REG_A;
         public ushort REG_PC;
         public byte REG_S;
@@ -36,13 +36,13 @@ namespace NesHd.Core.CPU
         /// <summary>
         /// The 6502
         /// </summary>
-        /// <param name="Memory">The memory</param>
-        /// <param name="TvFormat">The TV format</param>
-        public Cpu(Memory.Memory Memory, TVFORMAT TvFormat, NesEngine Nes)
+        /// <param name="memory">The memory</param>
+        /// <param name="tvFormat">The TV format</param>
+        public Cpu(Memory.Memory memory, TvFormat tvFormat, NesEngine engine)
         {
-            _engine = Nes;
-            MEM = Memory;
-            InitializeCPU(TvFormat);
+            _engine = engine;
+            MEM = memory;
+            InitializeCPU(tvFormat);
         }
 
         public bool ON
@@ -59,7 +59,7 @@ namespace NesHd.Core.CPU
                 _Pause = value;
                 //Wait until the cpu pauses if the user resume the cpu loop
                 if (_Pause)
-                    while (!Paused)
+                    while (!_paused)
                     {
                     }
             }
@@ -1045,13 +1045,13 @@ namespace NesHd.Core.CPU
         /// </summary>
         public void Run()
         {
-            PrevPC = REG_PC;
+            PrevPc = REG_PC;
             while (_ON)
             {
                 OpCode = MEM.Read(REG_PC);
                 if (!_Pause)
                 {
-                    Paused = false;
+                    _paused = false;
 
                     #region DO OPCODE
 
@@ -2480,7 +2480,7 @@ namespace NesHd.Core.CPU
                 {
                     Thread.Sleep(100);
                     _engine.Apu.Pause();
-                    Paused = true;
+                    _paused = true;
                 }
                 if (CycleCounter >= CyclesPerScanline)
                 {
@@ -2537,7 +2537,7 @@ namespace NesHd.Core.CPU
             _Pause = !_Pause;
             //Wait until the cpu pauses if the user resume the cpu loop
             if (_Pause)
-                while (!Paused)
+                while (!_paused)
                 {
                 }
             //Rise the event
@@ -2549,14 +2549,14 @@ namespace NesHd.Core.CPU
         /// Initialize and set the timing of the cpu
         /// </summary>
         /// <param name="FORMAT">The tv format to set the cpu emulation for</param>
-        private void InitializeCPU(TVFORMAT FORMAT)
+        private void InitializeCPU(TvFormat FORMAT)
         {
             switch (FORMAT)
             {
-                case TVFORMAT.NTSC:
+                case TvFormat.Ntsc:
                     CyclesPerScanline = 113;
                     break;
-                case TVFORMAT.PAL:
+                case TvFormat.Pal:
                     CyclesPerScanline = 106;
                     break;
             }
@@ -2579,16 +2579,16 @@ namespace NesHd.Core.CPU
             return New;
         }
 
-        public void SetTVFormat(TVFORMAT FORMAT)
+        public void SetTvFormat(TvFormat format)
         {
             if (!_Pause)
                 return;
-            switch (FORMAT)
+            switch (format)
             {
-                case TVFORMAT.NTSC:
+                case TvFormat.Ntsc:
                     CyclesPerScanline = 113;
                     break;
-                case TVFORMAT.PAL:
+                case TvFormat.Pal:
                     CyclesPerScanline = 106;
                     break;
             }

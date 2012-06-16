@@ -306,7 +306,7 @@ namespace NesHd.Ui.WinForms
                     #region Misc
 
                     _engine.Ppu.NoLimiter = Program.Settings.NoLimiter;
-                    _engine.AutoSaveSRAM = Program.Settings.AutoSaveSRAM;
+                    _engine.AutoSaveSram = Program.Settings.AutoSaveSRAM;
 
                     #endregion
 
@@ -606,13 +606,13 @@ namespace NesHd.Ui.WinForms
                             case "-ntsc":
                                 if (_engine != null)
                                 {
-                                    _engine.SetupTv(TVFORMAT.NTSC, Program.Settings.PaletteFormat);
+                                    _engine.SetupTv(TvFormat.Ntsc, Program.Settings.PaletteFormat);
                                 }
                                 break;
                             case "-pal":
                                 if (_engine != null)
                                 {
-                                    _engine.SetupTv(TVFORMAT.PAL, Program.Settings.PaletteFormat);
+                                    _engine.SetupTv(TvFormat.Pal, Program.Settings.PaletteFormat);
                                 }
                                 break;
                             case "-ls":
@@ -1276,7 +1276,7 @@ namespace NesHd.Ui.WinForms
             ge.ShowDialog(this);
             if (_engine != null)
             {
-                _engine.AutoSaveSRAM = Program.Settings.AutoSaveSRAM;
+                _engine.AutoSaveSram = Program.Settings.AutoSaveSRAM;
                 _engine.Resume();
             }
         }
@@ -1308,7 +1308,7 @@ namespace NesHd.Ui.WinForms
             }
             var sav = new SaveFileDialog {Title = "Save S-RAM", Filter = "Save file (*.sav)|*.sav"};
             if (sav.ShowDialog(this) == DialogResult.OK)
-                _engine.SaveSRAM(sav.FileName);
+                _engine.SaveSram(sav.FileName);
             if (_engine != null)
                 _engine.Resume();
         }
@@ -1333,7 +1333,7 @@ namespace NesHd.Ui.WinForms
                 if (e.Button == MouseButtons.Left)
                 {
                     var x = (e.X*256)/panel1.Width;
-                    var y = (e.Y*((_engine.TvFormat == TVFORMAT.NTSC) ? 224 : 240))/panel1.Height;
+                    var y = (e.Y*((_engine.TvFormat == TvFormat.Ntsc) ? 224 : 240))/panel1.Height;
                     _engine.Memory.Zapper.PullTrigger(true, x, y);
                 }
             }

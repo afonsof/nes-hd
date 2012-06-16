@@ -2,7 +2,7 @@
 
 namespace NesHd.Core.Memory.Mappers
 {
-    internal class Mapper225_255 : IMapper
+    internal class Mapper225255 : IMapper
     {
         private readonly Map _Map;
         public byte Mapper225_reg0 = 0xF;
@@ -10,7 +10,7 @@ namespace NesHd.Core.Memory.Mappers
         public byte Mapper225_reg2 = 0xF;
         public byte Mapper225_reg3 = 0xF;
 
-        public Mapper225_255(Map map)
+        public Mapper225255(Map map)
         {
             _Map = map;
         }

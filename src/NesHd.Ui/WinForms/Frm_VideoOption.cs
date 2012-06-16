@@ -38,10 +38,10 @@ namespace NesHd.Ui.WinForms
             switch (comboBox1_Tv.SelectedItem.ToString())
             {
                 case "NTSC":
-                    Program.Settings.TV = TVFORMAT.NTSC;
+                    Program.Settings.TV = TvFormat.Ntsc;
                     break;
                 case "PAL":
-                    Program.Settings.TV = TVFORMAT.PAL;
+                    Program.Settings.TV = TvFormat.Pal;
                     break;
             }
             //Size
@@ -72,15 +72,15 @@ namespace NesHd.Ui.WinForms
             switch (comboBox1_VideoMode.SelectedItem.ToString())
             {
                 case "SlimDX":
-                    var sl = new VideoSlimDx(TVFORMAT.NTSC, Program.MainForm.panel1);
+                    var sl = new VideoSlimDx(TvFormat.Ntsc, Program.MainForm.panel1);
                     richTextBox1_DrawerDescription.Text = sl.Description;
                     break;
                 case "GDI":
-                    var gd = new VideoGdi(TVFORMAT.NTSC, Program.MainForm.panel1);
+                    var gd = new VideoGdi(TvFormat.Ntsc, Program.MainForm.panel1);
                     richTextBox1_DrawerDescription.Text = gd.Description;
                     break;
                 case "GDIHiRes":
-                    var gdh = new VideoGdiHiRes(TVFORMAT.NTSC, Program.MainForm.panel1, "", 0);
+                    var gdh = new VideoGdiHiRes(TvFormat.Ntsc, Program.MainForm.panel1, "", 0);
                     richTextBox1_DrawerDescription.Text = gdh.Description;
                     break;
             }
@@ -91,15 +91,15 @@ namespace NesHd.Ui.WinForms
             switch (comboBox1_VideoMode.SelectedItem.ToString())
             {
                 case "SlimDX":
-                    var sl = new VideoSlimDx(TVFORMAT.NTSC, Program.MainForm.panel1);
+                    var sl = new VideoSlimDx(TvFormat.Ntsc, Program.MainForm.panel1);
                     sl.ChangeSettings();
                     break;
                 case "GDI":
-                    var gd = new VideoGdi(TVFORMAT.NTSC, Program.MainForm.panel1);
+                    var gd = new VideoGdi(TvFormat.Ntsc, Program.MainForm.panel1);
                     gd.ChangeSettings();
                     break;
                 case "GDIHiRes":
-                    var gdh = new VideoGdi(TVFORMAT.NTSC, Program.MainForm.panel1);
+                    var gdh = new VideoGdi(TvFormat.Ntsc, Program.MainForm.panel1);
                     gdh.ChangeSettings();
                     break;
             }
