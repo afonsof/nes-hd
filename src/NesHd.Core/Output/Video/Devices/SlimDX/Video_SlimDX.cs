@@ -1,31 +1,8 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-
 using NesHd.Core.Debugger;
-
 using SlimDX;
 using SlimDX.Direct3D9;
 
@@ -33,364 +10,407 @@ namespace NesHd.Core.Output.Video.Devices.SlimDX
 {
     public class VideoSlimDx : IGraphicDevice, IDisposable
     {
-        bool _disposed;
-        bool _IsRendering = false;
-        bool _CanRender = true;
-        int _ScanLines = 240;
-        int _FirstLinesTCut = 0;
-        Control _Surface;
-        Texture _backBuffer;
-        bool _deviceLost;
-        byte[] _displayData = new byte[245760];
-        int BuffSize = 229376;
-        Device _displayDevice;
-        Format _displayFormat;
-        Rectangle _displayRect;
-        Sprite _displaySprite;
-        Texture _nesDisplay;
-        public Direct3D d3d = new Direct3D();
-        PresentParameters _presentParams;
-        bool Initialized = false;
-        bool _FullScreen = false;
-        Vector3 _Position;
-        int ModeIndex = 0;
-        DisplayMode mode;
+        private readonly int _firstLinesTCut;
+        private readonly int _scanLines = 240;
+        private readonly Control _surface;
+        private int _buffSize = 229376;
+        private bool _initialized;
+        private int _modeIndex;
+        private bool _canRender = true;
+        private bool _fullScreen;
+        private bool _isRendering;
+        private Vector3 _position;
+        private Texture _backBuffer;
+        private bool _deviceLost;
+        private byte[] _displayData = new byte[245760];
+        private Device _displayDevice;
+        private Rectangle _displayRect;
+        private Sprite _displaySprite;
+        private bool _disposed;
+        private Texture _nesDisplay;
+        private PresentParameters _presentParams;
+        public Direct3D D3D = new Direct3D();
+        private DisplayMode _mode;
 
-        public VideoSlimDx(TVFORMAT TvFormat, Control Surface)
+        public VideoSlimDx(TVFORMAT tvFormat, Control surface)
         {
-            if (Surface == null)
+            if (surface == null)
                 return;
-            this._Surface = Surface;
-            switch (TvFormat)
+            _surface = surface;
+            switch (tvFormat)
             {
                 case TVFORMAT.NTSC:
-                    this._ScanLines = 224;
-                    this._FirstLinesTCut = 8;
+                    _scanLines = 224;
+                    _firstLinesTCut = 8;
                     break;
                 case TVFORMAT.PAL:
-                    this._ScanLines = 240;
-                    this._FirstLinesTCut = 0;
+                    _scanLines = 240;
+                    _firstLinesTCut = 0;
                     break;
             }
-            VideoModeSettings sett = new VideoModeSettings();
+            var sett = new VideoModeSettings();
             sett.Reload();
-            this.ApplaySettings(sett);
+            ApplaySettings(sett);
             //InitializeDirect3D();
         }
-        void InitializeDirect3D()
-        {
-            try
-            {
-                if (!this._FullScreen)
-                {
-                    this.d3d = new Direct3D();
-                    this._presentParams = new PresentParameters();
-                    this._presentParams.BackBufferWidth = 256;
-                    this._presentParams.BackBufferHeight = this._ScanLines;
-                    this._presentParams.Windowed = true;
-                    this._presentParams.SwapEffect = SwapEffect.Discard;
-                    this._presentParams.Multisample = MultisampleType.None;
-                    this._presentParams.PresentationInterval = PresentInterval.Immediate;
-                    this._displayFormat = this.d3d.Adapters[0].CurrentDisplayMode.Format;
-                    this._displayDevice = new Device(this.d3d, 0, DeviceType.Hardware, this._Surface.Handle, CreateFlags.SoftwareVertexProcessing, new PresentParameters[] { this._presentParams });
-                    this._displayRect = new Rectangle(0, 0, 256, this._ScanLines);
-                    this.BuffSize = (256 * this._ScanLines) * 4;
-                    this._displayData = new byte[this.BuffSize];
-                    this.CreateDisplayObjects(this._displayDevice);
-                    this.Initialized = true;
-                    this._disposed = false;
-                    Debug.WriteLine(this, "SlimDX video mode (Windowed) Initialized ok.", DebugStatus.Cool);
-                }
-                else
-                {
-                    this.d3d = new Direct3D();
-                    this.mode = this.FindSupportedMode();
-                    this._presentParams = new PresentParameters();
-                    this._presentParams.BackBufferFormat = this.mode.Format;
-                    this._presentParams.BackBufferCount = 1;
-                    this._presentParams.BackBufferWidth = this.mode.Width;
-                    this._presentParams.BackBufferHeight = this.mode.Height;
-                    this._presentParams.Windowed = false;
-                    this._presentParams.FullScreenRefreshRateInHertz = this.mode.RefreshRate;
-                    this._presentParams.SwapEffect = SwapEffect.Discard;
-                    this._presentParams.Multisample = MultisampleType.None;
-                    this._presentParams.PresentationInterval = PresentInterval.Immediate;
-                    this._displayFormat = this.mode.Format;
-                    this._displayDevice = new Device(this.d3d, 0, DeviceType.Hardware, this._Surface.Parent.Handle, CreateFlags.SoftwareVertexProcessing, new PresentParameters[] { this._presentParams });
-                    this._displayDevice.ShowCursor = false;
-                    this._displayDevice.SetRenderState(RenderState.PointScaleEnable, true);
-                    this._displayDevice.SetRenderState(RenderState.PointSpriteEnable, true);
-                    this._displayRect = new Rectangle(0, 0, 256, this._ScanLines);
-                    this._Position = new Vector3((this.mode.Width - 256) / 2, (this.mode.Height - this._ScanLines) / 2, 0);
-                    this.BuffSize = (256 * this._ScanLines) * 4;
-                    this._displayData = new byte[this.BuffSize];
-                    this.CreateDisplayObjects(this._displayDevice);
-                    this.Initialized = true;
-                    this._disposed = false;
 
-                    Debug.WriteLine(this, "SlimDX video mode (Fullscreen) Initialized ok.", DebugStatus.Cool);
-                }
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            if (_displayDevice != null)
+            {
+                _displayDevice.Dispose();
             }
-            catch (Exception EX)
-            { Debug.WriteLine(this, "Could not Initialize SlimDX mode because of : \n" + EX.Message, DebugStatus.Error); this.Initialized = false; }
+            DisposeDisplayObjects();
+            _disposed = true;
         }
-        DisplayMode FindSupportedMode()
-        {
-            DisplayModeCollection supportedDisplayModes = this.d3d.Adapters[0].GetDisplayModes(Format.X8R8G8B8);
-            DisplayMode mode = supportedDisplayModes[this.ModeIndex];
-            return mode;
-        }
-        private void CreateDisplayObjects(Device device)
-        {
-            this._displaySprite = new Sprite(device);
-            this._backBuffer = new Texture(device, 256, this._ScanLines, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.SystemMemory);
-            this._nesDisplay = new Texture(device, 256, this._ScanLines, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
-        }
+
+        #endregion
+
+        #region IGraphicDevice Members
+
         public string Name
         {
             get { return "SlimDX"; }
         }
+
         public string Description
         {
-            get { return "Render the video using SlimDX library.\nYou can switch into fullscreen using this mode with the resolution you set in the settings of this mode. This mode is accurate and fast."; }
-        }
-        public void Begin()
-        {
-            if (this._CanRender)
+            get
             {
-                this._IsRendering = true;
+                return
+                    "Render the video using SlimDX library.\nYou can switch into fullscreen using this mode with the resolution you set in the settings of this mode. This mode is accurate and fast.";
             }
         }
-        public void AddScanline(int Line, int[] ScanlineBuffer)
+
+        public void Begin()
         {
-            if (this._CanRender & this._IsRendering)
+            if (_canRender)
+            {
+                _isRendering = true;
+            }
+        }
+
+        public void AddScanline(int line, int[] scanlineBuffer)
+        {
+            if (_canRender & _isRendering)
             {
                 //Check if we should cut this line 
-                if (Line >= this._FirstLinesTCut & Line < (this._ScanLines + this._FirstLinesTCut))
+                if (line >= _firstLinesTCut & line < (_scanLines + _firstLinesTCut))
                 {
-                    for (int i = 0; i < 256; i++)
+                    for (var i = 0; i < 256; i++)
                     {
                         //Extract the colors of each pixel
                         //To arrange the B,G,R,A
-                        int liner = ((Line - this._FirstLinesTCut) * 256) + i;
-                        int BuffPos = liner * 4;
-                        this._displayData[BuffPos] = (byte)(ScanlineBuffer[i] & 0xFF); BuffPos++;//Blue
-                        this._displayData[BuffPos] = (byte)(((ScanlineBuffer[i] & 0xFF00) >> 8)); BuffPos++;//Green
-                        this._displayData[BuffPos] = (byte)(((ScanlineBuffer[i] & 0xFF0000) >> 0x10)); BuffPos++;//Red
-                        this._displayData[BuffPos] = 0xFF; BuffPos++;//Alpha
+                        var liner = ((line - _firstLinesTCut)*256) + i;
+                        var buffPos = liner*4;
+                        _displayData[buffPos] = (byte) (scanlineBuffer[i] & 0xFF);
+                        buffPos++; //Blue
+                        _displayData[buffPos] = (byte) (((scanlineBuffer[i] & 0xFF00) >> 8));
+                        buffPos++; //Green
+                        _displayData[buffPos] = (byte) (((scanlineBuffer[i] & 0xFF0000) >> 0x10));
+                        buffPos++; //Red
+                        _displayData[buffPos] = 0xFF; //Alpha
                     }
                 }
             }
         }
-        public void DrawPixel(int X, int Y, int Color)
+
+        public void DrawPixel(int x, int y, int color)
         {
-            if (this._CanRender & this._IsRendering)
+            if (!(_canRender & _isRendering))
             {
-                //Check if we should cut this line 
-                if (Y >= this._FirstLinesTCut & Y < (this._ScanLines + this._FirstLinesTCut))
-                {
-                    int liner = ((Y - this._FirstLinesTCut) * 256) + X;
-                    int BuffPos = liner * 4;
-                    this._displayData[BuffPos] = (byte)(Color & 0xFF); BuffPos++;//Blue
-                    this._displayData[BuffPos] = (byte)((Color & 0xFF00) >> 8); BuffPos++;//Green
-                    this._displayData[BuffPos] = (byte)(((Color & 0xFF0000) >> 0x10)); BuffPos++;//Red
-                    this._displayData[BuffPos] = 0xFF; //Alpha
-                }
+                return;
             }
+            //Check if we should cut this line 
+            if (!(y >= _firstLinesTCut & y < (_scanLines + _firstLinesTCut)))
+            {
+                return;
+            }
+            var liner = ((y - _firstLinesTCut)*256) + x;
+            var buffPos = liner*4;
+            _displayData[buffPos] = (byte) (color & 0xFF);
+            buffPos++; //Blue
+            _displayData[buffPos] = (byte) ((color & 0xFF00) >> 8);
+            buffPos++; //Green
+            _displayData[buffPos] = (byte) (((color & 0xFF0000) >> 0x10));
+            buffPos++; //Red
+            _displayData[buffPos] = 0xFF; //Alpha
         }
+
         public void RenderFrame()
         {
-            if (this._Surface != null & this._CanRender & !this._disposed & this.Initialized)
+            if (!(_surface != null & _canRender & !_disposed & _initialized))
             {
-                Result result = this._displayDevice.TestCooperativeLevel();
-                switch (result.Code)
-                {
-                    case -2005530520:
-                        this._deviceLost = true;
-                        break;
-
-                    case -2005530519:
-                        this.ResetDirect3D();
-                        this._deviceLost = false;
-                        break;
-                }
-                if (!this._deviceLost)
-                {
-                    this.UpdateDisplayTexture();
-                    this._displayDevice.BeginScene();
-                    this._displayDevice.Clear(ClearFlags.Target, Color.Black, 0f, 0);
-                    this._displaySprite.Begin(SpriteFlags.None);
-                    if (this._FullScreen)
-                    {
-                        this._displaySprite.Draw(this._nesDisplay, this._displayRect, new Vector3(), this._Position, Color.White);
-                    }
-                    else
-                    {
-                        this._displaySprite.Draw(this._nesDisplay, this._displayRect, Color.White);
-                    }
-                    this._displaySprite.End();
-                    this._displayDevice.EndScene();
-                    this._displayDevice.Present();
-                }
-                this._IsRendering = false;
-            }
-        }
-        void UpdateDisplayTexture()
-        {
-            if ((this._displayData != null) && !this._deviceLost)
-            {
-                DataRectangle rect = this._backBuffer.LockRectangle(0, LockFlags.DoNotWait);
-                rect.Data.Write(this._displayData, 0, this.BuffSize);
-                rect.Data.Close();
-                this._backBuffer.UnlockRectangle(0);
-                if (this._CanRender & !this._disposed)
-                    this._displayDevice.UpdateTexture(this._backBuffer, this._nesDisplay);
-            }
-        }
-        void ResetDirect3D()
-        {
-            if (!this.Initialized)
                 return;
-            this.DisposeDisplayObjects();
-            try
-            {
-                this._displayDevice.Reset(this._presentParams);
-                this.CreateDisplayObjects(this._displayDevice);
             }
-            catch
+            var result = _displayDevice.TestCooperativeLevel();
+            switch (result.Code)
             {
-                this._displayDevice.Dispose();
-                this.InitializeDirect3D();
+                case -2005530520:
+                    _deviceLost = true;
+                    break;
+
+                case -2005530519:
+                    ResetDirect3D();
+                    _deviceLost = false;
+                    break;
             }
+            if (!_deviceLost)
+            {
+                UpdateDisplayTexture();
+                _displayDevice.BeginScene();
+                _displayDevice.Clear(ClearFlags.Target, Color.Black, 0f, 0);
+                _displaySprite.Begin(SpriteFlags.None);
+                if (_fullScreen)
+                {
+                    _displaySprite.Draw(_nesDisplay, _displayRect, new Vector3(), _position, Color.White);
+                }
+                else
+                {
+                    _displaySprite.Draw(_nesDisplay, _displayRect, Color.White);
+                }
+                _displaySprite.End();
+                _displayDevice.EndScene();
+                _displayDevice.Present();
+            }
+            _isRendering = false;
         }
-        void DisposeDisplayObjects()
+
+        public unsafe void TakeSnapshot(string snapPath, string format)
         {
-            if (this._displaySprite != null)
+            var bmp = new Bitmap(256, _scanLines);
+            var bmpData32 = bmp.LockBits(new Rectangle(0, 0, 256, _scanLines), ImageLockMode.WriteOnly,
+                                         PixelFormat.Format32bppRgb);
+            var numPtr32 = (int*) bmpData32.Scan0;
+            var j = 0;
+            for (var i = (_firstLinesTCut*256); i < 61440 - (_firstLinesTCut*256); i++)
             {
-                this._displaySprite.Dispose();
-            }
-            if (this._nesDisplay != null)
-            {
-                this._nesDisplay.Dispose();
-            }
-            if (this._backBuffer != null)
-            {
-                this._backBuffer.Dispose();
-            }
-        }
-        public void Dispose()
-        {
-            if (this._displayDevice != null)
-            {
-                this._displayDevice.Dispose();
-            }
-            this.DisposeDisplayObjects();
-            this._disposed = true;
-        }
-        public unsafe void TakeSnapshot(string SnapPath, string Format)
-        {
-            Bitmap bmp = new Bitmap(256, this._ScanLines);
-            BitmapData bmpData32 = bmp.LockBits(new Rectangle(0, 0, 256, this._ScanLines), ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
-            int* numPtr32 = (int*)bmpData32.Scan0;
-            int j = 0;
-            for (int i = (this._FirstLinesTCut * 256); i < 61440 - (this._FirstLinesTCut * 256); i++)
-            {
-                byte VALBLUE = (byte)(this._displayData[j]);
+                var valBlue = (_displayData[j]);
                 j++;
-                byte VALGREEN = (byte)(this._displayData[j]);
+                var valGreen = (_displayData[j]);
                 j++;
-                byte VALRED = (byte)(this._displayData[j]);
+                var valRed = (_displayData[j]);
                 j++;
-                byte VALALHA = (byte)(this._displayData[j]);
+                var valAlpha = (_displayData[j]);
                 j++;
-                numPtr32[i - (this._FirstLinesTCut * 256)] =
-                   (VALALHA << 24 |//Alpha
-                   VALRED << 16 |//Red
-                  VALGREEN << 8 |//Green
-                  VALBLUE)//Blue
-                             ;
+                numPtr32[i - (_firstLinesTCut*256)] =
+                    (valAlpha << 24 | //Alpha
+                     valRed << 16 | //Red
+                     valGreen << 8 | //Green
+                     valBlue) //Blue
+                    ;
             }
             bmp.UnlockBits(bmpData32);
-            switch (Format)
+            switch (format)
             {
                 case ".bmp":
-                    bmp.Save(SnapPath, ImageFormat.Bmp);
-                    this._CanRender = true;
+                    bmp.Save(snapPath, ImageFormat.Bmp);
+                    _canRender = true;
                     break;
                 case ".gif":
-                    bmp.Save(SnapPath, ImageFormat.Gif);
-                    this._CanRender = true;
+                    bmp.Save(snapPath, ImageFormat.Gif);
+                    _canRender = true;
                     break;
                 case ".jpg":
-                    bmp.Save(SnapPath, ImageFormat.Jpeg);
-                    this._CanRender = true;
+                    bmp.Save(snapPath, ImageFormat.Jpeg);
+                    _canRender = true;
                     break;
                 case ".png":
-                    bmp.Save(SnapPath, ImageFormat.Png);
-                    this._CanRender = true;
+                    bmp.Save(snapPath, ImageFormat.Png);
+                    _canRender = true;
                     break;
                 case ".tiff":
-                    bmp.Save(SnapPath, ImageFormat.Tiff);
-                    this._CanRender = true;
+                    bmp.Save(snapPath, ImageFormat.Tiff);
+                    _canRender = true;
                     break;
             }
         }
-        public void DrawText(string Text, int Frames)
-        {
 
+        public void DrawText(string text, int frames)
+        {
         }
+
         public void ChangeSettings()
         {
-            Frm_SlimDXOptions Op = new Frm_SlimDXOptions(this);
-            Op.ShowDialog(this._Surface.Parent);
+            var options = new Frm_SlimDXOptions(this);
+            options.ShowDialog(_surface.Parent);
         }
+
         public void Clear()
         {
             //??!!
         }
-        public void UpdateSize(int X, int Y, int W, int H)
-        {
 
+        public void UpdateSize(int x, int y, int w, int h)
+        {
         }
+
         public bool IsSizable
         {
             get { return false; }
         }
+
         public bool IsRendering
         {
-            get { return this._IsRendering; }
+            get { return _isRendering; }
         }
+
         public bool CanRender
         {
-            get
-            {
-                return this._CanRender;
-            }
-            set
-            {
-                this._CanRender = value;
-            }
+            get { return _canRender; }
+            set { _canRender = value; }
         }
+
         public bool FullScreen
         {
-            get
-            {
-                return this._FullScreen;
-            }
+            get { return _fullScreen; }
             set
             {
-                this._FullScreen = value;
-                this.Dispose();
-                this.InitializeDirect3D();
+                _fullScreen = value;
+                Dispose();
+                InitializeDirect3D();
             }
         }
+
         public bool SupportFullScreen
         {
             get { return true; }
         }
+
+        #endregion
+
+        private void InitializeDirect3D()
+        {
+            try
+            {
+                if (!_fullScreen)
+                {
+                    D3D = new Direct3D();
+                    _presentParams = new PresentParameters
+                                         {
+                                             BackBufferWidth = 256,
+                                             BackBufferHeight = _scanLines,
+                                             Windowed = true,
+                                             SwapEffect = SwapEffect.Discard,
+                                             Multisample = MultisampleType.None,
+                                             PresentationInterval = PresentInterval.Immediate
+                                         };
+                    _displayDevice = new Device(D3D, 0, DeviceType.Hardware, _surface.Handle,
+                                                CreateFlags.SoftwareVertexProcessing, new[] {_presentParams});
+                    _displayRect = new Rectangle(0, 0, 256, _scanLines);
+                    _buffSize = (256*_scanLines)*4;
+                    _displayData = new byte[_buffSize];
+                    CreateDisplayObjects(_displayDevice);
+                    _initialized = true;
+                    _disposed = false;
+                    Debug.WriteLine(this, "SlimDX video mode (Windowed) Initialized ok.", DebugStatus.Cool);
+                }
+                else
+                {
+                    D3D = new Direct3D();
+                    _mode = FindSupportedMode();
+                    _presentParams = new PresentParameters
+                                         {
+                                             BackBufferFormat = _mode.Format,
+                                             BackBufferCount = 1,
+                                             BackBufferWidth = _mode.Width,
+                                             BackBufferHeight = _mode.Height,
+                                             Windowed = false,
+                                             FullScreenRefreshRateInHertz = _mode.RefreshRate,
+                                             SwapEffect = SwapEffect.Discard,
+                                             Multisample = MultisampleType.None,
+                                             PresentationInterval = PresentInterval.Immediate
+                                         };
+                    _displayDevice = new Device(D3D, 0, DeviceType.Hardware, _surface.Parent.Handle,
+                                                CreateFlags.SoftwareVertexProcessing, new[] {_presentParams})
+                                         {
+                                             ShowCursor = false,
+                                         };
+                    _displayDevice.SetRenderState(RenderState.PointScaleEnable, true);
+                    _displayDevice.SetRenderState(RenderState.PointSpriteEnable, true);
+                    _displayRect = new Rectangle(0, 0, 256, _scanLines);
+                    _position = new Vector3((_mode.Width - 256)/2, (_mode.Height - _scanLines)/2, 0);
+                    _buffSize = (256*_scanLines)*4;
+                    _displayData = new byte[_buffSize];
+                    CreateDisplayObjects(_displayDevice);
+                    _initialized = true;
+                    _disposed = false;
+
+                    Debug.WriteLine(this, "SlimDX video mode (Fullscreen) Initialized ok.", DebugStatus.Cool);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(this, "Could not Initialize SlimDX mode because of : \n" + ex.Message, DebugStatus.Error);
+                _initialized = false;
+            }
+        }
+
+        private DisplayMode FindSupportedMode()
+        {
+            var supportedDisplayModes = D3D.Adapters[0].GetDisplayModes(Format.X8R8G8B8);
+            var mode = supportedDisplayModes[_modeIndex];
+            return mode;
+        }
+
+        private void CreateDisplayObjects(Device device)
+        {
+            _displaySprite = new Sprite(device);
+            _backBuffer = new Texture(device, 256, _scanLines, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.SystemMemory);
+            _nesDisplay = new Texture(device, 256, _scanLines, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
+        }
+
+        private void UpdateDisplayTexture()
+        {
+            if ((_displayData != null) && !_deviceLost)
+            {
+                var rect = _backBuffer.LockRectangle(0, LockFlags.DoNotWait);
+                rect.Data.Write(_displayData, 0, _buffSize);
+                rect.Data.Close();
+                _backBuffer.UnlockRectangle(0);
+                if (_canRender & !_disposed)
+                    _displayDevice.UpdateTexture(_backBuffer, _nesDisplay);
+            }
+        }
+
+        private void ResetDirect3D()
+        {
+            if (!_initialized)
+                return;
+            DisposeDisplayObjects();
+            try
+            {
+                _displayDevice.Reset(_presentParams);
+                CreateDisplayObjects(_displayDevice);
+            }
+            catch
+            {
+                _displayDevice.Dispose();
+                InitializeDirect3D();
+            }
+        }
+
+        private void DisposeDisplayObjects()
+        {
+            if (_displaySprite != null)
+            {
+                _displaySprite.Dispose();
+            }
+            if (_nesDisplay != null)
+            {
+                _nesDisplay.Dispose();
+            }
+            if (_backBuffer != null)
+            {
+                _backBuffer.Dispose();
+            }
+        }
+
         public void ApplaySettings(VideoModeSettings newSettings)
         {
-            this.ModeIndex = newSettings.SlimDX_ResMode;
+            _modeIndex = newSettings.SlimDX_ResMode;
         }
     }
 }

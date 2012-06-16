@@ -1,35 +1,20 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using NesHd.Core.Debugger;
+﻿using NesHd.Core.Debugger;
 
 namespace NesHd.Core.Memory.Mappers
 {
-    class Mapper17 : IMapper
+    internal class Mapper17 : IMapper
     {
-        MAP Map;
-        public bool IRQEnabled = false;
-        public int irq_counter = 0;
-        public Mapper17(MAP map)
-        { this.Map = map; }
+        private readonly Map _map;
+        public bool IRQEnabled;
+        public int irq_counter;
+
+        public Mapper17(Map map)
+        {
+            _map = map;
+        }
+
+        #region IMapper Members
+
         public void Write(ushort address, byte data)
         {
             switch (address)
@@ -40,70 +25,108 @@ namespace NesHd.Core.Memory.Mappers
                     switch (address & 0x1)
                     {
                         case 0:
-                            this.Map.Cartridge.Mirroring = MIRRORING.ONE_SCREEN;
+                            _map.Cartridge.Mirroring = Mirroring.OneScreen;
                             if ((data & 0x10) != 0)
-                                this.Map.Cartridge.MirroringBase = 0x2400;
+                                _map.Cartridge.MirroringBase = 0x2400;
                             else
-                                this.Map.Cartridge.MirroringBase = 0x2000;
+                                _map.Cartridge.MirroringBase = 0x2000;
                             break;
                         case 1:
                             if ((data & 0x10) != 0)
-                                this.Map.Cartridge.Mirroring = MIRRORING.HORIZONTAL;
+                                _map.Cartridge.Mirroring = Mirroring.Horizontal;
                             else
-                                this.Map.Cartridge.Mirroring = MIRRORING.VERTICAL;
+                                _map.Cartridge.Mirroring = Mirroring.Vertical;
                             break;
                     }
                     break;
-                case 0x4501: this.IRQEnabled = false; break;
-                case 0x4502: this.irq_counter = (short)((this.irq_counter & 0xFF00) | data); break;
-                case 0x4503: this.irq_counter = (short)((data << 8) | (this.irq_counter & 0x00FF)); this.IRQEnabled = true; break;
-                case 0x4504: this.Map.Switch8kPrgRom(data * 2, 0); break;
-                case 0x4505: this.Map.Switch8kPrgRom(data * 2, 1); break;
-                case 0x4506: this.Map.Switch8kPrgRom(data * 2, 2); break;
-                case 0x4507: this.Map.Switch8kPrgRom(data * 2, 3); break;
-                case 0x4510: this.Map.Switch1kChrRom(data, 0); break;
-                case 0x4511: this.Map.Switch1kChrRom(data, 1); break;
-                case 0x4512: this.Map.Switch1kChrRom(data, 2); break;
-                case 0x4513: this.Map.Switch1kChrRom(data, 3); break;
-                case 0x4514: this.Map.Switch1kChrRom(data, 4); break;
-                case 0x4515: this.Map.Switch1kChrRom(data, 5); break;
-                case 0x4516: this.Map.Switch1kChrRom(data, 6); break;
-                case 0x4517: this.Map.Switch1kChrRom(data, 7); break;
+                case 0x4501:
+                    IRQEnabled = false;
+                    break;
+                case 0x4502:
+                    irq_counter = (short) ((irq_counter & 0xFF00) | data);
+                    break;
+                case 0x4503:
+                    irq_counter = (short) ((data << 8) | (irq_counter & 0x00FF));
+                    IRQEnabled = true;
+                    break;
+                case 0x4504:
+                    _map.Switch8KPrgRom(data*2, 0);
+                    break;
+                case 0x4505:
+                    _map.Switch8KPrgRom(data*2, 1);
+                    break;
+                case 0x4506:
+                    _map.Switch8KPrgRom(data*2, 2);
+                    break;
+                case 0x4507:
+                    _map.Switch8KPrgRom(data*2, 3);
+                    break;
+                case 0x4510:
+                    _map.Switch1KChrRom(data, 0);
+                    break;
+                case 0x4511:
+                    _map.Switch1KChrRom(data, 1);
+                    break;
+                case 0x4512:
+                    _map.Switch1KChrRom(data, 2);
+                    break;
+                case 0x4513:
+                    _map.Switch1KChrRom(data, 3);
+                    break;
+                case 0x4514:
+                    _map.Switch1KChrRom(data, 4);
+                    break;
+                case 0x4515:
+                    _map.Switch1KChrRom(data, 5);
+                    break;
+                case 0x4516:
+                    _map.Switch1KChrRom(data, 6);
+                    break;
+                case 0x4517:
+                    _map.Switch1KChrRom(data, 7);
+                    break;
             }
         }
+
         public void SetUpMapperDefaults()
         {
-            this.Map.Switch16kPrgRom(0, 0);
-            this.Map.Switch16kPrgRom((this.Map.Cartridge.PRG_PAGES - 1) * 4, 1);
-            this.Map.Switch8kChrRom(0);
+            _map.Switch16KPrgRom(0, 0);
+            _map.Switch16KPrgRom((_map.Cartridge.PrgPages - 1)*4, 1);
+            _map.Switch8KChrRom(0);
             Debug.WriteLine(this, "Mapper 6 setup done.", DebugStatus.Cool);
         }
+
         public void TickScanlineTimer()
         {
-
         }
+
         public void TickCycleTimer()
         {
-            if (this.IRQEnabled)
+            if (IRQEnabled)
             {
-                this.irq_counter += (short)(this.Map.NES.CPU.CycleCounter);
-                if (this.irq_counter >= 0xFFFF)
+                irq_counter += (short) (_map.Engine.Cpu.CycleCounter);
+                if (irq_counter >= 0xFFFF)
                 {
-                    this.Map.NES.CPU.IRQNextTime = true;
-                    this.irq_counter = 0;
+                    _map.Engine.Cpu.IRQNextTime = true;
+                    irq_counter = 0;
                 }
             }
         }
+
         public void SoftReset()
         {
         }
+
         public bool WriteUnder8000
         {
             get { return true; }
         }
+
         public bool WriteUnder6000
         {
             get { return true; }
         }
+
+        #endregion
     }
 }

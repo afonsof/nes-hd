@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 namespace NesHd.Ui.WinForms
 {
-    partial class Frm_Browser
+    partial class BrowserForm
     {
         /// <summary>
         /// Required designer variable.
@@ -49,7 +49,7 @@ namespace NesHd.Ui.WinForms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm_Browser));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BrowserForm));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label1_status = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
@@ -258,7 +258,7 @@ namespace NesHd.Ui.WinForms
             this.addFolderToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             this.addFolderToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.addFolderToolStripMenuItem.Text = "Add root folder";
-            this.addFolderToolStripMenuItem.Click += new System.EventHandler(this.rootFolderToolStripMenuItem_Click);
+            this.addFolderToolStripMenuItem.Click += new System.EventHandler(this.RootFolderToolStripMenuItemClick);
             // 
             // addFolderInSelectedToolStripMenuItem
             // 
@@ -268,7 +268,7 @@ namespace NesHd.Ui.WinForms
                         | System.Windows.Forms.Keys.N)));
             this.addFolderInSelectedToolStripMenuItem.Size = new System.Drawing.Size(264, 22);
             this.addFolderInSelectedToolStripMenuItem.Text = "Add folder in selected";
-            this.addFolderInSelectedToolStripMenuItem.Click += new System.EventHandler(this.folderInSelectedToolStripMenuItem_Click);
+            this.addFolderInSelectedToolStripMenuItem.Click += new System.EventHandler(this.FolderInSelectedToolStripMenuItemClick);
             // 
             // deleteSelectedToolStripMenuItem
             // 
@@ -390,7 +390,7 @@ namespace NesHd.Ui.WinForms
             this.toolStripButton5.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton5.Text = "toolStripButton5";
             this.toolStripButton5.ToolTipText = "Reload";
-            this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
+            this.toolStripButton5.Click += new System.EventHandler(this.ToolStripButton5Click);
             // 
             // tabPage3
             // 
@@ -417,7 +417,7 @@ namespace NesHd.Ui.WinForms
             this.listView2.TabIndex = 0;
             this.listView2.UseCompatibleStateImageBehavior = false;
             this.listView2.View = System.Windows.Forms.View.Details;
-            this.listView2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView2_MouseDoubleClick);
+            this.listView2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ListView2MouseDoubleClick);
             // 
             // columnHeader1
             // 
@@ -511,21 +511,21 @@ namespace NesHd.Ui.WinForms
             this.toolStripSplitButton2.Size = new System.Drawing.Size(32, 22);
             this.toolStripSplitButton2.Text = "toolStripSplitButton2";
             this.toolStripSplitButton2.ToolTipText = "New folder (Click to add root folder)";
-            this.toolStripSplitButton2.ButtonClick += new System.EventHandler(this.rootFolderToolStripMenuItem_Click);
+            this.toolStripSplitButton2.ButtonClick += new System.EventHandler(this.RootFolderToolStripMenuItemClick);
             // 
             // rootFolderToolStripMenuItem
             // 
             this.rootFolderToolStripMenuItem.Name = "rootFolderToolStripMenuItem";
             this.rootFolderToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.rootFolderToolStripMenuItem.Text = "Root folder";
-            this.rootFolderToolStripMenuItem.Click += new System.EventHandler(this.rootFolderToolStripMenuItem_Click);
+            this.rootFolderToolStripMenuItem.Click += new System.EventHandler(this.RootFolderToolStripMenuItemClick);
             // 
             // folderInSelectedToolStripMenuItem
             // 
             this.folderInSelectedToolStripMenuItem.Name = "folderInSelectedToolStripMenuItem";
             this.folderInSelectedToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.folderInSelectedToolStripMenuItem.Text = "Folder in selected";
-            this.folderInSelectedToolStripMenuItem.Click += new System.EventHandler(this.folderInSelectedToolStripMenuItem_Click);
+            this.folderInSelectedToolStripMenuItem.Click += new System.EventHandler(this.FolderInSelectedToolStripMenuItemClick);
             // 
             // toolStripButton2
             // 
@@ -600,21 +600,21 @@ namespace NesHd.Ui.WinForms
             this.tilesToolStripMenuItem.Name = "tilesToolStripMenuItem";
             this.tilesToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.tilesToolStripMenuItem.Text = "Tiles";
-            this.tilesToolStripMenuItem.Click += new System.EventHandler(this.tilesToolStripMenuItem_Click);
+            this.tilesToolStripMenuItem.Click += new System.EventHandler(this.TilesToolStripMenuItemClick);
             // 
             // detailsToolStripMenuItem
             // 
             this.detailsToolStripMenuItem.Name = "detailsToolStripMenuItem";
             this.detailsToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.detailsToolStripMenuItem.Text = "Details";
-            this.detailsToolStripMenuItem.Click += new System.EventHandler(this.detailsToolStripMenuItem_Click);
+            this.detailsToolStripMenuItem.Click += new System.EventHandler(this.DetailsToolStripMenuItemClick);
             // 
             // listToolStripMenuItem
             // 
             this.listToolStripMenuItem.Name = "listToolStripMenuItem";
             this.listToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.listToolStripMenuItem.Text = "List";
-            this.listToolStripMenuItem.Click += new System.EventHandler(this.listToolStripMenuItem_Click);
+            this.listToolStripMenuItem.Click += new System.EventHandler(this.ListToolStripMenuItemClick);
             // 
             // toolStripSeparator5
             // 
@@ -631,7 +631,7 @@ namespace NesHd.Ui.WinForms
             this.ComboBox1_nav.Name = "ComboBox1_nav";
             this.ComboBox1_nav.Size = new System.Drawing.Size(160, 25);
             this.ComboBox1_nav.ToolTipText = "Navigation mode";
-            this.ComboBox1_nav.DropDownClosed += new System.EventHandler(this.ComboBox1_nav_DropDownClosed);
+            this.ComboBox1_nav.DropDownClosed += new System.EventHandler(this.ComboBox1NavDropDownClosed);
             // 
             // TextBox1_mapper
             // 
@@ -639,8 +639,8 @@ namespace NesHd.Ui.WinForms
             this.TextBox1_mapper.Size = new System.Drawing.Size(25, 25);
             this.TextBox1_mapper.Text = "0";
             this.TextBox1_mapper.ToolTipText = "The mapper number (you must select \"Mapper #\" navigation mode first)";
-            this.TextBox1_mapper.Click += new System.EventHandler(this.TextBox1_mapper_Click);
-            this.TextBox1_mapper.TextChanged += new System.EventHandler(this.TextBox1_mapper_TextChanged);
+            this.TextBox1_mapper.Click += new System.EventHandler(this.TextBox1MapperClick);
+            this.TextBox1_mapper.TextChanged += new System.EventHandler(this.TextBox1MapperTextChanged);
             // 
             // toolStripButton8
             // 
@@ -651,7 +651,7 @@ namespace NesHd.Ui.WinForms
             this.toolStripButton8.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton8.Text = "toolStripButton8";
             this.toolStripButton8.ToolTipText = "Refresh";
-            this.toolStripButton8.Click += new System.EventHandler(this.toolStripButton8_Click);
+            this.toolStripButton8.Click += new System.EventHandler(this.ToolStripButton8Click);
             // 
             // toolStripSeparator4
             // 
@@ -667,14 +667,14 @@ namespace NesHd.Ui.WinForms
             this.toolStripButton9.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton9.Text = "toolStripButton9";
             this.toolStripButton9.ToolTipText = "Find";
-            this.toolStripButton9.Click += new System.EventHandler(this.toolStripButton9_Click);
+            this.toolStripButton9.Click += new System.EventHandler(this.ToolStripButton9Click);
             // 
             // TextBox1_search
             // 
             this.TextBox1_search.Name = "TextBox1_search";
             this.TextBox1_search.Size = new System.Drawing.Size(100, 25);
             // 
-            // Frm_Browser
+            // BrowserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -683,7 +683,7 @@ namespace NesHd.Ui.WinForms
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "Frm_Browser";
+            this.Name = "BrowserForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "My Nes Browser";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Frm_Browser_FormClosed);

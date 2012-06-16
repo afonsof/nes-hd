@@ -1,274 +1,294 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using System;
+﻿using System;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
-
 using NesHd.Core.Debugger;
 
 namespace NesHd.Ui.WinForms
 {
-    public partial class Frm_Debugger : Form
+    public partial class DebuggerForm : Form
     {
-        public Frm_Debugger()
+        public DebuggerForm()
         {
-            this.InitializeComponent();
-            this.Location = new Point(Program.Settings.DebuggerWin_X, Program.Settings.DebuggerWin_Y);
-            this.Size = new Size(Program.Settings.DebuggerWin_W, Program.Settings.DebuggerWin_H);
-            Debug.DebugRised += new EventHandler<DebugArg>(this.DEBUG_DebugRised);
-            this.ClearDebugger();
+            InitializeComponent();
+            Location = new Point(Program.Settings.DebuggerWin_X, Program.Settings.DebuggerWin_Y);
+            Size = new Size(Program.Settings.DebuggerWin_W, Program.Settings.DebuggerWin_H);
+            Debug.DebugRised += DEBUG_DebugRised;
+            ClearDebugger();
         }
-        void DEBUG_DebugRised(object sender, DebugArg e)
+
+        private void DEBUG_DebugRised(object sender, DebugArg e)
         {
-            this.WriteLine(e.DebugLine, e.Status);
+            WriteLine(e.DebugLine, e.Status);
         }
+
         public void SaveSettings()
         {
-            Program.Settings.DebuggerWin_X = this.Location.X;
-            Program.Settings.DebuggerWin_Y = this.Location.Y;
-            Program.Settings.DebuggerWin_W = this.Width;
-            Program.Settings.DebuggerWin_H = this.Height;
+            Program.Settings.DebuggerWin_X = Location.X;
+            Program.Settings.DebuggerWin_Y = Location.Y;
+            Program.Settings.DebuggerWin_W = Width;
+            Program.Settings.DebuggerWin_H = Height;
             Program.Settings.Save();
         }
+
         private void Frm_Debugger_FormClosed(object sender, FormClosedEventArgs e)
         {
-            this.SaveSettings();
+            SaveSettings();
         }
+
         private void button3_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
+
         public void WriteLine(string Text, DebugStatus State)
         {
             try
             {
-                this.richTextBox1.SelectionStart = this.richTextBox1.Text.Length;
+                richTextBox1.SelectionStart = richTextBox1.Text.Length;
                 switch (State)
                 {
                     case DebugStatus.None:
-                        this.richTextBox1.SelectionColor = Color.Black;
+                        richTextBox1.SelectionColor = Color.Black;
                         break;
                     case DebugStatus.Cool:
-                        this.richTextBox1.SelectionColor = Color.Green;
+                        richTextBox1.SelectionColor = Color.Green;
                         break;
                     case DebugStatus.Error:
-                        this.richTextBox1.SelectionColor = Color.Red;
+                        richTextBox1.SelectionColor = Color.Red;
                         break;
                     case DebugStatus.Warning:
-                        this.richTextBox1.SelectionColor = Color.Yellow;
+                        richTextBox1.SelectionColor = Color.Yellow;
                         break;
                 }
-                this.richTextBox1.SelectedText = Text + "\n";
-                this.richTextBox1.SelectionColor = Color.Green;
-                this.richTextBox1.ScrollToCaret();
+                richTextBox1.SelectedText = Text + "\n";
+                richTextBox1.SelectionColor = Color.Green;
+                richTextBox1.ScrollToCaret();
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         public void WriteLine(string Text)
-        { this.WriteLine(Text, DebugStatus.None); }
+        {
+            WriteLine(Text, DebugStatus.None);
+        }
+
         public void ClearDebugger()
         {
-            this.richTextBox1.Text = "";
-            this.WriteLine("Welcome to My Nes console");
-            this.WriteLine(@"Write ""Help"" to see a list of instructions.");
+            richTextBox1.Text = "";
+            WriteLine("Welcome to My Nes console");
+            WriteLine(@"Write ""Help"" to see a list of instructions.");
             Debug.WriteSeparateLine(this, DebugStatus.None);
         }
-        void DoInstruction(string Instruction)
+
+        private void DoInstruction(string Instruction)
         {
-            this.WriteLine(Instruction);
+            WriteLine(Instruction);
             switch (Instruction.ToLower())
             {
-                case "cl d": this.ClearDebugger(); break;
-                case "exit": this.Close(); break;
-                case "help": this.Help(); break;
+                case "cl d":
+                    ClearDebugger();
+                    break;
+                case "exit":
+                    Close();
+                    break;
+                case "help":
+                    Help();
+                    break;
                 case "rom":
-                    if (Program.Form_Main.NES != null)
+                    if (Program.MainForm.Engine != null)
                     {
-                        this.WriteLine("Rom info:", DebugStatus.None);
-                        string st =
-                        "PRG count: " + Program.Form_Main.NES.MEMORY.MAP.Cartridge.PRG_PAGES.ToString() + "\n" +
-                        "CHR count: " + Program.Form_Main.NES.MEMORY.MAP.Cartridge.CHR_PAGES.ToString() + "\n" +
-                        "Mapper: #" + Program.Form_Main.NES.MEMORY.MAP.Cartridge.MapperNo.ToString() + "\n";
-                        this.WriteLine(st, DebugStatus.Cool);
+                        WriteLine("Rom info:", DebugStatus.None);
+                        var st =
+                            "PRG count: " + Program.MainForm.Engine.Memory.Map.Cartridge.PrgPages.ToString(CultureInfo.InvariantCulture) + "\n" +
+                            "CHR count: " + Program.MainForm.Engine.Memory.Map.Cartridge.ChrPages.ToString(CultureInfo.InvariantCulture) + "\n" +
+                            "Mapper: #" + Program.MainForm.Engine.Memory.Map.Cartridge.MapperNo.ToString(CultureInfo.InvariantCulture) + "\n";
+                        WriteLine(st, DebugStatus.Cool);
                     }
                     else
                     {
-                        this.WriteLine("SYSTEM IS OFF", DebugStatus.Error);
+                        WriteLine("SYSTEM IS OFF", DebugStatus.Error);
                     }
                     break;
                 case "r":
-                    this.WriteLine("Cpu registers:", DebugStatus.None);
-                    if (Program.Form_Main.NES != null)
+                    WriteLine("Cpu registers:", DebugStatus.None);
+                    if (Program.MainForm.Engine != null)
                     {
-                        string st =
-                            "PC: $" + string.Format("{0:X}", Program.Form_Main.NES.CPU.REG_PC) + "\n"
-                            + "A: $" + string.Format("{0:X}", Program.Form_Main.NES.CPU.REG_A) + "\n"
-                            + "X: $" + string.Format("{0:X}", Program.Form_Main.NES.CPU.REG_X) + "\n"
-                            + "Y: $" + string.Format("{0:X}", Program.Form_Main.NES.CPU.REG_Y) + "\n"
-                            + "S: $" + string.Format("{0:X}", Program.Form_Main.NES.CPU.REG_S) + "\n"
-                            + "P: $" + string.Format("{0:X}", Program.Form_Main.NES.CPU.StatusRegister());
-                        this.WriteLine(st, DebugStatus.Cool);
-                        this.WriteLine("Flags", DebugStatus.Cool);
+                        var st =
+                            "PC: $" + string.Format("{0:X}", Program.MainForm.Engine.Cpu.REG_PC) + "\n"
+                            + "A: $" + string.Format("{0:X}", Program.MainForm.Engine.Cpu.REG_A) + "\n"
+                            + "X: $" + string.Format("{0:X}", Program.MainForm.Engine.Cpu.REG_X) + "\n"
+                            + "Y: $" + string.Format("{0:X}", Program.MainForm.Engine.Cpu.REG_Y) + "\n"
+                            + "S: $" + string.Format("{0:X}", Program.MainForm.Engine.Cpu.REG_S) + "\n"
+                            + "P: $" + string.Format("{0:X}", Program.MainForm.Engine.Cpu.StatusRegister());
+                        WriteLine(st, DebugStatus.Cool);
+                        WriteLine("Flags", DebugStatus.Cool);
                         st =
-                            "B : " + (Program.Form_Main.NES.CPU.Flag_B ? "1" : "0") + "\n" +
-                            "C : " + (Program.Form_Main.NES.CPU.Flag_C ? "1" : "0") + "\n" +
-                            "D : " + (Program.Form_Main.NES.CPU.Flag_D ? "1" : "0") + "\n" +
-                            "I : " + (Program.Form_Main.NES.CPU.Flag_I ? "1" : "0") + "\n" +
-                            "N : " + (Program.Form_Main.NES.CPU.Flag_N ? "1" : "0") + "\n" +
-                            "V : " + (Program.Form_Main.NES.CPU.Flag_V ? "1" : "0") + "\n" +
-                            "Z : " + (Program.Form_Main.NES.CPU.Flag_Z ? "1" : "0");
-                        this.WriteLine(st, DebugStatus.Cool);
+                            "B : " + (Program.MainForm.Engine.Cpu.Flag_B ? "1" : "0") + "\n" +
+                            "C : " + (Program.MainForm.Engine.Cpu.Flag_C ? "1" : "0") + "\n" +
+                            "D : " + (Program.MainForm.Engine.Cpu.Flag_D ? "1" : "0") + "\n" +
+                            "I : " + (Program.MainForm.Engine.Cpu.Flag_I ? "1" : "0") + "\n" +
+                            "N : " + (Program.MainForm.Engine.Cpu.Flag_N ? "1" : "0") + "\n" +
+                            "V : " + (Program.MainForm.Engine.Cpu.Flag_V ? "1" : "0") + "\n" +
+                            "Z : " + (Program.MainForm.Engine.Cpu.Flag_Z ? "1" : "0");
+                        WriteLine(st, DebugStatus.Cool);
                     }
                     else
                     {
-                        this.WriteLine("SYSTEM IS OFF", DebugStatus.Error);
+                        WriteLine("SYSTEM IS OFF", DebugStatus.Error);
                     }
                     break;
                 case "cl sram":
-                    if (Program.Form_Main.NES != null)
+                    if (Program.MainForm.Engine != null)
                     {
-                        this.WriteLine("Clearing the S-RAM ....", DebugStatus.Warning);
-                        for (int i = 0; i < Program.Form_Main.NES.MEMORY.SRAM.Length; i++)
-                            Program.Form_Main.NES.MEMORY.SRAM[i] = 0;
-                        this.WriteLine("Done.", DebugStatus.Cool);
+                        WriteLine("Clearing the S-RAM ....", DebugStatus.Warning);
+                        for (var i = 0; i < Program.MainForm.Engine.Memory.SRam.Length; i++)
+                            Program.MainForm.Engine.Memory.SRam[i] = 0;
+                        WriteLine("Done.", DebugStatus.Cool);
                     }
                     else
                     {
-                        this.WriteLine("SYSTEM IS OFF", DebugStatus.Error);
+                        WriteLine("SYSTEM IS OFF", DebugStatus.Error);
                     }
                     break;
-                default://Memory instructions handled here
+                default: //Memory instructions handled here
                     try
                     {
                         if (Instruction == "")
-                        { this.WriteLine("Enter something !!", DebugStatus.Warning); break; }
-                        else if (Instruction.ToLower().Substring(0, 2) == "w ")
                         {
-                            if (Program.Form_Main.NES == null)
-                                this.WriteLine("SYSTEM IS OFF", DebugStatus.Error);
+                            WriteLine("Enter something !!", DebugStatus.Warning);
+                            break;
+                        }
+                        if (Instruction.ToLower().Substring(0, 2) == "w ")
+                        {
+                            if (Program.MainForm.Engine == null)
+                                WriteLine("SYSTEM IS OFF", DebugStatus.Error);
                             try
                             {
-                                ushort ADDRESS = Convert.ToUInt16(Instruction.ToLower().Substring(3, 4), 16);
-                                byte VALUE = Convert.ToByte(Instruction.ToLower().Substring(9, 2), 16);
-                                Program.Form_Main.NES.MEMORY.Write(ADDRESS, VALUE);
-                                this.WriteLine("Done.", DebugStatus.Cool);
+                                var address = Convert.ToUInt16(Instruction.ToLower().Substring(3, 4), 16);
+                                var value = Convert.ToByte(Instruction.ToLower().Substring(9, 2), 16);
+                                Program.MainForm.Engine.Memory.Write(address, value);
+                                WriteLine("Done.", DebugStatus.Cool);
                             }
-                            catch { this.WriteLine("Bad address or value.", DebugStatus.Error); }
+                            catch
+                            {
+                                WriteLine("Bad address or value.", DebugStatus.Error);
+                            }
                         }
                         else if (Instruction.ToLower().Substring(0, 2) == "m ")
                         {
-                            if (Program.Form_Main.NES == null)
-                                this.WriteLine("SYSTEM IS OFF", DebugStatus.Error);
+                            if (Program.MainForm.Engine == null)
+                                WriteLine("SYSTEM IS OFF", DebugStatus.Error);
                             try
                             {
-                                ushort ADDRESS = Convert.ToUInt16(Instruction.ToLower().Substring(3, 4), 16);
-                                byte VALUE = Program.Form_Main.NES.MEMORY.Read(ADDRESS);
-                                this.WriteLine("Done, the value = $" + string.Format("{0:X}", VALUE), DebugStatus.Cool);
+                                var ADDRESS = Convert.ToUInt16(Instruction.ToLower().Substring(3, 4), 16);
+                                var VALUE = Program.MainForm.Engine.Memory.Read(ADDRESS);
+                                WriteLine("Done, the value = $" + string.Format("{0:X}", VALUE), DebugStatus.Cool);
                             }
-                            catch { this.WriteLine("Bad address.", DebugStatus.Error); }
+                            catch
+                            {
+                                WriteLine("Bad address.", DebugStatus.Error);
+                            }
                         }
                         else if (Instruction.ToLower().Substring(0, 3) == "mr ")
                         {
-                            if (Program.Form_Main.NES == null)
-                                this.WriteLine("SYSTEM IS OFF", DebugStatus.Error);
+                            if (Program.MainForm.Engine == null)
+                                WriteLine("SYSTEM IS OFF", DebugStatus.Error);
                             try
                             {
-                                ushort ADDRESS = Convert.ToUInt16(Instruction.ToLower().Substring(4, 4), 16);
-                                int countt = Convert.ToInt32(Instruction.ToLower().Substring(9, Instruction.ToLower().Length - 9));
-                                for (int i = 0; i < countt; i++)
+                                var ADDRESS = Convert.ToUInt16(Instruction.ToLower().Substring(4, 4), 16);
+                                var countt =
+                                    Convert.ToInt32(Instruction.ToLower().Substring(9, Instruction.ToLower().Length - 9));
+                                for (var i = 0; i < countt; i++)
                                 {
-                                    byte VALUE = Program.Form_Main.NES.MEMORY.Read((ushort)(ADDRESS + i));
-                                    this.WriteLine("$" + string.Format("{0:X}", (ADDRESS + i)) + " : $" + string.Format("{0:X}", VALUE), DebugStatus.Cool);
+                                    var VALUE = Program.MainForm.Engine.Memory.Read((ushort) (ADDRESS + i));
+                                    WriteLine(
+                                        "$" + string.Format("{0:X}", (ADDRESS + i)) + " : $" +
+                                        string.Format("{0:X}", VALUE), DebugStatus.Cool);
                                 }
                             }
-                            catch { this.WriteLine("Bad address or range out of memory.", DebugStatus.Error); }
+                            catch
+                            {
+                                WriteLine("Bad address or range out of memory.", DebugStatus.Error);
+                            }
                         }
                         else
-                            this.WriteLine("Bad command ...", DebugStatus.Warning); break;
+                            WriteLine("Bad command ...", DebugStatus.Warning);
+                        break;
                     }
                     catch
-                    { this.WriteLine("Bad command ...", DebugStatus.Warning); break; }
+                    {
+                        WriteLine("Bad command ...", DebugStatus.Warning);
+                        break;
+                    }
             }
         }
-        void Help()
+
+        private void Help()
         {
-            this.WriteLine("Instructions list :", DebugStatus.Cool);
-            this.WriteLine("  > exit : Close the console");
-            this.WriteLine("  > help : Display this list !!");
-            this.WriteLine("  > rom : Show the current rom info.");
-            this.WriteLine("  > R : Dumps the cpu registers");
-            this.WriteLine("  > W <address> <value> : Set a value into the memory at the specific address.");
-            this.WriteLine("  The address and the value must be in hex starting with $");
-            this.WriteLine("  e.g : w $1F23 $10");
-            this.WriteLine("  > M <address> : Dumps the memory at the specific address.");
-            this.WriteLine("  > MR <StartAddress> <Count> : Dumps the specified memory range.");
-            this.WriteLine("  The address must be in hex starting with $, count must be dec");
-            this.WriteLine("  e.g : mr $1F23 1000");
-            this.WriteLine("  > CL D : Clear debugger");
-            this.WriteLine("  > CL SRAM : Clear S-RAM");
-            this.WriteLine("Instructions are NOT case sensitive.");
+            WriteLine("Instructions list :", DebugStatus.Cool);
+            WriteLine("  > exit : Close the console");
+            WriteLine("  > help : Display this list !!");
+            WriteLine("  > rom : Show the current rom info.");
+            WriteLine("  > R : Dumps the cpu registers");
+            WriteLine("  > W <address> <value> : Set a value into the memory at the specific address.");
+            WriteLine("  The address and the value must be in hex starting with $");
+            WriteLine("  e.g : w $1F23 $10");
+            WriteLine("  > M <address> : Dumps the memory at the specific address.");
+            WriteLine("  > MR <StartAddress> <Count> : Dumps the specified memory range.");
+            WriteLine("  The address must be in hex starting with $, count must be dec");
+            WriteLine("  e.g : mr $1F23 1000");
+            WriteLine("  > CL D : Clear debugger");
+            WriteLine("  > CL SRAM : Clear S-RAM");
+            WriteLine("Instructions are NOT case sensitive.");
         }
+
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return)
             {
-                if (this.richTextBox1.Lines.Length > 0)
-                    this.richTextBox1.SelectedText = this.richTextBox1.Lines[this.richTextBox1.Lines.Length - 1];
-                this.DoInstruction(this.textBox1.Text);
+                if (richTextBox1.Lines.Length > 0)
+                    richTextBox1.SelectedText = richTextBox1.Lines[richTextBox1.Lines.Length - 1];
+                DoInstruction(textBox1.Text);
             }
         }
+
         private void button2_Click(object sender, EventArgs e)
         {
-            if (this.richTextBox1.Lines.Length > 0)
-                this.richTextBox1.SelectedText = this.richTextBox1.Lines[this.richTextBox1.Lines.Length - 1];
-            this.DoInstruction(this.textBox1.Text);
+            if (richTextBox1.Lines.Length > 0)
+                richTextBox1.SelectedText = richTextBox1.Lines[richTextBox1.Lines.Length - 1];
+            DoInstruction(textBox1.Text);
         }
+
         private void button1_Click(object sender, EventArgs e)
         {
-            this.ClearDebugger();
+            ClearDebugger();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            SaveFileDialog sav = new SaveFileDialog();
+            var sav = new SaveFileDialog();
             sav.Title = "Save console lines to file";
             sav.Filter = "RTF DOCUMENT|*.rtf|TEXT FILE|*.txt|DOC DOCUMENT|*.doc";
-            if (sav.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+            if (sav.ShowDialog(this) == DialogResult.OK)
             {
                 if (Path.GetExtension(sav.FileName).ToLower() == ".txt")
                 {
-                    File.WriteAllLines(sav.FileName, this.richTextBox1.Lines);
+                    File.WriteAllLines(sav.FileName, richTextBox1.Lines);
                 }
                 else
                 {
-                    this.richTextBox1.SaveFile(sav.FileName, RichTextBoxStreamType.RichText);
+                    richTextBox1.SaveFile(sav.FileName, RichTextBoxStreamType.RichText);
                 }
             }
         }
 
         private void textBox1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            this.textBox1.SelectAll();
+            textBox1.SelectAll();
         }
     }
 }

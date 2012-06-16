@@ -1,30 +1,24 @@
-﻿using System.Collections.Generic;
-
-namespace NesHd.Ui.Misc
+﻿namespace NesHd.Ui.Misc
 {
     public class ControlProfile
     {
         public string Name = "";
-        public string Player1_A = "Keyboard.X";
-        public string Player1_B = "Keyboard.Z";
-        public string Player1_Left = "Keyboard.LeftArrow";
-        public string Player1_Right = "Keyboard.RightArrow";
-        public string Player1_Up = "Keyboard.UpArrow";
-        public string Player1_Down = "Keyboard.DownArrow";
-        public string Player1_Start = "Keyboard.V";
-        public string Player1_Select = "Keyboard.C";
+        public string Player1A = "Keyboard.X";
+        public string Player1B = "Keyboard.Z";
+        public string Player1Down = "Keyboard.DownArrow";
+        public string Player1Left = "Keyboard.LeftArrow";
+        public string Player1Right = "Keyboard.RightArrow";
+        public string Player1Select = "Keyboard.C";
+        public string Player1Start = "Keyboard.V";
+        public string Player1Up = "Keyboard.UpArrow";
 
-        public string Player2_A = "Keyboard.K";
-        public string Player2_B = "Keyboard.J";
-        public string Player2_Left = "Keyboard.A";
-        public string Player2_Right = "Keyboard.D";
-        public string Player2_Up = "Keyboard.W";
-        public string Player2_Down = "Keyboard.S";
-        public string Player2_Start = "Keyboard.E";
-        public string Player2_Select = "Keyboard.Q";
-    }
-    public class ControlProfilesCollection : List<ControlProfile>//For settings
-    {
-
+        public string Player2A = "Keyboard.K";
+        public string Player2B = "Keyboard.J";
+        public string Player2Down = "Keyboard.S";
+        public string Player2Left = "Keyboard.A";
+        public string Player2Right = "Keyboard.D";
+        public string Player2Select = "Keyboard.Q";
+        public string Player2Start = "Keyboard.E";
+        public string Player2Up = "Keyboard.W";
     }
 }

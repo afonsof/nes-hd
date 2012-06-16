@@ -1,27 +1,5 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using System;
+﻿using System;
 using System.Windows.Forms;
-
 using NesHd.Core;
 using NesHd.Core.Output.Video;
 using NesHd.Core.Output.Video.Devices;
@@ -31,27 +9,33 @@ namespace NesHd.Ui.WinForms
 {
     public partial class Frm_VideoOption : Form
     {
-        bool _Ok = false;
-        public bool OK
-        { get { return this._Ok; } }
+        private bool _Ok;
+
         public Frm_VideoOption()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             //Load the settings
-            this.comboBox1_Tv.SelectedItem = Program.Settings.TV.ToString();
-            this.comboBox1_Size.SelectedItem = Program.Settings.Size;
-            this.comboBox1_VideoMode.SelectedItem = Program.Settings.GFXDevice.ToString();
-            this.checkBox1.Checked = Program.Settings.Fullscreen;
+            comboBox1_Tv.SelectedItem = Program.Settings.TV.ToString();
+            comboBox1_Size.SelectedItem = Program.Settings.Size;
+            comboBox1_VideoMode.SelectedItem = Program.Settings.GFXDevice.ToString();
+            checkBox1.Checked = Program.Settings.Fullscreen;
         }
+
+        public bool OK
+        {
+            get { return _Ok; }
+        }
+
         private void button2_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
+
         //save 
         private void button1_Click(object sender, EventArgs e)
         {
             //TV format
-            switch (this.comboBox1_Tv.SelectedItem.ToString())
+            switch (comboBox1_Tv.SelectedItem.ToString())
             {
                 case "NTSC":
                     Program.Settings.TV = TVFORMAT.NTSC;
@@ -61,9 +45,9 @@ namespace NesHd.Ui.WinForms
                     break;
             }
             //Size
-            Program.Settings.Size = this.comboBox1_Size.SelectedItem.ToString();
+            Program.Settings.Size = comboBox1_Size.SelectedItem.ToString();
             //Output device
-            switch (this.comboBox1_VideoMode.SelectedItem.ToString())
+            switch (comboBox1_VideoMode.SelectedItem.ToString())
             {
                 case "SlimDX":
                     Program.Settings.GFXDevice = GraphicDevices.SlimDx;
@@ -76,46 +60,46 @@ namespace NesHd.Ui.WinForms
                     break;
             }
             //Fullscreen
-            Program.Settings.Fullscreen = this.checkBox1.Checked;
+            Program.Settings.Fullscreen = checkBox1.Checked;
             //SAVE
             Program.Settings.Save();
-            this.Close();
-            this._Ok = true;
+            Close();
+            _Ok = true;
         }
 
         private void comboBox1_VideoMode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch (this.comboBox1_VideoMode.SelectedItem.ToString())
+            switch (comboBox1_VideoMode.SelectedItem.ToString())
             {
                 case "SlimDX":
-                    VideoSlimDx sl = new VideoSlimDx(TVFORMAT.NTSC, Program.Form_Main.panel1);
-                    this.richTextBox1_DrawerDescription.Text = sl.Description;
+                    var sl = new VideoSlimDx(TVFORMAT.NTSC, Program.MainForm.panel1);
+                    richTextBox1_DrawerDescription.Text = sl.Description;
                     break;
                 case "GDI":
-                    VideoGdi gd = new VideoGdi(TVFORMAT.NTSC, Program.Form_Main.panel1);
-                    this.richTextBox1_DrawerDescription.Text = gd.Description;
+                    var gd = new VideoGdi(TVFORMAT.NTSC, Program.MainForm.panel1);
+                    richTextBox1_DrawerDescription.Text = gd.Description;
                     break;
                 case "GDIHiRes":
-                    VideoGdiHiRes gdh = new VideoGdiHiRes(TVFORMAT.NTSC, Program.Form_Main.panel1, "", 0);
-                    this.richTextBox1_DrawerDescription.Text = gdh.Description;
+                    var gdh = new VideoGdiHiRes(TVFORMAT.NTSC, Program.MainForm.panel1, "", 0);
+                    richTextBox1_DrawerDescription.Text = gdh.Description;
                     break;
             }
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            switch (this.comboBox1_VideoMode.SelectedItem.ToString())
+            switch (comboBox1_VideoMode.SelectedItem.ToString())
             {
                 case "SlimDX":
-                    VideoSlimDx sl = new VideoSlimDx(TVFORMAT.NTSC, Program.Form_Main.panel1);
+                    var sl = new VideoSlimDx(TVFORMAT.NTSC, Program.MainForm.panel1);
                     sl.ChangeSettings();
                     break;
                 case "GDI":
-                    VideoGdi gd = new VideoGdi(TVFORMAT.NTSC, Program.Form_Main.panel1);
+                    var gd = new VideoGdi(TVFORMAT.NTSC, Program.MainForm.panel1);
                     gd.ChangeSettings();
                     break;
                 case "GDIHiRes":
-                    VideoGdi gdh = new VideoGdi(TVFORMAT.NTSC, Program.Form_Main.panel1);
+                    var gdh = new VideoGdi(TVFORMAT.NTSC, Program.MainForm.panel1);
                     gdh.ChangeSettings();
                     break;
             }
@@ -124,13 +108,14 @@ namespace NesHd.Ui.WinForms
         private void button4_Click(object sender, EventArgs e)
         {
             //TV format
-            this.comboBox1_Tv.SelectedItem = "NTSC";
+            comboBox1_Tv.SelectedItem = "NTSC";
             //Size
-            this.comboBox1_Size.SelectedItem = "Stretch"; ;
+            comboBox1_Size.SelectedItem = "Stretch";
+            ;
             //Output device
-            this.comboBox1_VideoMode.SelectedItem = "SlimDX";
+            comboBox1_VideoMode.SelectedItem = "SlimDX";
             //Fullscreen
-            this.checkBox1.Checked = true;
+            checkBox1.Checked = true;
         }
     }
 }

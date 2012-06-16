@@ -2,7 +2,7 @@
 
 namespace NesHd.Core.Output.Video
 {
-    class BitmapF
+    internal class BitmapF
     {
         public int BitmapId;
         public int Color1;
@@ -12,7 +12,7 @@ namespace NesHd.Core.Output.Video
         public int Y;
     }
 
-    class TileData
+    internal class TileData
     {
         public List<BitmapF> BitmapP;
         public int DefaultId;

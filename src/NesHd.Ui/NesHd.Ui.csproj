@@ -45,6 +45,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -69,19 +70,15 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Misc\ControlProfilesCollection.cs" />
+    <Compile Include="Misc\FolderFilter.cs" />
+    <Compile Include="Misc\ListViewItemRom.cs" />
+    <Compile Include="Misc\MFolderCollection.cs" />
+    <Compile Include="Misc\TreeNodeFolder.cs" />
     <Compile Include="WinForms\Frm_EnterName.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -95,11 +92,11 @@
     <Compile Include="WinForms\Frm_GeneralOptions.Designer.cs">
       <DependentUpon>Frm_GeneralOptions.cs</DependentUpon>
     </Compile>
-    <Compile Include="WinForms\Frm_About.cs">
+    <Compile Include="WinForms\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WinForms\Frm_About.Designer.cs">
-      <DependentUpon>Frm_About.cs</DependentUpon>
+    <Compile Include="WinForms\AboutForm.Designer.cs">
+      <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
     <Compile Include="WinForms\Frm_RomInfo.cs">
       <SubType>Form</SubType>
@@ -107,24 +104,24 @@
     <Compile Include="WinForms\Frm_RomInfo.Designer.cs">
       <DependentUpon>Frm_RomInfo.cs</DependentUpon>
     </Compile>
-    <Compile Include="WinForms\Frm_Archives.cs">
+    <Compile Include="WinForms\ArchivesForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WinForms\Frm_Archives.Designer.cs">
-      <DependentUpon>Frm_Archives.cs</DependentUpon>
+    <Compile Include="WinForms\ArchivesForm.Designer.cs">
+      <DependentUpon>ArchivesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Misc\MFolder.cs" />
-    <Compile Include="WinForms\Frm_Browser.cs">
+    <Compile Include="WinForms\BrowserForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WinForms\Frm_Browser.Designer.cs">
-      <DependentUpon>Frm_Browser.cs</DependentUpon>
+    <Compile Include="WinForms\BrowserForm.Designer.cs">
+      <DependentUpon>BrowserForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="WinForms\Frm_AudioOptions.cs">
+    <Compile Include="WinForms\AudioOptionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WinForms\Frm_AudioOptions.Designer.cs">
-      <DependentUpon>Frm_AudioOptions.cs</DependentUpon>
+    <Compile Include="WinForms\AudioOptionsForm.Designer.cs">
+      <DependentUpon>AudioOptionsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="WinForms\Frm_Palette.cs">
       <SubType>Form</SubType>
@@ -163,19 +160,21 @@
       <DependentUpon>Frm_Debugger.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Settings.cs" />
-    <Compile Include="WinForms\Frm_Main.cs">
+    <Compile Include="WinForms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WinForms\Frm_Main.Designer.cs">
-      <DependentUpon>Frm_Main.cs</DependentUpon>
+    <Compile Include="WinForms\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Misc\Rom.cs" />
     <EmbeddedResource Include="WinForms\Frm_EnterName.resx">
       <DependentUpon>Frm_EnterName.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinForms\Frm_About.resx">
-      <DependentUpon>Frm_About.cs</DependentUpon>
+    <EmbeddedResource Include="WinForms\AboutForm.resx">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="WinForms\Frm_GeneralOptions.resx">
       <DependentUpon>Frm_GeneralOptions.cs</DependentUpon>
@@ -183,14 +182,14 @@
     <EmbeddedResource Include="WinForms\Frm_RomInfo.resx">
       <DependentUpon>Frm_RomInfo.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinForms\Frm_Archives.resx">
-      <DependentUpon>Frm_Archives.cs</DependentUpon>
+    <EmbeddedResource Include="WinForms\ArchivesForm.resx">
+      <DependentUpon>ArchivesForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinForms\Frm_Browser.resx">
-      <DependentUpon>Frm_Browser.cs</DependentUpon>
+    <EmbeddedResource Include="WinForms\BrowserForm.resx">
+      <DependentUpon>BrowserForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinForms\Frm_AudioOptions.resx">
-      <DependentUpon>Frm_AudioOptions.cs</DependentUpon>
+    <EmbeddedResource Include="WinForms\AudioOptionsForm.resx">
+      <DependentUpon>AudioOptionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinForms\Frm_Palette.resx">
       <DependentUpon>Frm_Palette.cs</DependentUpon>
@@ -207,8 +206,9 @@
     <EmbeddedResource Include="WinForms\Frm_Debugger.resx">
       <DependentUpon>Frm_Debugger.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinForms\Frm_Main.resx">
-      <DependentUpon>Frm_Main.cs</DependentUpon>
+    <EmbeddedResource Include="WinForms\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

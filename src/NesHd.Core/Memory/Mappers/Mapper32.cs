@@ -1,81 +1,97 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using NesHd.Core.Debugger;
+﻿using NesHd.Core.Debugger;
 
 namespace NesHd.Core.Memory.Mappers
 {
-    class Mapper32 : IMapper
+    internal class Mapper32 : IMapper
     {
-        MAP Map;
-        public int mapper32SwitchingMode = 0;
-        public Mapper32(MAP Maps)
-        { this.Map = Maps; }
+        private readonly Map _map;
+        public int mapper32SwitchingMode;
+
+        public Mapper32(Map map)
+        {
+            _map = map;
+        }
+
+        #region IMapper Members
+
         public void Write(ushort address, byte data)
         {
             switch (address)
             {
-                case 0x9FFF: this.Map.Cartridge.Mirroring = ((data & 0x01) == 0) ? MIRRORING.VERTICAL : MIRRORING.HORIZONTAL;
-                    this.mapper32SwitchingMode = ((data & 0x02) == 0) ? 0 : 1;
+                case 0x9FFF:
+                    _map.Cartridge.Mirroring = ((data & 0x01) == 0) ? Mirroring.Vertical : Mirroring.Horizontal;
+                    mapper32SwitchingMode = ((data & 0x02) == 0) ? 0 : 1;
                     break;
                 case 0x8FFF:
-                    if (this.mapper32SwitchingMode == 0)
+                    if (mapper32SwitchingMode == 0)
                     {
-                        this.Map.Switch8kPrgRom(data * 2, 0);
+                        _map.Switch8KPrgRom(data*2, 0);
                     }
                     else
                     {
-                        this.Map.Switch8kPrgRom(data * 2, 2);
+                        _map.Switch8KPrgRom(data*2, 2);
                     }
                     break;
-                case 0xAFFF: this.Map.Switch8kPrgRom(data * 2, 1); break;
-                case 0xBFF0: this.Map.Switch1kChrRom(data, 0); break;
-                case 0xBFF1: this.Map.Switch1kChrRom(data, 1); break;
-                case 0xBFF2: this.Map.Switch1kChrRom(data, 2); break;
-                case 0xBFF3: this.Map.Switch1kChrRom(data, 3); break;
-                case 0xBFF4: this.Map.Switch1kChrRom(data, 4); break;
-                case 0xBFF5: this.Map.Switch1kChrRom(data, 5); break;
-                case 0xBFF6: this.Map.Switch1kChrRom(data, 6); break;
-                case 0xBFF7: this.Map.Switch1kChrRom(data, 7); break;
+                case 0xAFFF:
+                    _map.Switch8KPrgRom(data*2, 1);
+                    break;
+                case 0xBFF0:
+                    _map.Switch1KChrRom(data, 0);
+                    break;
+                case 0xBFF1:
+                    _map.Switch1KChrRom(data, 1);
+                    break;
+                case 0xBFF2:
+                    _map.Switch1KChrRom(data, 2);
+                    break;
+                case 0xBFF3:
+                    _map.Switch1KChrRom(data, 3);
+                    break;
+                case 0xBFF4:
+                    _map.Switch1KChrRom(data, 4);
+                    break;
+                case 0xBFF5:
+                    _map.Switch1KChrRom(data, 5);
+                    break;
+                case 0xBFF6:
+                    _map.Switch1KChrRom(data, 6);
+                    break;
+                case 0xBFF7:
+                    _map.Switch1KChrRom(data, 7);
+                    break;
             }
-
         }
+
         public void SetUpMapperDefaults()
         {
-            this.Map.Switch16kPrgRom(1 * 4, 0);
-            this.Map.Switch16kPrgRom((this.Map.Cartridge.PRG_PAGES - 1) * 4, 1);
-            this.Map.Switch8kChrRom(0);
+            _map.Switch16KPrgRom(1*4, 0);
+            _map.Switch16KPrgRom((_map.Cartridge.PrgPages - 1)*4, 1);
+            _map.Switch8KChrRom(0);
             Debug.WriteLine(this, "Mapper 32 setup done.", DebugStatus.Cool);
         }
+
         public void TickScanlineTimer()
         {
         }
+
         public void TickCycleTimer()
         {
         }
+
         public void SoftReset()
-        { }
+        {
+        }
+
         public bool WriteUnder8000
-        { get { return false; } }
+        {
+            get { return false; }
+        }
+
         public bool WriteUnder6000
-        { get { return false; } }
+        {
+            get { return false; }
+        }
+
+        #endregion
     }
 }

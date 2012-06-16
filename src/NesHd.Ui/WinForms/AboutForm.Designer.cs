@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 namespace NesHd.Ui.WinForms
 {
-    partial class Frm_About
+    partial class AboutForm
     {
         /// <summary>
         /// Required designer variable.
@@ -48,7 +48,7 @@ namespace NesHd.Ui.WinForms
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm_About));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutForm));
             this.label1 = new System.Windows.Forms.Label();
             this.label2_ver = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -99,7 +99,7 @@ namespace NesHd.Ui.WinForms
             this.linkLabel2.TabIndex = 6;
             this.linkLabel2.TabStop = true;
             this.linkLabel2.Text = "http://sourceforge.net/projects/NesHd.Ui/";
-            this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
+            this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel2LinkClicked);
             // 
             // linkLabel1
             // 
@@ -111,7 +111,7 @@ namespace NesHd.Ui.WinForms
             this.linkLabel1.TabIndex = 5;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "ahdsoftwares@hotmail.com";
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1LinkClicked);
             // 
             // label3
             // 
@@ -131,7 +131,7 @@ namespace NesHd.Ui.WinForms
             this.button1.TabIndex = 7;
             this.button1.Text = "&Alright";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1Click);
             // 
             // label4
             // 
@@ -144,7 +144,7 @@ namespace NesHd.Ui.WinForms
             this.label4.Text = "جميع الحقوق محفوظة © 2009 - 2010 علاء حديد\r\nسوريا - حماه - السلمية";
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // Frm_About
+            // AboutForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -161,7 +161,7 @@ namespace NesHd.Ui.WinForms
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Frm_About";
+            this.Name = "AboutForm";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "About My Nes";

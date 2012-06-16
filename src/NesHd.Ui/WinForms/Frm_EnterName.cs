@@ -5,37 +5,44 @@ namespace NesHd.Ui.WinForms
 {
     public partial class Frm_EnterName : Form
     {
-        bool _Ok = false;
+        private bool _Ok;
+
+        public Frm_EnterName()
+        {
+            InitializeComponent();
+        }
+
         /// <summary>
         /// Get if the user pressed the Ok button
         /// </summary>
         public bool OK
-        { get { return this._Ok; } }
+        {
+            get { return _Ok; }
+        }
+
         /// <summary>
         /// Get the name entered by the user
         /// </summary>
         public string NameEntered
-        { get { return this.textBox1.Text; } }
-        public Frm_EnterName()
         {
-            this.InitializeComponent();
+            get { return textBox1.Text; }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            this._Ok = true;
-            this.Close();
+            _Ok = true;
+            Close();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            this._Ok = false;
-            this.Close();
+            _Ok = false;
+            Close();
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            this.button1.Enabled = this.textBox1.Text.Length > 0;
+            button1.Enabled = textBox1.Text.Length > 0;
         }
     }
 }

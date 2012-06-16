@@ -1,202 +1,204 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using NesHd.Core.Debugger;
+﻿using NesHd.Core.Debugger;
 
 namespace NesHd.Core.Memory.Mappers
 {
-    class Mapper04 : IMapper
+    internal class Mapper04 : IMapper
     {
-        MAP _Map;
-        public int mapper4_commandNumber;
-        public int mapper4_prgAddressSelect;
-        public int mapper4_chrAddressSelect;
-        public bool timer_irq_enabled;
-        public uint timer_irq_count, timer_irq_reload;
-        public Mapper04(MAP map)
-        { this._Map = map; }
+        private readonly Map _map;
+        public int Mapper4ChrAddressSelect;
+        public int Mapper4CommandNumber;
+        public int Mapper4PRGAddressSelect;
+        public uint TimerIrqCount;
+        public bool TimerIrqEnabled;
+        public uint TimerIrqReload;
+
+        public Mapper04(Map map)
+        {
+            _map = map;
+        }
+
+        #region IMapper Members
+
         public void Write(ushort address, byte data)
         {
             if (address == 0x8000)
             {
-                this.mapper4_commandNumber = data & 0x7;
-                this.mapper4_prgAddressSelect = data & 0x40;
-                this.mapper4_chrAddressSelect = data & 0x80;
+                Mapper4CommandNumber = data & 0x7;
+                Mapper4PRGAddressSelect = data & 0x40;
+                Mapper4ChrAddressSelect = data & 0x80;
             }
             else if (address == 0x8001)
             {
-                if (this.mapper4_commandNumber == 0)
+                if (Mapper4CommandNumber == 0)
                 {
-
-                    data = (byte)(data - (data % 2));
-                    if (this.mapper4_chrAddressSelect == 0)
-                        this._Map.Switch2kChrRom(data, 0);
+                    data = (byte) (data - (data%2));
+                    if (Mapper4ChrAddressSelect == 0)
+                        _map.Switch2KChrRom(data, 0);
                     else
-                        this._Map.Switch2kChrRom(data, 2);
+                        _map.Switch2KChrRom(data, 2);
                 }
-                else if (this.mapper4_commandNumber == 1)
+                else if (Mapper4CommandNumber == 1)
                 {
-
-                    data = (byte)(data - (data % 2));
-                    if (this.mapper4_chrAddressSelect == 0)
+                    data = (byte) (data - (data%2));
+                    if (Mapper4ChrAddressSelect == 0)
                     {
-                        this._Map.Switch2kChrRom(data, 1);
+                        _map.Switch2KChrRom(data, 1);
                     }
                     else
                     {
-                        this._Map.Switch2kChrRom(data, 3);
+                        _map.Switch2KChrRom(data, 3);
                     }
                 }
-                else if (this.mapper4_commandNumber == 2)
+                else if (Mapper4CommandNumber == 2)
                 {
-
-                    data = (byte)(data & (this._Map.Cartridge.CHR_PAGES * 8 - 1));
-                    if (this.mapper4_chrAddressSelect == 0)
+                    data = (byte) (data & (_map.Cartridge.ChrPages*8 - 1));
+                    if (Mapper4ChrAddressSelect == 0)
                     {
-                        this._Map.Switch1kChrRom(data, 4);
+                        _map.Switch1KChrRom(data, 4);
                     }
                     else
                     {
-                        this._Map.Switch1kChrRom(data, 0);
+                        _map.Switch1KChrRom(data, 0);
                     }
                 }
-                else if (this.mapper4_commandNumber == 3)
+                else if (Mapper4CommandNumber == 3)
                 {
-
-                    if (this.mapper4_chrAddressSelect == 0)
+                    if (Mapper4ChrAddressSelect == 0)
                     {
-                        this._Map.Switch1kChrRom(data, 5);
+                        _map.Switch1KChrRom(data, 5);
                     }
                     else
                     {
-                        this._Map.Switch1kChrRom(data, 1);
+                        _map.Switch1KChrRom(data, 1);
                     }
                 }
-                else if (this.mapper4_commandNumber == 4)
+                else if (Mapper4CommandNumber == 4)
                 {
-
-                    if (this.mapper4_chrAddressSelect == 0)
+                    if (Mapper4ChrAddressSelect == 0)
                     {
-                        this._Map.Switch1kChrRom(data, 6);
+                        _map.Switch1KChrRom(data, 6);
                     }
                     else
                     {
-                        this._Map.Switch1kChrRom(data, 2);
+                        _map.Switch1KChrRom(data, 2);
                     }
                 }
-                else if (this.mapper4_commandNumber == 5)
+                else if (Mapper4CommandNumber == 5)
                 {
-
-                    if (this.mapper4_chrAddressSelect == 0)
+                    if (Mapper4ChrAddressSelect == 0)
                     {
-                        this._Map.Switch1kChrRom(data, 7);
+                        _map.Switch1KChrRom(data, 7);
                     }
                     else
                     {
-                        this._Map.Switch1kChrRom(data, 3);
+                        _map.Switch1KChrRom(data, 3);
                     }
                 }
-                else if (this.mapper4_commandNumber == 6)
+                else if (Mapper4CommandNumber == 6)
                 {
-                    if (this.mapper4_prgAddressSelect == 0)
+                    if (Mapper4PRGAddressSelect == 0)
                     {
-                        this._Map.Switch8kPrgRom(data * 2, 0);
+                        _map.Switch8KPrgRom(data*2, 0);
                     }
                     else
                     {
-                        this._Map.Switch8kPrgRom(data * 2, 2);
+                        _map.Switch8KPrgRom(data*2, 2);
                     }
                 }
-                else if (this.mapper4_commandNumber == 7)
+                else if (Mapper4CommandNumber == 7)
                 {
-
-                    this._Map.Switch8kPrgRom(data * 2, 1);
+                    _map.Switch8KPrgRom(data*2, 1);
                 }
 
-                if (this.mapper4_prgAddressSelect == 0)
-                { this._Map.Switch8kPrgRom(((this._Map.Cartridge.PRG_PAGES * 4) - 2) * 2, 2); }
+                if (Mapper4PRGAddressSelect == 0)
+                {
+                    _map.Switch8KPrgRom(((_map.Cartridge.PrgPages*4) - 2)*2, 2);
+                }
                 else
-                { this._Map.Switch8kPrgRom(((this._Map.Cartridge.PRG_PAGES * 4) - 2) * 2, 0); }
-                this._Map.Switch8kPrgRom(((this._Map.Cartridge.PRG_PAGES * 4) - 1) * 2, 3);
+                {
+                    _map.Switch8KPrgRom(((_map.Cartridge.PrgPages*4) - 2)*2, 0);
+                }
+                _map.Switch8KPrgRom(((_map.Cartridge.PrgPages*4) - 1)*2, 3);
             }
             else if (address == 0xA000)
             {
                 if ((data & 0x1) == 0)
                 {
-                    this._Map.Cartridge.Mirroring = MIRRORING.VERTICAL;
+                    _map.Cartridge.Mirroring = Mirroring.Vertical;
                 }
                 else
                 {
-                    this._Map.Cartridge.Mirroring = MIRRORING.HORIZONTAL;
+                    _map.Cartridge.Mirroring = Mirroring.Horizontal;
                 }
             }
             else if (address == 0xA001)
             {
                 if ((data & 0x80) == 0)
-                    this._Map.IsSRAMReadOnly = true;
+                    _map.IsSRamReadOnly = true;
                 else
-                    this._Map.IsSRAMReadOnly = false;
+                    _map.IsSRamReadOnly = false;
             }
             else if (address == 0xC000)
-            { this.timer_irq_reload = data; }
+            {
+                TimerIrqReload = data;
+            }
             else if (address == 0xC001)
-            { this.timer_irq_count = data; }
+            {
+                TimerIrqCount = data;
+            }
             else if (address == 0xE000)
             {
-                this.timer_irq_enabled = false;
-                this.timer_irq_reload = this.timer_irq_count;
+                TimerIrqEnabled = false;
+                TimerIrqReload = TimerIrqCount;
             }
             else if (address == 0xE001)
-            { this.timer_irq_enabled = true; }
+            {
+                TimerIrqEnabled = true;
+            }
         }
+
         public void SetUpMapperDefaults()
         {
-            this.timer_irq_count = this.timer_irq_reload = 0xff;
-            this.mapper4_prgAddressSelect = 0;
-            this.mapper4_chrAddressSelect = 0;
-            this._Map.Switch16kPrgRom((this._Map.Cartridge.PRG_PAGES - 1) * 4, 1);
-            this._Map.Switch8kChrRom(0);
+            TimerIrqCount = TimerIrqReload = 0xff;
+            Mapper4PRGAddressSelect = 0;
+            Mapper4ChrAddressSelect = 0;
+            _map.Switch16KPrgRom((_map.Cartridge.PrgPages - 1)*4, 1);
+            _map.Switch8KChrRom(0);
             Debug.WriteLine(this, "Mapper 4 setup done.", DebugStatus.Cool);
         }
+
         public void TickScanlineTimer()
         {
-            if (this.timer_irq_reload == 0)
+            if (TimerIrqReload == 0)
             {
-                if (this.timer_irq_enabled)
+                if (TimerIrqEnabled)
                 {
-                    this._Map.NES.CPU.IRQNextTime = true;
-                    this.timer_irq_enabled = false;
+                    _map.Engine.Cpu.IRQNextTime = true;
+                    TimerIrqEnabled = false;
                 }
-                this.timer_irq_reload = this.timer_irq_count;
+                TimerIrqReload = TimerIrqCount;
             }
-            this.timer_irq_reload -= 1;
+            TimerIrqReload -= 1;
         }
+
         public void TickCycleTimer()
         {
         }
+
         public void SoftReset()
-        { }
+        {
+        }
+
         public bool WriteUnder8000
-        { get { return false; } }
+        {
+            get { return false; }
+        }
+
         public bool WriteUnder6000
-        { get { return false; } }
+        {
+            get { return false; }
+        }
+
+        #endregion
     }
 }

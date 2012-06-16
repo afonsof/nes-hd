@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 namespace NesHd.Ui.WinForms
 {
-    partial class Frm_Archives
+    partial class ArchivesForm
     {
         /// <summary>
         /// Required designer variable.
@@ -61,8 +61,8 @@ namespace NesHd.Ui.WinForms
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(250, 121);
             this.listBox1.TabIndex = 0;
-            this.listBox1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listBox1_MouseDoubleClick);
-            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            this.listBox1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ListBox1MouseDoubleClick);
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.ListBox1SelectedIndexChanged);
             // 
             // label1
             // 
@@ -82,7 +82,7 @@ namespace NesHd.Ui.WinForms
             this.button1.TabIndex = 2;
             this.button1.Text = "&Play";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1Click);
             // 
             // button2
             // 
@@ -92,9 +92,9 @@ namespace NesHd.Ui.WinForms
             this.button2.TabIndex = 3;
             this.button2.Text = "&Cancel";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.Button2Click);
             // 
-            // Frm_Archives
+            // ArchivesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -105,7 +105,7 @@ namespace NesHd.Ui.WinForms
             this.Controls.Add(this.label1);
             this.Controls.Add(this.listBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Name = "Frm_Archives";
+            this.Name = "ArchivesForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

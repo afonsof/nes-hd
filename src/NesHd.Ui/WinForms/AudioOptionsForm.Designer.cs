@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 namespace NesHd.Ui.WinForms
 {
-    partial class Frm_AudioOptions
+    partial class AudioOptionsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -86,7 +86,7 @@ namespace NesHd.Ui.WinForms
             this.checkBox1.TabIndex = 0;
             this.checkBox1.Text = "Enable sound";
             this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.CheckBox1CheckedChanged);
             // 
             // groupBox1
             // 
@@ -110,7 +110,7 @@ namespace NesHd.Ui.WinForms
             this.button4.TabIndex = 5;
             this.button4.Text = "&Uncheck all";
             this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.button4.Click += new System.EventHandler(this.Button4Click);
             // 
             // groupBox4
             // 
@@ -153,7 +153,7 @@ namespace NesHd.Ui.WinForms
             this.button3.TabIndex = 4;
             this.button3.Text = "&Check all";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button3.Click += new System.EventHandler(this.Button3Click);
             // 
             // groupBox3
             // 
@@ -178,7 +178,7 @@ namespace NesHd.Ui.WinForms
             this.trackBar1.TabIndex = 5;
             this.trackBar1.TickFrequency = 200;
             this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            this.trackBar1.Scroll += new System.EventHandler(this.TrackBar1Scroll);
             // 
             // label1
             // 
@@ -285,7 +285,7 @@ namespace NesHd.Ui.WinForms
             this.button1.TabIndex = 2;
             this.button1.Text = "&Ok";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1Click);
             // 
             // button2
             // 
@@ -295,7 +295,7 @@ namespace NesHd.Ui.WinForms
             this.button2.TabIndex = 3;
             this.button2.Text = "&Cancel";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.Button2Click);
             // 
             // checkBox9
             // 
@@ -307,7 +307,7 @@ namespace NesHd.Ui.WinForms
             this.checkBox9.Text = "VRC6 Sawtooth";
             this.checkBox9.UseVisualStyleBackColor = true;
             // 
-            // Frm_AudioOptions
+            // AudioOptionsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -318,7 +318,7 @@ namespace NesHd.Ui.WinForms
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Name = "Frm_AudioOptions";
+            this.Name = "AudioOptionsForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

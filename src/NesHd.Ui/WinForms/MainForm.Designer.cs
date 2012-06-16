@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 namespace NesHd.Ui.WinForms
 {
-    partial class Frm_Main
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -49,7 +49,7 @@ namespace NesHd.Ui.WinForms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Frm_Main));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openRomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -161,14 +161,14 @@ namespace NesHd.Ui.WinForms
             this.openRomToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.openRomToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.openRomToolStripMenuItem.Text = "&Open rom";
-            this.openRomToolStripMenuItem.Click += new System.EventHandler(this.openRomToolStripMenuItem_Click);
+            this.openRomToolStripMenuItem.Click += new System.EventHandler(this.OpenRomToolStripMenuItemClick);
             // 
             // recentToolStripMenuItem
             // 
             this.recentToolStripMenuItem.Name = "recentToolStripMenuItem";
             this.recentToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.recentToolStripMenuItem.Text = "Recent";
-            this.recentToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.recentToolStripMenuItem_DropDownItemClicked);
+            this.recentToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.RecentToolStripMenuItemDropDownItemClicked);
             // 
             // browserToolStripMenuItem
             // 
@@ -177,7 +177,7 @@ namespace NesHd.Ui.WinForms
             this.browserToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.B)));
             this.browserToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.browserToolStripMenuItem.Text = "&Browser";
-            this.browserToolStripMenuItem.Click += new System.EventHandler(this.browserToolStripMenuItem_Click);
+            this.browserToolStripMenuItem.Click += new System.EventHandler(this.BrowserToolStripMenuItemClick);
             // 
             // toolStripSeparator5
             // 
@@ -191,7 +191,7 @@ namespace NesHd.Ui.WinForms
             this.saveSRAMToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.saveSRAMToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.saveSRAMToolStripMenuItem.Text = "&Save SRAM";
-            this.saveSRAMToolStripMenuItem.Click += new System.EventHandler(this.saveSRAMToolStripMenuItem_Click);
+            this.saveSRAMToolStripMenuItem.Click += new System.EventHandler(this.SaveSramToolStripMenuItemClick);
             // 
             // toolStripSeparator11
             // 
@@ -205,7 +205,7 @@ namespace NesHd.Ui.WinForms
             this.romInfoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Q)));
             this.romInfoToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.romInfoToolStripMenuItem.Text = "&Rom info";
-            this.romInfoToolStripMenuItem.Click += new System.EventHandler(this.romInfoToolStripMenuItem_Click);
+            this.romInfoToolStripMenuItem.Click += new System.EventHandler(this.RomInfoToolStripMenuItemClick);
             // 
             // toolStripSeparator1
             // 
@@ -217,14 +217,14 @@ namespace NesHd.Ui.WinForms
             this.loadSateToolStripMenuItem.Name = "loadSateToolStripMenuItem";
             this.loadSateToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.loadSateToolStripMenuItem.Text = "&Load sate      F9";
-            this.loadSateToolStripMenuItem.Click += new System.EventHandler(this.loadSateToolStripMenuItem_Click);
+            this.loadSateToolStripMenuItem.Click += new System.EventHandler(this.LoadSateToolStripMenuItemClick);
             // 
             // saveStateToolStripMenuItem
             // 
             this.saveStateToolStripMenuItem.Name = "saveStateToolStripMenuItem";
             this.saveStateToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.saveStateToolStripMenuItem.Text = "&Save state     F6";
-            this.saveStateToolStripMenuItem.Click += new System.EventHandler(this.saveStateToolStripMenuItem_Click);
+            this.saveStateToolStripMenuItem.Click += new System.EventHandler(this.SaveStateToolStripMenuItemClick);
             // 
             // stateSlotToolStripMenuItem
             // 
@@ -318,7 +318,7 @@ namespace NesHd.Ui.WinForms
             this.recordAudioToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F7;
             this.recordAudioToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.recordAudioToolStripMenuItem.Text = "&Record audio";
-            this.recordAudioToolStripMenuItem.Click += new System.EventHandler(this.recordAudioToolStripMenuItem_Click);
+            this.recordAudioToolStripMenuItem.Click += new System.EventHandler(this.RecordAudioToolStripMenuItemClick);
             // 
             // toolStripSeparator9
             // 
@@ -332,7 +332,7 @@ namespace NesHd.Ui.WinForms
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.exitToolStripMenuItem.Text = "&Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItemClick);
             // 
             // machineToolStripMenuItem
             // 
@@ -354,7 +354,7 @@ namespace NesHd.Ui.WinForms
             this.togglePauseToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F2;
             this.togglePauseToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.togglePauseToolStripMenuItem.Text = "&Toggle pause";
-            this.togglePauseToolStripMenuItem.Click += new System.EventHandler(this.togglePauseToolStripMenuItem_Click);
+            this.togglePauseToolStripMenuItem.Click += new System.EventHandler(this.TogglePauseToolStripMenuItemClick);
             // 
             // toolStripSeparator3
             // 
@@ -367,7 +367,7 @@ namespace NesHd.Ui.WinForms
             this.softResetToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F3;
             this.softResetToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.softResetToolStripMenuItem.Text = "&Soft reset";
-            this.softResetToolStripMenuItem.Click += new System.EventHandler(this.softResetToolStripMenuItem_Click);
+            this.softResetToolStripMenuItem.Click += new System.EventHandler(this.SoftResetToolStripMenuItemClick);
             // 
             // hardResetToolStripMenuItem
             // 
@@ -375,7 +375,7 @@ namespace NesHd.Ui.WinForms
             this.hardResetToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F4;
             this.hardResetToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.hardResetToolStripMenuItem.Text = "&Hard reset";
-            this.hardResetToolStripMenuItem.Click += new System.EventHandler(this.hardResetToolStripMenuItem_Click);
+            this.hardResetToolStripMenuItem.Click += new System.EventHandler(this.HardResetToolStripMenuItemClick);
             // 
             // toolStripSeparator4
             // 
@@ -389,7 +389,7 @@ namespace NesHd.Ui.WinForms
             this.noLimiterToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F11;
             this.noLimiterToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.noLimiterToolStripMenuItem.Text = "&No limiter";
-            this.noLimiterToolStripMenuItem.CheckedChanged += new System.EventHandler(this.noLimiterToolStripMenuItem_CheckedChanged);
+            this.noLimiterToolStripMenuItem.CheckedChanged += new System.EventHandler(this.NoLimiterToolStripMenuItemCheckedChanged);
             // 
             // debugToolStripMenuItem
             // 
@@ -406,7 +406,7 @@ namespace NesHd.Ui.WinForms
             this.runDebuggerToolStripMenuItem.Name = "runDebuggerToolStripMenuItem";
             this.runDebuggerToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
             this.runDebuggerToolStripMenuItem.Text = "&Run console";
-            this.runDebuggerToolStripMenuItem.Click += new System.EventHandler(this.runDebuggerToolStripMenuItem_Click);
+            this.runDebuggerToolStripMenuItem.Click += new System.EventHandler(this.RunDebuggerToolStripMenuItemClick);
             // 
             // runDebuggerAtStartupToolStripMenuItem
             // 
@@ -436,7 +436,7 @@ namespace NesHd.Ui.WinForms
             this.generalToolStripMenuItem.Name = "generalToolStripMenuItem";
             this.generalToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.generalToolStripMenuItem.Text = "&General";
-            this.generalToolStripMenuItem.Click += new System.EventHandler(this.generalToolStripMenuItem_Click);
+            this.generalToolStripMenuItem.Click += new System.EventHandler(this.GeneralToolStripMenuItemClick);
             // 
             // pathsToolStripMenuItem
             // 
@@ -444,7 +444,7 @@ namespace NesHd.Ui.WinForms
             this.pathsToolStripMenuItem.Name = "pathsToolStripMenuItem";
             this.pathsToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.pathsToolStripMenuItem.Text = "&Paths";
-            this.pathsToolStripMenuItem.Click += new System.EventHandler(this.pathsToolStripMenuItem_Click);
+            this.pathsToolStripMenuItem.Click += new System.EventHandler(this.PathsToolStripMenuItemClick);
             // 
             // videoToolStripMenuItem
             // 
@@ -452,7 +452,7 @@ namespace NesHd.Ui.WinForms
             this.videoToolStripMenuItem.Name = "videoToolStripMenuItem";
             this.videoToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.videoToolStripMenuItem.Text = "&Video";
-            this.videoToolStripMenuItem.Click += new System.EventHandler(this.videoToolStripMenuItem_Click);
+            this.videoToolStripMenuItem.Click += new System.EventHandler(this.VideoToolStripMenuItemClick);
             // 
             // paletteToolStripMenuItem
             // 
@@ -460,7 +460,7 @@ namespace NesHd.Ui.WinForms
             this.paletteToolStripMenuItem.Name = "paletteToolStripMenuItem";
             this.paletteToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.paletteToolStripMenuItem.Text = "&Palette";
-            this.paletteToolStripMenuItem.Click += new System.EventHandler(this.paletteToolStripMenuItem_Click);
+            this.paletteToolStripMenuItem.Click += new System.EventHandler(this.PaletteToolStripMenuItemClick);
             // 
             // audioToolStripMenuItem
             // 
@@ -468,7 +468,7 @@ namespace NesHd.Ui.WinForms
             this.audioToolStripMenuItem.Name = "audioToolStripMenuItem";
             this.audioToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.audioToolStripMenuItem.Text = "&Audio";
-            this.audioToolStripMenuItem.Click += new System.EventHandler(this.audioToolStripMenuItem_Click);
+            this.audioToolStripMenuItem.Click += new System.EventHandler(this.AudioToolStripMenuItemClick);
             // 
             // controlsToolStripMenuItem
             // 
@@ -476,7 +476,7 @@ namespace NesHd.Ui.WinForms
             this.controlsToolStripMenuItem.Name = "controlsToolStripMenuItem";
             this.controlsToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.controlsToolStripMenuItem.Text = "&Controls";
-            this.controlsToolStripMenuItem.Click += new System.EventHandler(this.controlsToolStripMenuItem_Click);
+            this.controlsToolStripMenuItem.Click += new System.EventHandler(this.ControlsToolStripMenuItemClick);
             // 
             // toolStripSeparator6
             // 
@@ -490,7 +490,7 @@ namespace NesHd.Ui.WinForms
             this.showMenuAndStatusStripToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F10;
             this.showMenuAndStatusStripToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
             this.showMenuAndStatusStripToolStripMenuItem.Text = "Show menu and status strip";
-            this.showMenuAndStatusStripToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showMenuAndStatusStripToolStripMenuItem_CheckedChanged);
+            this.showMenuAndStatusStripToolStripMenuItem.CheckedChanged += new System.EventHandler(this.ShowMenuAndStatusStripToolStripMenuItemCheckedChanged);
             // 
             // helpToolStripMenuItem
             // 
@@ -513,7 +513,7 @@ namespace NesHd.Ui.WinForms
             this.helpToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F1;
             this.helpToolStripMenuItem1.Size = new System.Drawing.Size(178, 22);
             this.helpToolStripMenuItem1.Text = "&Help";
-            this.helpToolStripMenuItem1.Click += new System.EventHandler(this.helpToolStripMenuItem1_Click);
+            this.helpToolStripMenuItem1.Click += new System.EventHandler(this.HelpToolStripMenuItem1Click);
             // 
             // indexToolStripMenuItem
             // 
@@ -522,7 +522,7 @@ namespace NesHd.Ui.WinForms
             this.indexToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F1)));
             this.indexToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.indexToolStripMenuItem.Text = "&Index";
-            this.indexToolStripMenuItem.Click += new System.EventHandler(this.indexToolStripMenuItem_Click);
+            this.indexToolStripMenuItem.Click += new System.EventHandler(this.IndexToolStripMenuItemClick);
             // 
             // toolStripSeparator10
             // 
@@ -535,7 +535,7 @@ namespace NesHd.Ui.WinForms
             this.commandLinesToolStripMenuItem.Name = "commandLinesToolStripMenuItem";
             this.commandLinesToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.commandLinesToolStripMenuItem.Text = "Command lines";
-            this.commandLinesToolStripMenuItem.Click += new System.EventHandler(this.commandLinesToolStripMenuItem_Click);
+            this.commandLinesToolStripMenuItem.Click += new System.EventHandler(this.CommandLinesToolStripMenuItemClick);
             // 
             // toolStripSeparator2
             // 
@@ -617,27 +617,27 @@ namespace NesHd.Ui.WinForms
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(463, 360);
             this.panel1.TabIndex = 2;
-            this.panel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseDown);
-            this.panel1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseUp);
+            this.panel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Panel1MouseDown);
+            this.panel1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Panel1MouseUp);
             // 
             // timer_FPS
             // 
             this.timer_FPS.Interval = 1000;
-            this.timer_FPS.Tick += new System.EventHandler(this.timer_FPS_Tick);
+            this.timer_FPS.Tick += new System.EventHandler(this.TimerFpsTick);
             // 
             // timer1
             // 
             this.timer1.Interval = 5000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
             // 
             // supportedMappersToolStripMenuItem
             // 
             this.supportedMappersToolStripMenuItem.Name = "supportedMappersToolStripMenuItem";
             this.supportedMappersToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.supportedMappersToolStripMenuItem.Text = "Supported mappers";
-            this.supportedMappersToolStripMenuItem.Click += new System.EventHandler(this.supportedMappersToolStripMenuItem_Click);
+            this.supportedMappersToolStripMenuItem.Click += new System.EventHandler(this.SupportedMappersToolStripMenuItemClick);
             // 
-            // Frm_Main
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -647,14 +647,14 @@ namespace NesHd.Ui.WinForms
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Frm_Main";
+            this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "My Nes";
-            this.Deactivate += new System.EventHandler(this.Frm_Main_Deactivate);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Frm_Main_FormClosed);
-            this.ResizeBegin += new System.EventHandler(this.Frm_Main_ResizeBegin);
-            this.ResizeEnd += new System.EventHandler(this.Frm_Main_ResizeEnd);
-            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Frm_Main_KeyUp);
+            this.Deactivate += new System.EventHandler(this.FrmMainDeactivate);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FrmMainFormClosed);
+            this.ResizeBegin += new System.EventHandler(this.FrmMainResizeBegin);
+            this.ResizeEnd += new System.EventHandler(this.FrmMainResizeEnd);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FrmMainKeyUp);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);

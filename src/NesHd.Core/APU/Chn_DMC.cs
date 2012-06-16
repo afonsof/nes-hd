@@ -1,207 +1,202 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using NesHd.Core.Misc;
+﻿using NesHd.Core.Misc;
 
 namespace NesHd.Core.APU
 {
     public class Chn_DMC
     {
+        private readonly double[] DMC_FREQUENCY =
+            {
+                0xD60, 0xBE0, 0xAA0, 0xA00, 0x8F0, 0x7F0, 0x710, 0x6B0,
+                0x5F0, 0x500, 0x470, 0x400, 0x350, 0x2A8, 0x240, 0x1B0
+            };
+
+        private readonly NesEngine _engine;
+        private byte DAC;
+
+        private ushort DMAAddress;
+
+        private ushort DMALength;
+        private ushort DMALengthCounter;
+        private ushort DMAStartAddress;
+
+        private byte DMCBIT;
+        private byte DMCBYTE;
+        public bool DMCIRQEnabled;
+        private bool _Enabled;
+        private double _FreqTimer;
+        private double _Frequency;
+        private bool _Loop;
+        private double _RenderedLength;
+        private double _SampleCount;
+
         public Chn_DMC(NesEngine NesEmu)
         {
-            this._Nes = NesEmu;
+            _engine = NesEmu;
         }
-        double[] DMC_FREQUENCY = 
-        { 
-        0xD60,0xBE0,0xAA0,0xA00,0x8F0,0x7F0,0x710,0x6B0,
-        0x5F0,0x500,0x470,0x400,0x350,0x2A8,0x240,0x1B0
-        };
-        NesEngine _Nes;
-        double _Frequency = 0;
-        double _RenderedLength = 0;
-        double _SampleCount = 0;
-
-        public bool DMCIRQEnabled = false;
-        bool _Enabled = false;
-        bool _Loop = false;
-        double _FreqTimer = 0;
-        byte DAC = 0;
-
-        ushort DMAStartAddress = 0;
-        ushort DMAAddress = 0;
-
-        ushort DMALength = 0;
-        ushort DMALengthCounter = 0;
-
-        byte DMCBIT = 0;
-        byte DMCBYTE = 0;
 
         public short RenderSample()
         {
-            if (this._Enabled)
+            if (_Enabled)
             {
-                this._SampleCount++;
-                if (this._SampleCount > this._RenderedLength)
+                _SampleCount++;
+                if (_SampleCount > _RenderedLength)
                 {
-                    this._SampleCount -= this._RenderedLength;
-                    if (this.DMCBIT == 7)
+                    _SampleCount -= _RenderedLength;
+                    if (DMCBIT == 7)
                     {
-                        if (this.DMALength > 0)
+                        if (DMALength > 0)
                         {
-                            this.DMCBIT = 0;
-                            this.DMCBYTE = this._Nes.MEMORY.Read(this.DMAAddress);
-                            this.DMAAddress++;
-                            this.DMALength--;
-                            if (this.DMALength <= 0 & this._Loop)
+                            DMCBIT = 0;
+                            DMCBYTE = _engine.Memory.Read(DMAAddress);
+                            DMAAddress++;
+                            DMALength--;
+                            if (DMALength <= 0 & _Loop)
                             {
-                                this.DMAAddress = this.DMAStartAddress;
-                                this.DMALength = this.DMALengthCounter;
+                                DMAAddress = DMAStartAddress;
+                                DMALength = DMALengthCounter;
                             }
-                            if (this.DMALength <= 0 & !this._Loop & this.DMCIRQEnabled)
+                            if (DMALength <= 0 & !_Loop & DMCIRQEnabled)
                             {
-                                this._Nes.APU.DMCIRQPending = true;
-                                this._Nes.CPU.IRQNextTime = true;
+                                _engine.Apu.DMCIRQPending = true;
+                                _engine.Cpu.IRQNextTime = true;
                             }
                         }
                         else
                         {
-                            this._Enabled = false;
+                            _Enabled = false;
                         }
                     }
                     else
                     {
-                        this.DMCBIT++;
-                        this.DMCBYTE >>= 1;
+                        DMCBIT++;
+                        DMCBYTE >>= 1;
                     }
-                    if (this._Enabled)
+                    if (_Enabled)
                     {
-                        if ((this.DMCBYTE & 1) != 0)
+                        if ((DMCBYTE & 1) != 0)
                         {
-                            if (this.DAC < 0x7E)
-                            { this.DAC++; }
+                            if (DAC < 0x7E)
+                            {
+                                DAC++;
+                            }
                         }
-                        else if (this.DAC > 1)
-                        { this.DAC--; }
+                        else if (DAC > 1)
+                        {
+                            DAC--;
+                        }
                     }
                 }
-                if (this.DAC > 25)
-                    this.DAC = 25;
-                return (short)((this.DAC - 14) * 2);
+                if (DAC > 25)
+                    DAC = 25;
+                return (short) ((DAC - 14)*2);
             }
             return 0;
         }
-        void UpdateFrequency()
-        {
-            this._Frequency = 1790000 / (this._FreqTimer + 1) * 8;
-            this._RenderedLength = 44100 / this._Frequency;
-        }
-        #region Registers
-        public void Write_4010(byte data)
-        {
-            this.DMCIRQEnabled = (data & 0x80) != 0;//Bit 7
-            this._Loop = (data & 0x40) != 0;//Bit 6
-            //IRQ
-            if (!this.DMCIRQEnabled)
-                this._Nes.APU.DMCIRQPending = false;
 
-            this._FreqTimer = this.DMC_FREQUENCY[data & 0xF];//Bit 0 - 3
-            this.UpdateFrequency();
-        }
-        public void Write_4011(byte data)
+        private void UpdateFrequency()
         {
-            this.DAC = (byte)(data & 0x7f); 
-            this.UpdateFrequency();
+            _Frequency = 1790000/(_FreqTimer + 1)*8;
+            _RenderedLength = 44100/_Frequency;
         }
-        public void Write_4012(byte data)
+
+        public void SaveState(StateHolder st)
         {
-            this.DMAStartAddress = (ushort)((data * 0x40) + 0xC000); 
-            this.UpdateFrequency();
+            st.DMC_Frequency = _Frequency;
+            st.DMC_RenderedLength = _RenderedLength;
+            st.DMC_SampleCount = _SampleCount;
+            st.DMCDMCIRQEnabled = DMCIRQEnabled;
+            st.DMC_Enabled = _Enabled;
+            st.DMC_Loop = _Loop;
+            st.DMC_FreqTimer = _FreqTimer;
+            st.DMCDAC = DAC;
+            st.DMCDMAStartAddress = DMAStartAddress;
+            st.DMCDMAAddress = DMAAddress;
+            st.DMCDMALength = DMALength;
+            st.DMCDMALengthCounter = DMALengthCounter;
+            st.DMCDMCBIT = DMCBIT;
+            st.DMCDMCBYTE = DMCBYTE;
         }
-        public void Write_4013(byte data)
+
+        public void LoadState(StateHolder st)
         {
-            this.DMALengthCounter = (ushort)((data * 0x10) + 1); 
-            this.UpdateFrequency();
+            _Frequency = st.DMC_Frequency;
+            _RenderedLength = st.DMC_RenderedLength;
+            _SampleCount = st.DMC_SampleCount;
+            DMCIRQEnabled = st.DMCDMCIRQEnabled;
+            _Enabled = st.DMC_Enabled;
+            _Loop = st.DMC_Loop;
+            _FreqTimer = st.DMC_FreqTimer;
+            DAC = st.DMCDAC;
+            DMAStartAddress = st.DMCDMAStartAddress;
+            DMAAddress = st.DMCDMAAddress;
+            DMALength = st.DMCDMALength;
+            DMALengthCounter = st.DMCDMALengthCounter;
+            DMCBIT = st.DMCDMCBIT;
+            DMCBYTE = st.DMCDMCBYTE;
         }
+
+        #region Registers
+
+        public void Write4010(byte data)
+        {
+            DMCIRQEnabled = (data & 0x80) != 0; //Bit 7
+            _Loop = (data & 0x40) != 0; //Bit 6
+            //IRQ
+            if (!DMCIRQEnabled)
+                _engine.Apu.DMCIRQPending = false;
+
+            _FreqTimer = DMC_FREQUENCY[data & 0xF]; //Bit 0 - 3
+            UpdateFrequency();
+        }
+
+        public void Write4011(byte data)
+        {
+            DAC = (byte) (data & 0x7f);
+            UpdateFrequency();
+        }
+
+        public void Write4012(byte data)
+        {
+            DMAStartAddress = (ushort) ((data*0x40) + 0xC000);
+            UpdateFrequency();
+        }
+
+        public void Write4013(byte data)
+        {
+            DMALengthCounter = (ushort) ((data*0x10) + 1);
+            UpdateFrequency();
+        }
+
         #endregion
+
         #region Properties
+
         public bool Enabled
         {
             get
             {
-                this._Enabled = this.DMALength > 0;
-                return this._Enabled;
+                _Enabled = DMALength > 0;
+                return _Enabled;
             }
             set
             {
-                this._Enabled = value;
+                _Enabled = value;
                 if (value)
                 {
-                    if (this.DMALength <= 0)
+                    if (DMALength <= 0)
                     {
-                        this.DMALength = this.DMALengthCounter;
-                        this.DMCBIT = 7;
-                        this.DMAAddress = this.DMAStartAddress;
+                        DMALength = DMALengthCounter;
+                        DMCBIT = 7;
+                        DMAAddress = DMAStartAddress;
                     }
                 }
                 else
                 {
-                    this.DMALength = 0;
+                    DMALength = 0;
                 }
             }
         }
-        #endregion
 
-        public void SaveState(StateHolder st)
-        {
-            st.DMC_Frequency = this._Frequency;
-            st.DMC_RenderedLength = this._RenderedLength;
-            st.DMC_SampleCount = this._SampleCount;
-            st.DMCDMCIRQEnabled = this.DMCIRQEnabled;
-            st.DMC_Enabled = this._Enabled;
-            st.DMC_Loop = this._Loop;
-            st.DMC_FreqTimer = this._FreqTimer;
-            st.DMCDAC = this.DAC;
-            st.DMCDMAStartAddress = this.DMAStartAddress;
-            st.DMCDMAAddress = this.DMAAddress;
-            st.DMCDMALength = this.DMALength;
-            st.DMCDMALengthCounter = this.DMALengthCounter;
-            st.DMCDMCBIT = this.DMCBIT;
-            st.DMCDMCBYTE = this.DMCBYTE;
-        }
-        public void LoadState(StateHolder st)
-        {
-            this._Frequency = st.DMC_Frequency;
-            this._RenderedLength = st.DMC_RenderedLength;
-            this._SampleCount = st.DMC_SampleCount;
-            this.DMCIRQEnabled = st.DMCDMCIRQEnabled;
-            this._Enabled = st.DMC_Enabled;
-            this._Loop = st.DMC_Loop;
-            this._FreqTimer = st.DMC_FreqTimer;
-            this.DAC = st.DMCDAC;
-            this.DMAStartAddress = st.DMCDMAStartAddress;
-            this.DMAAddress = st.DMCDMAAddress;
-            this.DMALength = st.DMCDMALength;
-            this.DMALengthCounter = st.DMCDMALengthCounter;
-            this.DMCBIT = st.DMCDMCBIT;
-            this.DMCBYTE = st.DMCDMCBYTE;
-        }
+        #endregion
     }
 }

@@ -1,196 +1,108 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using NesHd.Core.Debugger;
+﻿using NesHd.Core.Debugger;
 
 namespace NesHd.Core.Memory.Mappers
 {
-    class Mapper64 : IMapper
+    internal class Mapper64 : IMapper
     {
-        MAP Map;
-        public byte mapper64_commandNumber;
-        public byte mapper64_prgAddressSelect;
-        public byte mapper64_chrAddressSelect;
+        private readonly Map _map;
+        public byte Mapper64ChrAddressSelect;
+        public byte Mapper64CommandNumber;
+        public byte Mapper64PrgAddressSelect;
 
-        public Mapper64(MAP Maps)
-        { this.Map = Maps; }
+        public Mapper64(Map map)
+        {
+            _map = map;
+        }
+
+        #region IMapper Members
+
         public void Write(ushort address, byte data)
         {
-            if (address == 0x8000)
+            switch (address)
             {
-                this.mapper64_commandNumber = data;
-                this.mapper64_prgAddressSelect = (byte)(data & 0x40);
-                this.mapper64_chrAddressSelect = (byte)(data & 0x80);
-            }
-            else if (address == 0x8001)
-            {
-                if ((this.mapper64_commandNumber & 0xf) == 0)
-                {
-                    //Swap 2 1k chr roms
-                    data = (byte)(data - (data % 2));
-                    if (this.mapper64_chrAddressSelect == 0)
+                case 0x8000:
+                    Mapper64CommandNumber = data;
+                    Mapper64PrgAddressSelect = (byte) (data & 0x40);
+                    Mapper64ChrAddressSelect = (byte) (data & 0x80);
+                    break;
+                case 0x8001:
+                    switch ((Mapper64CommandNumber & 0xf))
                     {
-                        this.Map.Switch2kChrRom(data, 0);
+                        case 0:
+                            data = (byte) (data - (data%2));
+                            _map.Switch2KChrRom(data, Mapper64ChrAddressSelect == 0 ? 0 : 2);
+                            break;
+                        case 1:
+                            data = (byte) (data - (data%2));
+                            _map.Switch2KChrRom(data, Mapper64ChrAddressSelect == 0 ? 1 : 3);
+                            break;
+                        case 2:
+                            _map.Switch1KChrRom(data, Mapper64ChrAddressSelect == 0 ? 4 : 0);
+                            break;
+                        case 3:
+                            _map.Switch1KChrRom(data, Mapper64ChrAddressSelect == 0 ? 5 : 1);
+                            break;
+                        case 4:
+                            _map.Switch1KChrRom(data, Mapper64ChrAddressSelect == 0 ? 6 : 2);
+                            break;
+                        case 5:
+                            _map.Switch1KChrRom(data, Mapper64ChrAddressSelect == 0 ? 7 : 3);
+                            break;
+                        case 6:
+                            _map.Switch8KPrgRom(data*2, Mapper64PrgAddressSelect == 0 ? 0 : 1);
+                            break;
+                        case 7:
+                            _map.Switch8KPrgRom(data*2, Mapper64PrgAddressSelect == 0 ? 1 : 2);
+                            break;
+                        case 8:
+                            _map.Switch1KChrRom(data, 1);
+                            break;
+                        case 9:
+                            _map.Switch1KChrRom(data, 3);
+                            break;
+                        case 0xf:
+                            _map.Switch8KPrgRom(data*2, Mapper64PrgAddressSelect == 0 ? 2 : 0);
+                            break;
                     }
-                    else
-                    {
-                        this.Map.Switch2kChrRom(data, 2);
-                    }
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 1)
-                {
-                    //Swap 2 1k chr roms
-                    data = (byte)(data - (data % 2));
-                    if (this.mapper64_chrAddressSelect == 0)
-                    {
-                        this.Map.Switch2kChrRom(data, 1);
-                    }
-                    else
-                    {
-                        this.Map.Switch2kChrRom(data, 3);
-                    }
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 2)
-                {
-                    //Swap 1k chr rom
-                    if (this.mapper64_chrAddressSelect == 0)
-                    {
-                        this.Map.Switch1kChrRom(data, 4);
-                    }
-                    else
-                    {
-                        this.Map.Switch1kChrRom(data, 0);
-                    }
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 3)
-                {
-                    //Swap 1k chr rom
-                    if (this.mapper64_chrAddressSelect == 0)
-                    {
-                        this.Map.Switch1kChrRom(data, 5);
-                    }
-                    else
-                    {
-                        this.Map.Switch1kChrRom(data, 1);
-                    }
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 4)
-                {
-                    //Swap 1k chr rom
-                    if (this.mapper64_chrAddressSelect == 0)
-                    {
-                        this.Map.Switch1kChrRom(data, 6);
-                    }
-                    else
-                    {
-                        this.Map.Switch1kChrRom(data, 2);
-                    }
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 5)
-                {
-                    //Swap 1k chr rom
-                    if (this.mapper64_chrAddressSelect == 0)
-                    {
-                        this.Map.Switch1kChrRom(data, 7);
-                    }
-                    else
-                    {
-                        this.Map.Switch1kChrRom(data, 3);
-                    }
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 6)
-                {
-                    if (this.mapper64_prgAddressSelect == 0)
-                    {
-                        this.Map.Switch8kPrgRom(data * 2, 0);
-                    }
-                    else
-                    {
-                        this.Map.Switch8kPrgRom(data * 2, 1);
-                    }
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 7)
-                {
-                    if (this.mapper64_prgAddressSelect == 0)
-                    {
-                        this.Map.Switch8kPrgRom(data * 2, 1);
-                    }
-                    else
-                    {
-                        this.Map.Switch8kPrgRom(data * 2, 2);
-                    }
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 8)
-                {
-                    this.Map.Switch1kChrRom(data, 1);
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 9)
-                {
-                    this.Map.Switch1kChrRom(data, 3);
-                }
-                else if ((this.mapper64_commandNumber & 0xf) == 0xf)
-                {
-                    if (this.mapper64_prgAddressSelect == 0)
-                    {
-                        this.Map.Switch8kPrgRom(data * 2, 2);
-                    }
-                    else
-                    {
-                        this.Map.Switch8kPrgRom(data * 2, 0);
-                    }
-                }
-            }
-            else if (address == 0xA000)
-            {
-                if ((data & 1) == 1)
-                {
-                    this.Map.Cartridge.Mirroring = MIRRORING.VERTICAL;
-                }
-                else
-                {
-                    this.Map.Cartridge.Mirroring = MIRRORING.HORIZONTAL;
-                }
-
+                    break;
+                case 0xA000:
+                    _map.Cartridge.Mirroring = (data & 1) == 1 ? Mirroring.Vertical : Mirroring.Horizontal;
+                    break;
             }
         }
+
         public void SetUpMapperDefaults()
         {
-            this.Map.Switch8kPrgRom((this.Map.Cartridge.PRG_PAGES * 4) - 2, 0);
-            this.Map.Switch8kPrgRom((this.Map.Cartridge.PRG_PAGES * 4) - 2, 1);
-            this.Map.Switch8kPrgRom((this.Map.Cartridge.PRG_PAGES * 4) - 2, 2);
-            this.Map.Switch8kPrgRom((this.Map.Cartridge.PRG_PAGES * 4) - 2, 3);
-            this.Map.Switch8kChrRom(0);
+            _map.Switch8KPrgRom((_map.Cartridge.PrgPages*4) - 2, 0);
+            _map.Switch8KPrgRom((_map.Cartridge.PrgPages*4) - 2, 1);
+            _map.Switch8KPrgRom((_map.Cartridge.PrgPages*4) - 2, 2);
+            _map.Switch8KPrgRom((_map.Cartridge.PrgPages*4) - 2, 3);
+            _map.Switch8KChrRom(0);
             Debug.WriteLine(this, "Mapper 64 setup done", DebugStatus.Cool);
         }
+
         public void TickScanlineTimer()
         {
         }
+
         public void TickCycleTimer()
         {
         }
+
         public void SoftReset()
-        { }
+        {
+        }
+
         public bool WriteUnder8000
-        { get { return false; } }
+        {
+            get { return false; }
+        }
+
         public bool WriteUnder6000
-        { get { return false; } }
+        {
+            get { return false; }
+        }
+
+        #endregion
     }
 }

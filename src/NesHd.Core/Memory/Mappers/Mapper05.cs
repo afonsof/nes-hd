@@ -1,305 +1,300 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using NesHd.Core.Debugger;
+﻿using NesHd.Core.Debugger;
 
 namespace NesHd.Core.Memory.Mappers
 {
     /*
      * I'm not sure about this one so it's disabled....
      */
-    class Mapper05 : IMapper
+
+    internal class Mapper05 : IMapper
     {
-        MAP Map;
-        public byte mapper5_prgBankSize;
-        public byte mapper5_chrBankSize;
-        public int mapper5_scanlineSplit;
-        public bool mapper5_splitIrqEnabled;
-        public int graphic_mode = 0;
-        public bool IQREnabled = false;
-        public byte IRQCounter = 0;
-        public Mapper05(MAP map)
-        { this.Map = map; }
+        private readonly Map _map;
+        public bool IrqEnabled;
+        public byte IrqCounter;
+        public int GraphicMode;
+        public byte Mapper5ChrBankSize;
+        public byte Mapper5PRGBankSize;
+        public int Mapper5ScanlineSplit;
+        public bool Mapper5SplitIrqEnabled;
+
+        public Mapper05(Map map)
+        {
+            _map = map;
+        }
+
+        #region IMapper Members
+
         public void Write(ushort address, byte data)
         {
             if (address == 0x5100)
             {
-                this.mapper5_prgBankSize = (byte)(data & 0x3);
+                Mapper5PRGBankSize = (byte) (data & 0x3);
             }
             else if (address == 0x5101)
             {
-                this.mapper5_chrBankSize = (byte)(data & 0x3);
+                Mapper5ChrBankSize = (byte) (data & 0x3);
             }
             else if (address == 0x5102)
             {
-                this.Map.NES.MEMORY.WriteOnRam = (data & 0x3) == 0x02;
+                _map.Engine.Memory.WriteOnRam = (data & 0x3) == 0x02;
             }
             else if (address == 0x5103)
             {
-                this.Map.NES.MEMORY.WriteOnRam = (data & 0x3) == 0x01;
+                _map.Engine.Memory.WriteOnRam = (data & 0x3) == 0x01;
             }
             else if (address == 0x5104)
             {
-                this.graphic_mode = (data & 0x3);
+                GraphicMode = (data & 0x3);
             }
             else if (address == 0x5105)
             {
-                this.Map.SwitchVRAMToVRAM((data & 0x3), 0);
-                this.Map.SwitchVRAMToVRAM(((data & 0xC) >> 2), 1);
-                this.Map.SwitchVRAMToVRAM(((data & 0x30) >> 4), 2);
-                this.Map.SwitchVRAMToVRAM(((data & 0xC0) >> 6), 3);
+                _map.SwitchVRamToVRam((data & 0x3), 0);
+                _map.SwitchVRamToVRam(((data & 0xC) >> 2), 1);
+                _map.SwitchVRamToVRam(((data & 0x30) >> 4), 2);
+                _map.SwitchVRamToVRam(((data & 0xC0) >> 6), 3);
             }
             else if (address == 0x5106)
             {
-
             }
             else if (address == 0x5107)
             {
-
             }
             else if (address == 0x5114)
             {
-                if (this.mapper5_prgBankSize == 3)
+                if (Mapper5PRGBankSize == 3)
                 {
-                    this.Map.Switch8kPrgRom((data & 0x7f) * 2, 0);
+                    _map.Switch8KPrgRom((data & 0x7f)*2, 0);
                 }
             }
             else if (address == 0x5115)
             {
-                if (this.mapper5_prgBankSize == 1)
+                if (Mapper5PRGBankSize == 1)
                 {
-                    this.Map.Switch16kPrgRom((data & 0x7e) * 2, 0);
+                    _map.Switch16KPrgRom((data & 0x7e)*2, 0);
                 }
-                else if (this.mapper5_prgBankSize == 2)
+                else if (Mapper5PRGBankSize == 2)
                 {
-                    this.Map.Switch16kPrgRom((data & 0x7e) * 2, 0);
+                    _map.Switch16KPrgRom((data & 0x7e)*2, 0);
                 }
-                else if (this.mapper5_prgBankSize == 3)
+                else if (Mapper5PRGBankSize == 3)
                 {
-                    this.Map.Switch8kPrgRom((data & 0x7f) * 2, 1);
+                    _map.Switch8KPrgRom((data & 0x7f)*2, 1);
                 }
             }
             else if (address == 0x5116)
             {
-                if (this.mapper5_prgBankSize == 2)
+                if (Mapper5PRGBankSize == 2)
                 {
-                    this.Map.Switch8kPrgRom((data & 0x7f) * 2, 2);
+                    _map.Switch8KPrgRom((data & 0x7f)*2, 2);
                 }
-                else if (this.mapper5_prgBankSize == 3)
+                else if (Mapper5PRGBankSize == 3)
                 {
-                    this.Map.Switch8kPrgRom((data & 0x7f) * 2, 2);
+                    _map.Switch8KPrgRom((data & 0x7f)*2, 2);
                 }
             }
             else if (address == 0x5117)
             {
-                if (this.mapper5_prgBankSize == 0)
+                if (Mapper5PRGBankSize == 0)
                 {
-                    this.Map.Switch32kPrgRom((data & 0x7c) * 2);
+                    _map.Switch32KPrgRom((data & 0x7c)*2);
                 }
-                else if (this.mapper5_prgBankSize == 1)
+                else if (Mapper5PRGBankSize == 1)
                 {
-                    this.Map.Switch16kPrgRom((data & 0x7e) * 2, 1);
+                    _map.Switch16KPrgRom((data & 0x7e)*2, 1);
                 }
-                else if (this.mapper5_prgBankSize == 2)
+                else if (Mapper5PRGBankSize == 2)
                 {
-                    this.Map.Switch8kPrgRom((data & 0x7f) * 2, 3);
+                    _map.Switch8KPrgRom((data & 0x7f)*2, 3);
                 }
-                else if (this.mapper5_prgBankSize == 3)
+                else if (Mapper5PRGBankSize == 3)
                 {
-                    this.Map.Switch8kPrgRom((data & 0x7f) * 2, 3);
+                    _map.Switch8KPrgRom((data & 0x7f)*2, 3);
                 }
-
             }
             else if (address == 0x5120)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 0);
+                    _map.Switch1KChrRom(data, 0);
                 }
             }
             else if (address == 0x5121)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 1);
+                    _map.Switch1KChrRom(data, 1);
                 }
-                else if (this.mapper5_chrBankSize == 2)
+                else if (Mapper5ChrBankSize == 2)
                 {
-                    this.Map.Switch2kChrRom(data, 0);
+                    _map.Switch2KChrRom(data, 0);
                 }
             }
             else if (address == 0x5122)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 2);
+                    _map.Switch1KChrRom(data, 2);
                 }
             }
             else if (address == 0x5123)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 3);
+                    _map.Switch1KChrRom(data, 3);
                 }
-                else if (this.mapper5_chrBankSize == 2)
+                else if (Mapper5ChrBankSize == 2)
                 {
-                    this.Map.Switch2kChrRom(data, 1);
+                    _map.Switch2KChrRom(data, 1);
                 }
-                else if (this.mapper5_chrBankSize == 1)
+                else if (Mapper5ChrBankSize == 1)
                 {
-                    this.Map.Switch4kChrRom(data, 0);
+                    _map.Switch4KChrRom(data, 0);
                 }
             }
             else if (address == 0x5124)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 4);
+                    _map.Switch1KChrRom(data, 4);
                 }
             }
             else if (address == 0x5125)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 5);
+                    _map.Switch1KChrRom(data, 5);
                 }
-                else if (this.mapper5_chrBankSize == 2)
+                else if (Mapper5ChrBankSize == 2)
                 {
-                    this.Map.Switch2kChrRom(data, 2);
+                    _map.Switch2KChrRom(data, 2);
                 }
             }
             else if (address == 0x5126)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 6);
+                    _map.Switch1KChrRom(data, 6);
                 }
             }
             else if (address == 0x5127)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 7);
+                    _map.Switch1KChrRom(data, 7);
                 }
-                else if (this.mapper5_chrBankSize == 2)
+                else if (Mapper5ChrBankSize == 2)
                 {
-                    this.Map.Switch2kChrRom(data, 3);
+                    _map.Switch2KChrRom(data, 3);
                 }
-                else if (this.mapper5_chrBankSize == 1)
+                else if (Mapper5ChrBankSize == 1)
                 {
-                    this.Map.Switch4kChrRom(data, 1);
+                    _map.Switch4KChrRom(data, 1);
                 }
-                else if (this.mapper5_chrBankSize == 0)
+                else if (Mapper5ChrBankSize == 0)
                 {
-                    this.Map.Switch8kChrRom(data);
+                    _map.Switch8KChrRom(data);
                 }
             }
             else if (address == 0x5128)
             {
-                this.Map.Switch1kChrRom(data, 0);
-                this.Map.Switch1kChrRom(data, 4);
+                _map.Switch1KChrRom(data, 0);
+                _map.Switch1KChrRom(data, 4);
             }
             else if (address == 0x5129)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 1);
-                    this.Map.Switch1kChrRom(data, 5);
+                    _map.Switch1KChrRom(data, 1);
+                    _map.Switch1KChrRom(data, 5);
                 }
-                else if (this.mapper5_chrBankSize == 2)
+                else if (Mapper5ChrBankSize == 2)
                 {
-                    this.Map.Switch2kChrRom(data, 0);
-                    this.Map.Switch2kChrRom(data, 2);
+                    _map.Switch2KChrRom(data, 0);
+                    _map.Switch2KChrRom(data, 2);
                 }
             }
             else if (address == 0x512a)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 2);
-                    this.Map.Switch1kChrRom(data, 6);
+                    _map.Switch1KChrRom(data, 2);
+                    _map.Switch1KChrRom(data, 6);
                 }
             }
             else if (address == 0x512b)
             {
-                if (this.mapper5_chrBankSize == 3)
+                if (Mapper5ChrBankSize == 3)
                 {
-                    this.Map.Switch1kChrRom(data, 3);
-                    this.Map.Switch1kChrRom(data, 7);
+                    _map.Switch1KChrRom(data, 3);
+                    _map.Switch1KChrRom(data, 7);
                 }
-                else if (this.mapper5_chrBankSize == 2)
+                else if (Mapper5ChrBankSize == 2)
                 {
-                    this.Map.Switch2kChrRom(data, 1);
-                    this.Map.Switch2kChrRom(data, 3);
+                    _map.Switch2KChrRom(data, 1);
+                    _map.Switch2KChrRom(data, 3);
                 }
-                else if (this.mapper5_chrBankSize == 1)
+                else if (Mapper5ChrBankSize == 1)
                 {
-                    this.Map.Switch4kChrRom(data, 0);
-                    this.Map.Switch4kChrRom(data, 1);
+                    _map.Switch4KChrRom(data, 0);
+                    _map.Switch4KChrRom(data, 1);
                 }
-                else if (this.mapper5_chrBankSize == 0)
+                else if (Mapper5ChrBankSize == 0)
                 {
-                    this.Map.Switch8kChrRom(data);
+                    _map.Switch8KChrRom(data);
                 }
             }
             else if (address == 0x5203)
             {
-                this.IRQCounter = data;
+                IrqCounter = data;
             }
             else if (address == 0x5204)
             {
-                this.IQREnabled = (data & 0x80) == 0x80;
+                IrqEnabled = (data & 0x80) == 0x80;
             }
         }
+
         public void SetUpMapperDefaults()
         {
-            this.Map.Switch8kPrgRom((this.Map.Cartridge.PRG_PAGES * 4) - 2, 0);
-            this.Map.Switch8kPrgRom((this.Map.Cartridge.PRG_PAGES * 4) - 2, 1);
-            this.Map.Switch8kPrgRom((this.Map.Cartridge.PRG_PAGES * 4) - 2, 2);
-            this.Map.Switch8kPrgRom((this.Map.Cartridge.PRG_PAGES * 4) - 2, 3);
-            this.mapper5_splitIrqEnabled = false;
-            this.Map.Switch8kChrRom(0);
+            _map.Switch8KPrgRom((_map.Cartridge.PrgPages*4) - 2, 0);
+            _map.Switch8KPrgRom((_map.Cartridge.PrgPages*4) - 2, 1);
+            _map.Switch8KPrgRom((_map.Cartridge.PrgPages*4) - 2, 2);
+            _map.Switch8KPrgRom((_map.Cartridge.PrgPages*4) - 2, 3);
+            Mapper5SplitIrqEnabled = false;
+            _map.Switch8KChrRom(0);
             Debug.WriteLine(this, "Mapper 5 setup done.", DebugStatus.Cool);
         }
+
         public void TickScanlineTimer()
         {
-            if (this.IQREnabled)
+            if (IrqEnabled)
             {
-                this.IRQCounter--;
-                if (this.IRQCounter <= 0)
+                IrqCounter--;
+                if (IrqCounter <= 0)
                 {
-                    this.Map.NES.CPU.IRQNextTime = true;
-                    this.IQREnabled = false;
+                    _map.Engine.Cpu.IRQNextTime = true;
+                    IrqEnabled = false;
                 }
             }
         }
+
         public void TickCycleTimer()
         {
         }
+
         public void SoftReset()
-        { }
+        {
+        }
 
         public bool WriteUnder8000
-        { get { return true; } }
+        {
+            get { return true; }
+        }
+
         public bool WriteUnder6000
-        { get { return true; } }
+        {
+            get { return true; }
+        }
+
+        #endregion
     }
 }

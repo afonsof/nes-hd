@@ -1,25 +1,4 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using NesHd.Core.Debugger;
+﻿using NesHd.Core.Debugger;
 using NesHd.Core.Input;
 using NesHd.Core.Memory;
 using NesHd.Core.Misc;
@@ -28,77 +7,84 @@ using NesHd.Core.Output.Video.Devices;
 
 namespace NesHd.Core.PPU
 {
-    public class PPU
+    public class Ppu
     {
-        public byte[] SPRRAM;
-        public byte[] VRAM;
-        public int[] PALETTE = new int[64];
-        TIMER _Timer = new TIMER();
-        NesEngine _Nes;
-        double _currentFrameTime = 0;
-        double _lastFrameTime = 0;
-        double FramePeriod = 0;
+        private readonly NesEngine _engine;
+        private readonly Timer _timer = new Timer();
+        public bool BackgroundClipping;
+        public bool BackgroundVisibility;
+        public bool CheckZapperHit;
+        public ushort ColorEmphasis;
+        public int CurrentScanLine;
+        public bool ExecuteNMIonVBlank;
+
         //I HATE FIXES !!
-        public bool FIX_scroll;
-        public bool FIX_scroll2;
-        public bool FIX_scroll3;
+        public bool FixScroll;
+        public bool FixScroll2;
+        public bool FixScroll3;
+        private double _framePeriod;
+        public byte HScroll;
+        public bool IsMapperMirroring;
+        public bool MonochromeMode;
+        public int[] Palette = new int[64];
+        public bool PpuToggle = true;
+
         /*PPU*/
-        public int CurrentScanLine = 0;
-        public ushort VRAMAddress = 0;
-        public bool Sprite0Hit = false;
-        public int SpriteCrossed = 0;
-        public int ScanlinesPerFrame = 0;
-        public int ScanlineOfVBLANK = 0;
-        public int _FPS = 0;
-        public bool VBLANK = false;
-        IGraphicDevice _Video;
-        public byte VRAMReadBuffer = 0;
-        public bool _NoLimiter = false;
-        /*2000*/
-        public bool ExecuteNMIonVBlank = false;
-        public bool SpriteSize = false;//true=8x16, false=8x8
-        public int PatternTableAddressBackground = 0;
-        public int PatternTableAddress8x8Sprites = 0;
-        public int VRAMAddressIncrement = 1;
-        public byte ReloadBits2000 = 0;
+        public int PatternTableAddress8X8Sprites;
+        public int PatternTableAddressBackground;
+        public byte ReloadBits2000;
+        public byte[] SprRam;
+        public int ScanlineOfVblank;
+        public int ScanlinesPerFrame;
+        public bool Sprite0Hit;
+
         /*2001*/
-        public ushort ColorEmphasis = 0;
-        public bool SpriteVisibility = false;
-        public bool BackgroundVisibility = false;
-        public bool SpriteClipping = false;
-        public bool BackgroundClipping = false;
-        public bool MonochromeMode = false;
+        public bool SpriteClipping;
+        public int SpriteCrossed;
+
         /*2003*/
-        public byte SpriteRamAddress = 0;
+        public byte SpriteRamAddress;
+        public bool SpriteSize; //true=8x16, false=8x8
+        public bool SpriteVisibility;
+        public int TileY;
+        public bool VBlank;
+        public int VBits;
+        public byte[] VRam;
+        public ushort VRamAddress;
+        public int VRamAddressIncrement = 1;
+        public byte VRamReadBuffer;
+
         /*2005,2006*/
-        public bool PPUToggle = true;
-        public ushort VRAMTemp = 0;
+        public ushort VRamTemp;
+
         /*Draw stuff*/
-        public byte HScroll = 0;
-        public int VScroll = 0;
-        public int VBits = 0;
-        public int TileY = 0;
+        public int VScroll;
+        public int ZapperFrame;
         /*Zapper*/
-        public int ZapperX = 0;
-        public int ZapperY = 0;
-        public bool CheckZapperHit = false;
-        public int ZapperFrame = 0;
-        /*VRAM Control*/
-        public bool IsMapperMirroring = false;
+        public int ZapperX;
+        public int ZapperY;
+        private double _currentFrameTime;
+        private double _lastFrameTime;
+
         /// <summary>
         /// The picture unit
         /// </summary>
-        /// <param name="TV">The tv format</param>
-        /// <param name="Nes">The nes engine</param>
-        /// <param name="VideoDevice">The output video device</param>
-        public PPU(TVFORMAT TV, PaletteFormat PlFormat, NesEngine Nes)
+        /// <param name="tv">The tv format</param>
+        /// <param name="paletteFormat">Palette Format</param>
+        /// <param name="engine">Engine NES</param>
+        public Ppu(TVFORMAT tv, PaletteFormat paletteFormat, NesEngine engine)
         {
-            this._Nes = Nes;
-            this.VRAM = new byte[0x2000];
-            this.SPRRAM = new byte[0x100];
-            this.SetTVFormat(TV, PlFormat);
+            _engine = engine;
+            VRam = new byte[0x2000];
+            SprRam = new byte[0x100];
+            SetTvFormat(tv, paletteFormat);
             Debug.WriteLine(this, "PPU initialized ok.", DebugStatus.Cool);
         }
+
+        public IGraphicDevice OutputDevice { get; set; }
+        public int Fps { get; set; }
+        public bool NoLimiter { get; set; }
+
         /// <summary>
         /// True when NMI is needed
         /// </summary>
@@ -106,338 +92,387 @@ namespace NesHd.Core.PPU
         public bool DoScanline()
         {
             //Start a new frame
-            if (this.CurrentScanLine == 0)
+            if (CurrentScanLine == 0)
             {
-                this._Video.Begin();
+                OutputDevice.Begin();
             }
-            if (this.CurrentScanLine < 240)
+            if (CurrentScanLine < 240)
             {
                 //Clean up the line from before
-                byte B = this.VRAM[0x1F00];
-                if (B >= 63)
-                    B = 63;
-                for (int i = 0; i < 256; i++)
+                var theByte = VRam[0x1F00];
+                if (theByte >= 63)
                 {
-                    this._Video.DrawPixel(i, this.CurrentScanLine, this.PALETTE[B]);
+                    theByte = 63;
+                }
+                for (var i = 0; i < 256; i++)
+                {
+                    OutputDevice.DrawPixel(i, CurrentScanLine, Palette[theByte]);
                 }
                 //first we should reset the sprite crossed for reg $2002
-                this.SpriteCrossed = 0;
+                SpriteCrossed = 0;
                 //Render the sprites and background
-                if (this.SpriteVisibility)
-                    this.RenderSprites(0x20);
-                if (this.BackgroundVisibility)
-                    this.RenderBackground();
-                if (this.SpriteVisibility)
-                    this.RenderSprites(0);
+                if (SpriteVisibility)
+                    RenderSprites(0x20);
+                if (BackgroundVisibility)
+                    RenderBackground();
+                if (SpriteVisibility)
+                    RenderSprites(0);
                 //Do clipping
-                if (!this.BackgroundClipping)
-                    for (int i = 0; i < 8; i++)
-                        this._Video.DrawPixel(i, this.CurrentScanLine, 0);
+                if (!BackgroundClipping)
+                    for (var i = 0; i < 8; i++)
+                        OutputDevice.DrawPixel(i, CurrentScanLine, 0);
                 //(clock each scanline, paused during VBlank)
-                if (this.SpriteVisibility | this.BackgroundVisibility)
-                    this._Nes.MEMORY.MAP.TickScanlineTimer();
+                if (SpriteVisibility | BackgroundVisibility)
+                    _engine.Memory.Map.TickScanlineTimer();
             }
             //It should clock each cpu cycle, but here will clock in each 
             //scanline to make the emu faster.
             //The IRQ counter of the mapper will be decremented by
             //the cycles that done by CPU at scanline.
-            this._Nes.MEMORY.MAP.TickCycleTimer();
+            _engine.Memory.Map.TickCycleTimer();
             //Set the status of the VBlank
-            if (this.CurrentScanLine == 240)
+            if (CurrentScanLine == 240)
             {
-                this.VBLANK = true;
-                if (this.CheckZapperHit)
-                    this.ZapperFrame++;
+                VBlank = true;
+                if (CheckZapperHit)
+                    ZapperFrame++;
             }
             //Render the sound
-            if (this.CurrentScanLine >= 240 & this.CurrentScanLine < 242)
-                if (this._Nes.SoundEnabled)
-                    this._Nes.APU.RenderFrame();
+            if (CurrentScanLine >= 240 & CurrentScanLine < 242)
+                if (_engine.SoundEnabled)
+                    _engine.Apu.RenderFrame();
             //Draw the frame into the screen
-            if (this.CurrentScanLine == this.ScanlineOfVBLANK + 1)
-                this._Video.RenderFrame();
+            if (CurrentScanLine == ScanlineOfVblank + 1)
+                OutputDevice.RenderFrame();
             //Advance the scanline
-            this.CurrentScanLine++;
+            CurrentScanLine++;
             //End of the frame
-            if (this.CurrentScanLine == this.ScanlinesPerFrame)
+            if (CurrentScanLine == ScanlinesPerFrame)
             {
                 //Handle the speed
-                if (!this._NoLimiter)
+                if (!NoLimiter)
                 {
-                    double currentTime = this._Timer.GetCurrentTime();
-                    this._currentFrameTime = currentTime - this._lastFrameTime;
-                    if ((this._currentFrameTime < this.FramePeriod))
+                    var currentTime = _timer.GetCurrentTime();
+                    _currentFrameTime = currentTime - _lastFrameTime;
+                    if ((_currentFrameTime < _framePeriod))
                     {
                         while (true)
                         {
-                            if ((this._Timer.GetCurrentTime() - this._lastFrameTime) >= this.FramePeriod)
+                            if ((_timer.GetCurrentTime() - _lastFrameTime) >= _framePeriod)
                             {
                                 break;
                             }
                         }
                     }
                 }
-                this._lastFrameTime = this._Timer.GetCurrentTime();
+                _lastFrameTime = _timer.GetCurrentTime();
                 //Do routine
-                this._FPS++;
-                this.CurrentScanLine = 0;
-                this.Sprite0Hit = false;
+                Fps++;
+                CurrentScanLine = 0;
+                Sprite0Hit = false;
             }
             //Return if the cpu should hit the NMI
-            return ((this.CurrentScanLine == this.ScanlineOfVBLANK) & this.ExecuteNMIonVBlank);
+            return ((CurrentScanLine == ScanlineOfVblank) & ExecuteNMIonVBlank);
         }
-        void RenderSprites(int Behind)
+
+        private void RenderSprites(int behind)
         {
-            int _SpriteSize = this.SpriteSize ? 16 : 8;
-            int _LineToDraw = 0;
+            var spriteSize = SpriteSize ? 16 : 8;
             //1: loop through SPR-RAM
-            for (int i = 252; i >= 0; i = i - 4)
+            for (var i = 252; i >= 0; i = i - 4)
             {
-                int PixelColor = 0;
-                byte YCoordinate = (byte)(this.SPRRAM[i] + 1);
+                var pixelColor = 0;
+                var yCoordinate = (byte) (SprRam[i] + 1);
                 //2: if the sprite falls on the current scanline, draw it
-                if (((this.SPRRAM[i + 2] & 0x20) == Behind) &&
-                    (YCoordinate <= this.CurrentScanLine) &&
-                    ((YCoordinate + _SpriteSize) > this.CurrentScanLine))
+                if (((SprRam[i + 2] & 0x20) == behind) &&
+                    (yCoordinate <= CurrentScanLine) &&
+                    ((yCoordinate + spriteSize) > CurrentScanLine))
                 {
-                    this.SpriteCrossed++;
+                    SpriteCrossed++;
                     //3: Draw the sprites differently if they are 8x8 or 8x16
-                    if (!this.SpriteSize)//8x8
+                    int lineToDraw;
+                    if (!SpriteSize) //8x8
                     {
                         //4: calculate which line of the sprite is currently being drawn
                         //Line to draw is: currentScanline - Y coord + 1
-                        if ((this.SPRRAM[i + 2] & 0x80) != 0x80)
-                            _LineToDraw = this.CurrentScanLine - YCoordinate;
+                        if ((SprRam[i + 2] & 0x80) != 0x80)
+                            lineToDraw = CurrentScanLine - yCoordinate;
                         else
-                            _LineToDraw = YCoordinate + 7 - this.CurrentScanLine;
+                            lineToDraw = yCoordinate + 7 - CurrentScanLine;
                         //5: calculate the offset to the sprite's data in
                         //our chr rom data 
-                        int SpriteOffset = this.PatternTableAddress8x8Sprites + this.SPRRAM[i + 1] * 16;
+                        var spriteOffset = PatternTableAddress8X8Sprites + SprRam[i + 1] * 16;
                         //6: extract our tile data
-                        byte TileData1 = this._Nes.MEMORY.MAP.ReadCHR((ushort)(SpriteOffset + _LineToDraw));
-                        byte TileData2 = this._Nes.MEMORY.MAP.ReadCHR((ushort)(SpriteOffset + _LineToDraw + 8));
+                        var tileData1 = _engine.Memory.Map.ReadChr((ushort) (spriteOffset + lineToDraw));
+                        var tileData2 = _engine.Memory.Map.ReadChr((ushort) (spriteOffset + lineToDraw + 8));
                         //7: get the palette attribute data
-                        byte PaletteUpperBits = (byte)((this.SPRRAM[i + 2] & 0x3) << 2);
+                        var paletteUpperBits = (byte)((SprRam[i + 2] & 0x3) << 2);
                         //8: render the line inside the tile into the screen direcly
-                        for (int j = 0; j < 8; j++)
+                        for (var j = 0; j < 8; j++)
                         {
-                            if ((this.SPRRAM[i + 2] & 0x40) == 0x40)
+                            if ((SprRam[i + 2] & 0x40) == 0x40)
                             {
-                                PixelColor = PaletteUpperBits + (((TileData2 & (1 << (j))) >> (j)) << 1) +
-                                    ((TileData1 & (1 << (j))) >> (j));
+                                pixelColor = paletteUpperBits + (((tileData2 & (1 << (j))) >> (j)) << 1) +
+                                             ((tileData1 & (1 << (j))) >> (j));
                             }
                             else
                             {
-                                PixelColor = PaletteUpperBits + (((TileData2 & (1 << (7 - j))) >> (7 - j)) << 1) +
-                                    ((TileData1 & (1 << (7 - j))) >> (7 - j));
+                                pixelColor = paletteUpperBits + (((tileData2 & (1 << (7 - j))) >> (7 - j)) << 1) +
+                                             ((tileData1 & (1 << (7 - j))) >> (7 - j));
                             }
                             //Hi Res stages
-                            if (this._Video.Name == "Windows GDI Hi Res")
+                            if (OutputDevice.Name == "Windows GDI Hi Res")
                             {
                                 //store which chr page is being used
-                                uint tilepage = this._Nes.MEMORY.MAP.ReadCHRPageNo((ushort)(SpriteOffset));
-                                if ((this.SPRRAM[i + 3] + j) < 256)
+                                var tilepage = _engine.Memory.Map.ReadChrPageNo((ushort) (spriteOffset));
+                                if ((SprRam[i + 3] + j) < 256)
                                 {
-                                    ((VideoGdiHiRes)this._Video).DrawPixelHiRes((this.SPRRAM[i + 3]) + j, this.CurrentScanLine,
-                                        this.PALETTE[(0x3f & this.VRAM[0x1F10 + PixelColor])], tilepage, SpriteOffset & 0x0003ff, ((this.SPRRAM[i + 2] & 0x40) == 0x40) ? j : 7 - j, _LineToDraw, (this.SPRRAM[i + 2] & 0x40) != 0x40, (this.SPRRAM[i + 2] & 0x80) == 0x80, this.VRAM[0x1F10 + PixelColor - (PixelColor % 4) + 1], this.VRAM[0x1F10 + PixelColor - (PixelColor % 4) + 2], this.VRAM[0x1F10 + PixelColor - (PixelColor % 4) + 3], PixelColor);
-                                    if (((PixelColor % 4) != 0) && (i == 0))
+                                    ((VideoGdiHiRes)OutputDevice).DrawPixelHiRes((SprRam[i + 3]) + j, CurrentScanLine,
+                                                                            Palette[(0x3f & VRam[0x1F10 + pixelColor])],
+                                                                            tilepage, spriteOffset & 0x0003ff,
+                                                                            ((SprRam[i + 2] & 0x40) == 0x40) ? j : 7 - j,
+                                                                            lineToDraw, (SprRam[i + 2] & 0x40) != 0x40,
+                                                                            (SprRam[i + 2] & 0x80) == 0x80,
+                                                                            VRam[
+                                                                                0x1F10 + pixelColor - (pixelColor%4) + 1
+                                                                                ],
+                                                                            VRam[
+                                                                                0x1F10 + pixelColor - (pixelColor%4) + 2
+                                                                                ],
+                                                                            VRam[
+                                                                                0x1F10 + pixelColor - (pixelColor%4) + 3
+                                                                                ], pixelColor);
+                                    if (((pixelColor%4) != 0) && (i == 0))
                                     {
-                                        this.Sprite0Hit = true;
+                                        Sprite0Hit = true;
                                     }
                                 }
-
-
                             }
                             else
                             {
-                                if ((PixelColor % 4) != 0)
+                                if ((pixelColor%4) != 0)
                                 {
-                                    if ((this.SPRRAM[i + 3] + j) < 256)
+                                    if ((SprRam[i + 3] + j) < 256)
                                     {
-                                        this._Video.DrawPixel((this.SPRRAM[i + 3]) + j, this.CurrentScanLine,
-                                            this.PALETTE[(0x3f & this.VRAM[0x1F10 + PixelColor])]);
+                                        OutputDevice.DrawPixel((SprRam[i + 3]) + j, CurrentScanLine,
+                                                         Palette[(0x3f & VRam[0x1F10 + pixelColor])]);
                                         if (i == 0)
                                         {
-                                            this.Sprite0Hit = true;
+                                            Sprite0Hit = true;
                                         }
                                     }
                                 }
                             }
                         }
                         //Check for the zapper
-                        if (this.CheckZapperHit & this.ZapperFrame > 2)
+                        if (CheckZapperHit & ZapperFrame > 2)
                         {
-                            if ((this.ZapperX >= (this.SPRRAM[i + 3]) & this.ZapperX <= (this.SPRRAM[i + 3] + 8))
-                                & (this.ZapperY >= YCoordinate & this.ZapperY <= YCoordinate + 8))
+                            if ((ZapperX >= (SprRam[i + 3]) & ZapperX <= (SprRam[i + 3] + 8))
+                                & (ZapperY >= yCoordinate & ZapperY <= yCoordinate + 8))
                             {
-                                this._Nes.MEMORY.ZAPPER.SetDetect(0);
-                                this.CheckZapperHit = false;
+                                _engine.Memory.Zapper.SetDetect(0);
+                                CheckZapperHit = false;
                             }
                         }
                     }
-                    else//8x16
+                    else //8x16
                     {
                         //4: get the sprite id
-                        byte SpriteId = this.SPRRAM[i + 1];
-                        if ((this.SPRRAM[i + 2] & 0x80) != 0x80)
-                            _LineToDraw = this.CurrentScanLine - YCoordinate;
+                        var spriteId = SprRam[i + 1];
+                        if ((SprRam[i + 2] & 0x80) != 0x80)
+                            lineToDraw = CurrentScanLine - yCoordinate;
                         else
-                            _LineToDraw = YCoordinate + 15 - this.CurrentScanLine;
+                            lineToDraw = yCoordinate + 15 - CurrentScanLine;
                         //5: We draw the sprite like two halves, so getting past the 
                         //first 8 puts us into the next tile
                         //If the ID is even, the tile is in 0x0000, odd 0x1000
-                        int SpriteOffset = 0;
-                        if (_LineToDraw < 8)
+                        int spriteOffset;
+                        if (lineToDraw < 8)
                         {
                             //Draw the top tile
-                            if ((SpriteId % 2) == 0)
-                                SpriteOffset = 0x0000 + (SpriteId) * 16;
+                            if ((spriteId%2) == 0)
+                                spriteOffset = 0x0000 + (spriteId)*16;
                             else
-                                SpriteOffset = 0x1000 + (SpriteId - 1) * 16;
+                                spriteOffset = 0x1000 + (spriteId - 1)*16;
                         }
                         else
                         {
                             //Draw the bottom tile
-                            _LineToDraw -= 8;
-                            if ((SpriteId % 2) == 0)
-                                SpriteOffset = 0x0000 + (SpriteId + 1) * 16;
+                            lineToDraw -= 8;
+                            if ((spriteId%2) == 0)
+                                spriteOffset = 0x0000 + (spriteId + 1)*16;
                             else
-                                SpriteOffset = 0x1000 + (SpriteId) * 16;
+                                spriteOffset = 0x1000 + (spriteId)*16;
                         }
                         //6: extract our tile data
-                        byte TileData1 = this._Nes.MEMORY.MAP.ReadCHR((ushort)(SpriteOffset + _LineToDraw));
-                        byte TileData2 = this._Nes.MEMORY.MAP.ReadCHR((ushort)(SpriteOffset + _LineToDraw + 8));
+                        var tileData1 = _engine.Memory.Map.ReadChr((ushort) (spriteOffset + lineToDraw));
+                        var tileData2 = _engine.Memory.Map.ReadChr((ushort) (spriteOffset + lineToDraw + 8));
                         //7: get the palette attribute data
-                        byte PaletteUpperBits = (byte)((this.SPRRAM[i + 2] & 0x3) << 2);
+                        var paletteUpperBits = (byte) ((SprRam[i + 2] & 0x3) << 2);
                         //8, render the line inside the tile to the screen
-                        for (int j = 0; j < 8; j++)
+                        for (var j = 0; j < 8; j++)
                         {
-                            if ((this.SPRRAM[i + 2] & 0x40) == 0x40)
+                            if ((SprRam[i + 2] & 0x40) == 0x40)
                             {
-                                PixelColor = PaletteUpperBits + (((TileData2 & (1 << (j))) >> (j)) << 1) +
-                                    ((TileData1 & (1 << (j))) >> (j));
+                                pixelColor = paletteUpperBits + (((tileData2 & (1 << (j))) >> (j)) << 1) +
+                                             ((tileData1 & (1 << (j))) >> (j));
                             }
                             else
                             {
-                                PixelColor = PaletteUpperBits + (((TileData2 & (1 << (7 - j))) >> (7 - j)) << 1) +
-                                    ((TileData1 & (1 << (7 - j))) >> (7 - j));
+                                pixelColor = paletteUpperBits + (((tileData2 & (1 << (7 - j))) >> (7 - j)) << 1) +
+                                             ((tileData1 & (1 << (7 - j))) >> (7 - j));
                             }
 
-                            if (this._Video.Name == "Windows GDI Hi Res")
+                            if (OutputDevice.Name == "Windows GDI Hi Res")
                             {
                                 //store which chr page is being used
-                                uint tilepage = this._Nes.MEMORY.MAP.ReadCHRPageNo((ushort)(SpriteOffset));
-                                if ((this.SPRRAM[i + 3] + j) < 256)
+                                var tilepage = _engine.Memory.Map.ReadChrPageNo((ushort) (spriteOffset));
+                                if ((SprRam[i + 3] + j) < 256)
                                 {
-                                    ((VideoGdiHiRes)this._Video).DrawPixelHiRes((this.SPRRAM[i + 3]) + j, this.CurrentScanLine,
-                                        this.PALETTE[(0x3f & this.VRAM[0x1F10 + PixelColor])], tilepage, SpriteOffset & 0x0003ff, ((this.SPRRAM[i + 2] & 0x40) == 0x40) ? j : 7 - j, _LineToDraw, (this.SPRRAM[i + 2] & 0x40) == 0x40, (this.SPRRAM[i + 2] & 0x80) == 0x80, this.VRAM[0x1F10 + PixelColor - (PixelColor % 4) + 1], this.VRAM[0x1F10 + PixelColor - (PixelColor % 4) + 2], this.VRAM[0x1F10 + PixelColor - (PixelColor % 4) + 3], PixelColor);
-                                    if (((PixelColor % 4) != 0) && (i == 0))
+                                    ((VideoGdiHiRes) OutputDevice).DrawPixelHiRes((SprRam[i + 3]) + j, CurrentScanLine,
+                                                                            Palette[(0x3f & VRam[0x1F10 + pixelColor])],
+                                                                            tilepage, spriteOffset & 0x0003ff,
+                                                                            ((SprRam[i + 2] & 0x40) == 0x40) ? j : 7 - j,
+                                                                            lineToDraw, (SprRam[i + 2] & 0x40) == 0x40,
+                                                                            (SprRam[i + 2] & 0x80) == 0x80,
+                                                                            VRam[
+                                                                                0x1F10 + pixelColor - (pixelColor%4) + 1
+                                                                                ],
+                                                                            VRam[
+                                                                                0x1F10 + pixelColor - (pixelColor%4) + 2
+                                                                                ],
+                                                                            VRam[
+                                                                                0x1F10 + pixelColor - (pixelColor%4) + 3
+                                                                                ], pixelColor);
+                                    if (((pixelColor%4) != 0) && (i == 0))
                                     {
-                                        this.Sprite0Hit = true;
+                                        Sprite0Hit = true;
                                     }
                                 }
                             }
                             else
                             {
-                                if ((PixelColor % 4) != 0)
+                                if ((pixelColor%4) != 0)
                                 {
-                                    if ((this.SPRRAM[i + 3] + j) < 256)
+                                    if ((SprRam[i + 3] + j) < 256)
                                     {
-                                        this._Video.DrawPixel((this.SPRRAM[i + 3]) + j,
-                                            this.CurrentScanLine,
-                                            this.PALETTE[(0x3f & this.VRAM[0x1F10 + PixelColor])]);
+                                        OutputDevice.DrawPixel((SprRam[i + 3]) + j,
+                                                         CurrentScanLine,
+                                                         Palette[(0x3f & VRam[0x1F10 + pixelColor])]);
                                         if (i == 0)
                                         {
-                                            this.Sprite0Hit = true;
+                                            Sprite0Hit = true;
                                         }
                                     }
                                 }
                             }
                         }
-                        if (this.CheckZapperHit & this.ZapperFrame > 2)
+                        if (CheckZapperHit & ZapperFrame > 2)
                         {
-                            if ((this.ZapperX >= (this.SPRRAM[i + 3]) & this.ZapperX <= (this.SPRRAM[i + 3] + 8))
-                                & (this.ZapperY >= YCoordinate & this.ZapperY <= YCoordinate + 16)
-                                & this.PALETTE[(0x3f & this.VRAM[0x1F10 + PixelColor])] >= 0xFF)
+                            if ((ZapperX >= (SprRam[i + 3]) & ZapperX <= (SprRam[i + 3] + 8))
+                                & (ZapperY >= yCoordinate & ZapperY <= yCoordinate + 16)
+                                & Palette[(0x3f & VRam[0x1F10 + pixelColor])] >= 0xFF)
                             {
-                                this._Nes.MEMORY.ZAPPER.SetDetect(0);
-                                this.CheckZapperHit = false;
+                                _engine.Memory.Zapper.SetDetect(0);
+                                CheckZapperHit = false;
                             }
                         }
                     }
                 }
                 else
                 {
-                    this.SpriteRamAddress = 0;
+                    SpriteRamAddress = 0;
                 }
             }
         }
-        void RenderBackground()
+
+        private void RenderBackground()
         {
-            int nameTableAddress = 0;
-            if (this.ReloadBits2000 == 0)
+            var nameTableAddress = 0;
+            if (ReloadBits2000 == 0)
                 nameTableAddress = 0x2000;
-            else if (this.ReloadBits2000 == 1)
+            else if (ReloadBits2000 == 1)
                 nameTableAddress = 0x2400;
-            else if (this.ReloadBits2000 == 2)
+            else if (ReloadBits2000 == 2)
                 nameTableAddress = 0x2800;
-            else if (this.ReloadBits2000 == 3)
+            else if (ReloadBits2000 == 3)
                 nameTableAddress = 0x2C00;
-            for (int vScrollSide = 0; vScrollSide < 2; vScrollSide++)
+            for (var vScrollSide = 0; vScrollSide < 2; vScrollSide++)
             {
-                int virtualScanline = this.CurrentScanLine + this.VScroll;
+                var virtualScanline = CurrentScanLine + VScroll;
                 if (virtualScanline < 0)
                     virtualScanline = 0;
-                int nameTableBase = nameTableAddress;
-                int startColumn = 0;
-                int endColumn = 0;
+                var nameTableBase = nameTableAddress;
+                int startColumn;
+                int endColumn;
                 if (vScrollSide == 0)
                 {
                     if (virtualScanline >= 240)
                     {
-                        if (nameTableAddress == 0x2000)
-                            nameTableBase = 0x2800;
-                        else if (nameTableAddress == 0x2400)
-                            nameTableBase = 0x2C00;
-                        else if (nameTableAddress == 0x2800)
-                            nameTableBase = 0x2000;
-                        else if (nameTableAddress == 0x2C00)
-                            nameTableBase = 0x2400;
+                        switch (nameTableAddress)
+                        {
+                            case 0x2000:
+                                nameTableBase = 0x2800;
+                                break;
+                            case 0x2400:
+                                nameTableBase = 0x2C00;
+                                break;
+                            case 0x2800:
+                                nameTableBase = 0x2000;
+                                break;
+                            case 0x2C00:
+                                nameTableBase = 0x2400;
+                                break;
+                        }
                         virtualScanline -= 240;
                     }
-                    startColumn = this.HScroll / 8;
+                    startColumn = HScroll/8;
                     endColumn = 32;
                 }
                 else
                 {
                     if (virtualScanline >= 240)
                     {
-                        if (nameTableAddress == 0x2000)
-                            nameTableBase = 0x2C00;
-                        else if (nameTableAddress == 0x2400)
-                            nameTableBase = 0x2800;
-                        else if (nameTableAddress == 0x2800)
-                            nameTableBase = 0x2400;
-                        else if (nameTableAddress == 0x2C00)
-                            nameTableBase = 0x2000;
+                        switch (nameTableAddress)
+                        {
+                            case 0x2000:
+                                nameTableBase = 0x2C00;
+                                break;
+                            case 0x2400:
+                                nameTableBase = 0x2800;
+                                break;
+                            case 0x2800:
+                                nameTableBase = 0x2400;
+                                break;
+                            case 0x2C00:
+                                nameTableBase = 0x2000;
+                                break;
+                        }
                         virtualScanline -= 240;
                     }
                     else
                     {
-                        if (nameTableAddress == 0x2000)
-                            nameTableBase = 0x2400;
-                        else if (nameTableAddress == 0x2400)
-                            nameTableBase = 0x2000;
-                        else if (nameTableAddress == 0x2800)
-                            nameTableBase = 0x2C00;
-                        else if (nameTableAddress == 0x2C00)
-                            nameTableBase = 0x2800;
+                        switch (nameTableAddress)
+                        {
+                            case 0x2000:
+                                nameTableBase = 0x2400;
+                                break;
+                            case 0x2400:
+                                nameTableBase = 0x2000;
+                                break;
+                            case 0x2800:
+                                nameTableBase = 0x2C00;
+                                break;
+                            case 0x2C00:
+                                nameTableBase = 0x2800;
+                                break;
+                        }
                     }
                     startColumn = 0;
-                    endColumn = (this.HScroll / 8) + 1;
+                    endColumn = (HScroll/8) + 1;
                 }
                 //Next Try: Forcing two page only: 0x2000 and 0x2400				
-                if (this._Nes.MEMORY.MAP.Cartridge.Mirroring == MIRRORING.HORIZONTAL)
+                if (_engine.Memory.Map.Cartridge.Mirroring == Mirroring.Horizontal)
                 {
                     if (nameTableBase == 0x2400)
                         nameTableBase = 0x2000;
@@ -446,49 +481,50 @@ namespace NesHd.Core.PPU
                     else if (nameTableBase == 0x2C00)
                         nameTableBase = 0x2400;
                 }
-                else if (this._Nes.MEMORY.MAP.Cartridge.Mirroring == MIRRORING.VERTICAL)
+                else if (_engine.Memory.Map.Cartridge.Mirroring == Mirroring.Vertical)
                 {
                     if (nameTableBase == 0x2800)
                         nameTableBase = 0x2000;
                     else if (nameTableBase == 0x2C00)
                         nameTableBase = 0x2400;
                 }
-                else if (this._Nes.MEMORY.MAP.Cartridge.Mirroring == MIRRORING.ONE_SCREEN)
+                else if (_engine.Memory.Map.Cartridge.Mirroring == Mirroring.OneScreen)
                 {
-                    nameTableBase = (int)this._Nes.MEMORY.MAP.Cartridge.MirroringBase;
+                    nameTableBase = (int) _engine.Memory.Map.Cartridge.MirroringBase;
                 }
-                for (int currentTileColumn = startColumn; currentTileColumn < endColumn;
-                    currentTileColumn++)
+                for (var currentTileColumn = startColumn;
+                     currentTileColumn < endColumn;
+                     currentTileColumn++)
                 {
                     //Starting tile row is currentScanline / 8
                     //The offset in the tile is currentScanline % 8
 
                     //Step #1, get the tile number
-                    int tileNumber = this.VRAM[((nameTableBase - 0x2000) + ((virtualScanline / 8) * 32) + currentTileColumn)];
+                    int tileNumber = VRam[((nameTableBase - 0x2000) + ((virtualScanline/8)*32) + currentTileColumn)];
 
                     //Step #2, get the offset for the tile in the tile data
-                    int tileDataOffset = this.PatternTableAddressBackground + (tileNumber * 16);
+                    var tileDataOffset = PatternTableAddressBackground + (tileNumber*16);
 
                     //Step #3, get the tile data from chr rom
-                    int tiledata1 = this._Nes.MEMORY.MAP.ReadCHR((ushort)(tileDataOffset + (virtualScanline % 8)));
-                    int tiledata2 = this._Nes.MEMORY.MAP.ReadCHR((ushort)(tileDataOffset + (virtualScanline % 8) + 8));
-                    
+                    int tiledata1 = _engine.Memory.Map.ReadChr((ushort) (tileDataOffset + (virtualScanline%8)));
+                    int tiledata2 = _engine.Memory.Map.ReadChr((ushort) (tileDataOffset + (virtualScanline%8) + 8));
+
                     //Step #4, get the attribute byte for the block of tiles we're in
                     //this will put us in the correct section in the palette table
-                    int paletteHighBits = this.VRAM[((nameTableBase - 0x2000 +
-                        0x3c0 + (((virtualScanline / 8) / 4) * 8) + (currentTileColumn / 4)))];
-                    paletteHighBits = (byte)(paletteHighBits >> ((4 * (((virtualScanline / 8) % 4) / 2)) +
-                        (2 * ((currentTileColumn % 4) / 2))));
-                    paletteHighBits = (byte)((paletteHighBits & 0x3) << 2);
+                    int paletteHighBits = VRam[((nameTableBase - 0x2000 +
+                                                 0x3c0 + (((virtualScanline/8)/4)*8) + (currentTileColumn/4)))];
+                    paletteHighBits = (byte) (paletteHighBits >> ((4*(((virtualScanline/8)%4)/2)) +
+                                                                  (2*((currentTileColumn%4)/2))));
+                    paletteHighBits = (byte) ((paletteHighBits & 0x3) << 2);
 
                     //Step #5, render the line inside the tile to the offscreen buffer
-                    int startTilePixel = 0;
-                    int endTilePixel = 0;
+                    int startTilePixel;
+                    int endTilePixel;
                     if (vScrollSide == 0)
                     {
                         if (currentTileColumn == startColumn)
                         {
-                            startTilePixel = this.HScroll % 8;
+                            startTilePixel = HScroll%8;
                             endTilePixel = 8;
                         }
                         else
@@ -502,7 +538,7 @@ namespace NesHd.Core.PPU
                         if (currentTileColumn == endColumn)
                         {
                             startTilePixel = 0;
-                            endTilePixel = this.HScroll % 8;
+                            endTilePixel = HScroll%8;
                         }
                         else
                         {
@@ -511,398 +547,444 @@ namespace NesHd.Core.PPU
                         }
                     }
 
-                    for (int i = startTilePixel; i < endTilePixel; i++)
+                    for (var i = startTilePixel; i < endTilePixel; i++)
                     {
-                        int pixelColor = paletteHighBits + (((tiledata2 & (1 << (7 - i))) >> (7 - i)) << 1) +
-                            ((tiledata1 & (1 << (7 - i))) >> (7 - i));
+                        var pixelColor = paletteHighBits + (((tiledata2 & (1 << (7 - i))) >> (7 - i)) << 1) +
+                                         ((tiledata1 & (1 << (7 - i))) >> (7 - i));
 
                         //Hi Res stages
-                        if (this._Video.Name == "Windows GDI Hi Res")
+                        if (OutputDevice.Name == "Windows GDI Hi Res")
                         {
                             //store which chr page is being used
-                            uint tilepage = this._Nes.MEMORY.MAP.ReadCHRPageNo((ushort)(tileDataOffset));
+                            var tilepage = _engine.Memory.Map.ReadChrPageNo((ushort) (tileDataOffset));
 
                             if (vScrollSide == 0)
                             {
-                                ((VideoGdiHiRes)this._Video).DrawPixelHiRes((8 * currentTileColumn) - this.HScroll + i, this.CurrentScanLine, this.PALETTE[(0x3f & this.VRAM[0x1f00 + pixelColor])], tilepage, tileDataOffset & 0x0003ff, 7 - i, virtualScanline % 8, true, false, this.VRAM[0x1f00 + pixelColor - (pixelColor % 4) + 1], this.VRAM[0x1f00 + pixelColor - (pixelColor % 4) + 2], this.VRAM[0x1f00 + pixelColor - (pixelColor % 4) + 3], pixelColor);
+                                ((VideoGdiHiRes) OutputDevice).DrawPixelHiRes((8*currentTileColumn) - HScroll + i,
+                                                                        CurrentScanLine,
+                                                                        Palette[(0x3f & VRam[0x1f00 + pixelColor])],
+                                                                        tilepage, tileDataOffset & 0x0003ff, 7 - i,
+                                                                        virtualScanline%8, true, false,
+                                                                        VRam[0x1f00 + pixelColor - (pixelColor % 4) + 1],
+                                                                        VRam[0x1f00 + pixelColor - (pixelColor % 4) + 2],
+                                                                        VRam[0x1f00 + pixelColor - (pixelColor % 4) + 3],
+                                                                        pixelColor);
                             }
                             else
                             {
-                                if (((8 * currentTileColumn) + (256 - this.HScroll) + i) < 256)
+                                if (((8*currentTileColumn) + (256 - HScroll) + i) < 256)
                                 {
-                                    ((VideoGdiHiRes)this._Video).DrawPixelHiRes((8 * currentTileColumn) + (256 - this.HScroll) + i, this.CurrentScanLine, this.PALETTE[(0x3f & this.VRAM[0x1f00 + pixelColor])], tilepage, tileDataOffset & 0x0003ff, 7 - i, virtualScanline % 8, true, false, this.VRAM[0x1f00 + pixelColor - (pixelColor % 4) + 1], this.VRAM[0x1f00 + pixelColor - (pixelColor % 4) + 2], this.VRAM[0x1f00 + pixelColor - (pixelColor % 4) + 3], pixelColor);
+                                    ((VideoGdiHiRes) OutputDevice).DrawPixelHiRes(
+                                        (8*currentTileColumn) + (256 - HScroll) + i, CurrentScanLine,
+                                        Palette[(0x3f & VRam[0x1f00 + pixelColor])], tilepage, tileDataOffset & 0x0003ff,
+                                        7 - i, virtualScanline%8, true, false,
+                                        VRam[0x1f00 + pixelColor - (pixelColor % 4) + 1],
+                                        VRam[0x1f00 + pixelColor - (pixelColor % 4) + 2],
+                                        VRam[0x1f00 + pixelColor - (pixelColor % 4) + 3], pixelColor);
                                 }
                             }
-
                         }
-                        else {
-                            if ((pixelColor % 4) != 0)
+                        else
+                        {
+                            if ((pixelColor%4) != 0)
                             {
                                 if (vScrollSide == 0)
                                 {
-                                    this._Video.DrawPixel((8 * currentTileColumn) - this.HScroll + i, this.CurrentScanLine, this.PALETTE[(0x3f & this.VRAM[0x1f00 + pixelColor])]);
+                                    OutputDevice.DrawPixel((8*currentTileColumn) - HScroll + i, CurrentScanLine,
+                                                     Palette[(0x3f & VRam[0x1f00 + pixelColor])]);
                                 }
                                 else
                                 {
-                                    if (((8 * currentTileColumn) + (256 - this.HScroll) + i) < 256)
+                                    if (((8*currentTileColumn) + (256 - HScroll) + i) < 256)
                                     {
-                                        this._Video.DrawPixel((8 * currentTileColumn) + (256 - this.HScroll) + i, this.CurrentScanLine, this.PALETTE[(0x3f & this.VRAM[0x1f00 + pixelColor])]);
+                                        OutputDevice.DrawPixel((8 * currentTileColumn) + (256 - HScroll) + i, CurrentScanLine,
+                                                         Palette[(0x3f & VRam[0x1f00 + pixelColor])]);
                                     }
                                 }
                             }
                         }
-
                     }
                 }
             }
         }
-        public void SetTVFormat(TVFORMAT FORMAT, PaletteFormat PlFormat)
+
+        public void SetTvFormat(TVFORMAT format, PaletteFormat plFormat)
         {
-            switch (FORMAT)
+            switch (format)
             {
                 case TVFORMAT.NTSC:
-                    this.ScanlinesPerFrame = 261;
-                    this.FramePeriod = 0.01667;//60 FPS
+                    ScanlinesPerFrame = 261;
+                    _framePeriod = 0.01667; //60 FPS
                     //FramePeriod = 2;
-                    this.ScanlineOfVBLANK = 244;
-                    if (PlFormat.UseInternalPalette)
+                    ScanlineOfVblank = 244;
+                    if (plFormat.UseInternalPalette)
                     {
-                        switch (PlFormat.UseInternalPaletteMode)
+                        switch (plFormat.UseInternalPaletteMode)
                         {
                             case UseInternalPaletteMode.Auto:
-                                this.PALETTE = Paletter.NTSCPalette;
+                                Palette = Paletter.NTSCPalette;
                                 break;
-                            case UseInternalPaletteMode.NTSC:
-                                this.PALETTE = Paletter.NTSCPalette;
+                            case UseInternalPaletteMode.Ntsc:
+                                Palette = Paletter.NTSCPalette;
                                 break;
-                            case UseInternalPaletteMode.PAL:
-                                this.PALETTE = Paletter.PALPalette;
+                            case UseInternalPaletteMode.Pal:
+                                Palette = Paletter.PALPalette;
                                 break;
                         }
-
                     }
                     else
                     {
-                        if (Paletter.LoadPalette(PlFormat.ExternalPalettePath) != null)
+                        if (Paletter.LoadPalette(plFormat.ExternalPalettePath) != null)
                         {
-                            this.PALETTE = Paletter.LoadPalette(PlFormat.ExternalPalettePath);
+                            Palette = Paletter.LoadPalette(plFormat.ExternalPalettePath);
                         }
                         else
                         {
-                            this.PALETTE = Paletter.NTSCPalette;
-                            Debug.WriteLine(this, "Could not find the external palette file, uses the defualt palette for NTSC.", DebugStatus.Error);
+                            Palette = Paletter.NTSCPalette;
+                            Debug.WriteLine(this,
+                                            "Could not find the external palette file, uses the defualt palette for NTSC.",
+                                            DebugStatus.Error);
                         }
                     }
                     break;
                 case TVFORMAT.PAL:
-                    this.ScanlinesPerFrame = 311;
-                    this.FramePeriod = 0.020;//50 FPS
-                    this.ScanlineOfVBLANK = 290;
-                    if (PlFormat.UseInternalPalette)
+                    ScanlinesPerFrame = 311;
+                    _framePeriod = 0.020; //50 FPS
+                    ScanlineOfVblank = 290;
+                    if (plFormat.UseInternalPalette)
                     {
-                        switch (PlFormat.UseInternalPaletteMode)
+                        switch (plFormat.UseInternalPaletteMode)
                         {
                             case UseInternalPaletteMode.Auto:
-                                this.PALETTE = Paletter.PALPalette;
+                                Palette = Paletter.PALPalette;
                                 break;
-                            case UseInternalPaletteMode.NTSC:
-                                this.PALETTE = Paletter.NTSCPalette;
+                            case UseInternalPaletteMode.Ntsc:
+                                Palette = Paletter.NTSCPalette;
                                 break;
-                            case UseInternalPaletteMode.PAL:
-                                this.PALETTE = Paletter.PALPalette;
+                            case UseInternalPaletteMode.Pal:
+                                Palette = Paletter.PALPalette;
                                 break;
                         }
-
                     }
                     else
                     {
-                        if (Paletter.LoadPalette(PlFormat.ExternalPalettePath) != null)
+                        if (Paletter.LoadPalette(plFormat.ExternalPalettePath) != null)
                         {
-                            this.PALETTE = Paletter.LoadPalette(PlFormat.ExternalPalettePath);
+                            Palette = Paletter.LoadPalette(plFormat.ExternalPalettePath);
                         }
                         else
                         {
-                            this.PALETTE = Paletter.PALPalette;
-                            Debug.WriteLine(this, "Could not find the external palette file, uses the defualt palette for PAL.", DebugStatus.Error);
+                            Palette = Paletter.PALPalette;
+                            Debug.WriteLine(this,
+                                            "Could not find the external palette file, uses the defualt palette for PAL.",
+                                            DebugStatus.Error);
                         }
                     }
                     break;
             }
+        }
 
-        }
         #region Registers
-        public void Write2000(byte Value)
+
+        public void Write2000(byte value)
         {
-            this.ExecuteNMIonVBlank = (Value & 0x80) == 0x80;//Bit 7
-            this.SpriteSize = (Value & 0x20) == 0x20;//Bit 5
-            this.PatternTableAddressBackground = ((Value & 0x10) == 0x10) ? 0x1000 : 0;//Bit 4
-            this.PatternTableAddress8x8Sprites = ((Value & 0x8) == 0x8) ? 0x1000 : 0;//Bit 3
-            this.VRAMAddressIncrement = ((Value & 0x04) != 0) ? 32 : 1;//Bit 2
-            this.ReloadBits2000 = (byte)(Value & 0x3);//Bit 0 - 1
-            this.VRAMTemp = (ushort)((this.VRAMTemp & 0xF3FF) | ((Value & 0x3) << 10));
+            ExecuteNMIonVBlank = (value & 0x80) == 0x80; //Bit 7
+            SpriteSize = (value & 0x20) == 0x20; //Bit 5
+            PatternTableAddressBackground = ((value & 0x10) == 0x10) ? 0x1000 : 0; //Bit 4
+            PatternTableAddress8X8Sprites = ((value & 0x8) == 0x8) ? 0x1000 : 0; //Bit 3
+            VRamAddressIncrement = ((value & 0x04) != 0) ? 32 : 1; //Bit 2
+            ReloadBits2000 = (byte) (value & 0x3); //Bit 0 - 1
+            VRamTemp = (ushort)((VRamTemp & 0xF3FF) | ((value & 0x3) << 10));
         }
-        public void Write2001(byte Value)
+
+        public void Write2001(byte value)
         {
-            this.ColorEmphasis = (ushort)((Value & 0xE0) << 1);//Bit 5 - 7
-            this.SpriteVisibility = (Value & 0x10) != 0;//Bit 4
-            this.BackgroundVisibility = (Value & 0x8) != 0;//Bit 3
-            this.SpriteClipping = (Value & 0x04) != 0;//Bit 2
-            this.BackgroundClipping = (Value & 0x02) != 0;//Bit 1
-            this.MonochromeMode = (Value & 0x01) != 0;//Bit 0
+            ColorEmphasis = (ushort) ((value & 0xE0) << 1); //Bit 5 - 7
+            SpriteVisibility = (value & 0x10) != 0; //Bit 4
+            BackgroundVisibility = (value & 0x8) != 0; //Bit 3
+            SpriteClipping = (value & 0x04) != 0; //Bit 2
+            BackgroundClipping = (value & 0x02) != 0; //Bit 1
+            MonochromeMode = (value & 0x01) != 0; //Bit 0
         }
+
         public byte Read2002()
         {
             byte returnedValue = 0;
             // VBlank
-            if (this.VBLANK)
-                returnedValue = (byte)(returnedValue | 0x80);
+            if (VBlank)
+                returnedValue = (byte) (returnedValue | 0x80);
             //Sprite 0 Hit
-            if (this.Sprite0Hit & (this.BackgroundVisibility & this.SpriteVisibility))
-                returnedValue = (byte)(returnedValue | 0x40);
+            if (Sprite0Hit & (BackgroundVisibility & SpriteVisibility))
+                returnedValue = (byte) (returnedValue | 0x40);
             //More than 8 sprites in 1 scanline
-            if ((this.SpriteCrossed > 8) & (this.BackgroundVisibility & this.SpriteVisibility))
-                returnedValue = (byte)(returnedValue | 0x20);
+            if ((SpriteCrossed > 8) & (BackgroundVisibility & SpriteVisibility))
+                returnedValue = (byte) (returnedValue | 0x20);
             //If it should ignore any write into 2007
-            if ((this.CurrentScanLine >= 240) | !(this.BackgroundVisibility & this.SpriteVisibility))
-                returnedValue = (byte)(returnedValue | 0x10);
-            this.VBLANK = false;
-            this.PPUToggle = true;
+            if ((CurrentScanLine >= 240) | !(BackgroundVisibility & SpriteVisibility))
+                returnedValue = (byte) (returnedValue | 0x10);
+            VBlank = false;
+            PpuToggle = true;
             return returnedValue;
         }
-        public void Write2003(byte Value)
+
+        public void Write2003(byte value)
         {
-            this.SpriteRamAddress = Value;
+            SpriteRamAddress = value;
         }
-        public void Write2004(byte Value)
+
+        public void Write2004(byte value)
         {
-            if (this.CurrentScanLine >= 240)
-                this.SPRRAM[this.SpriteRamAddress] = Value;
-            this.SpriteRamAddress++;
+            if (CurrentScanLine >= 240)
+                SprRam[SpriteRamAddress] = value;
+            SpriteRamAddress++;
         }
+
         public byte Read2004()
         {
-            if (this.CurrentScanLine >= 240)
-                return this.SPRRAM[this.SpriteRamAddress];
-            else
-                return 0;
+            return CurrentScanLine >= 240 ? SprRam[SpriteRamAddress] : (byte) 0;
         }
-        public void Write2005(byte Value)
+
+        public void Write2005(byte value)
         {
-            if (this.PPUToggle)
+            if (PpuToggle)
             {
-                this.HScroll = Value;
-                this.VRAMTemp = (ushort)(this.VRAMTemp | ((Value & 0xF8) >> 3));
+                HScroll = value;
+                VRamTemp = (ushort)(VRamTemp | ((value & 0xF8) >> 3));
             }
             else
             {
-                this.VRAMTemp = (ushort)(this.VRAMTemp | ((Value & 0xF8) << 2));
-                this.VRAMTemp = (ushort)(this.VRAMTemp | ((Value & 0x3) << 12));
-                if (this.CurrentScanLine >= 240)//All ...
+                VRamTemp = (ushort)(VRamTemp | ((value & 0xF8) << 2));
+                VRamTemp = (ushort)(VRamTemp | ((value & 0x3) << 12));
+                if (CurrentScanLine >= 240) //All ...
                 {
-                    this.VScroll = Value;
-                    if (this.VScroll > 239)
-                        this.VScroll = 0;
+                    VScroll = value;
+                    if (VScroll > 239)
+                        VScroll = 0;
                 }
                 else
                 {
-                    if (this.FIX_scroll)//Karnov, Mapper 225/255...
+                    if (FixScroll) //Karnov, Mapper 225/255...
                     {
-                        this.VScroll = Value;
-                        if (this.VScroll > 239)
-                            this.VScroll = 0;
+                        VScroll = value;
+                        if (VScroll > 239)
+                            VScroll = 0;
                     }
-                    else if (this.FIX_scroll3)//SMB 3
-                        this.VScroll = 238;
+                    else if (FixScroll3) //SMB 3
+                        VScroll = 238;
                 }
             }
-            this.PPUToggle = !this.PPUToggle;
+            PpuToggle = !PpuToggle;
         }
-        public void Write2006(byte Value)
+
+        public void Write2006(byte value)
         {
-            if (this.PPUToggle)
+            if (PpuToggle)
             {
-                this.VRAMTemp = (ushort)((this.VRAMTemp & 0x00FF) | ((Value & 0x3F) << 8));
+                VRamTemp = (ushort)((VRamTemp & 0x00FF) | ((value & 0x3F) << 8));
             }
             else
             {
-                this.VRAMTemp = (ushort)((this.VRAMTemp & 0x7F00) | Value);
-                this.VRAMAddress = this.VRAMTemp;
+                VRamTemp = (ushort)((VRamTemp & 0x7F00) | value);
+                VRamAddress = VRamTemp;
             }
             //Update the reload bits
-            this.TileY = ((this.VRAMTemp & 0x7000) >> 12);
-            this.HScroll = (byte)(((Value & 0x1F) << 3));
-            if (this.CurrentScanLine < 240)
+            TileY = ((VRamTemp & 0x7000) >> 12);
+            HScroll = (byte) (((value & 0x1F) << 3));
+            if (CurrentScanLine < 240)
             {
-                if (this.FIX_scroll2)//special for ZELDAAAAAAAAAAAAAA !!!! why ?
+                if (FixScroll2) //special for ZELDAAAAAAAAAAAAAA !!!! why ?
                 {
-                    if (this.VRAMTemp <= 0x2400)//Zelda needs this check
+                    if (VRamTemp <= 0x2400) //Zelda needs this check
                     {
-                        this.VScroll = ((this.VRAMTemp & 0x03E0) >> 5);
-                        this.VScroll = ((this.VScroll * 8) - this.CurrentScanLine);
-                        this.VScroll += this.TileY + 1;
+                        VScroll = ((VRamTemp & 0x03E0) >> 5);
+                        VScroll = ((VScroll*8) - CurrentScanLine);
+                        VScroll += TileY + 1;
                     }
                 }
-                else//All .....
+                else //All .....
                 {
                     //All games will use this
-                    this.VScroll = ((this.VRAMTemp & 0x03E0) >> 5);
-                    this.VScroll = ((this.VScroll * 8) - this.CurrentScanLine);
-                    this.VScroll += (this.TileY + 1);
+                    VScroll = ((VRamTemp & 0x03E0) >> 5);
+                    VScroll = ((VScroll*8) - CurrentScanLine);
+                    VScroll += (TileY + 1);
                 }
             }
             else
             {
-                this.VScroll = 0;// ??!! don't remove this otherwise some games 
+                VScroll = 0; // ??!! don't remove this otherwise some games 
                 //will crach like Power Rangers 2.
             }
-            if (!this.FIX_scroll2)
-                this.ReloadBits2000 = (byte)((this.VRAMTemp & 0x0C00) >> 10);
-            else if (this.CurrentScanLine >= 240)
-                this.ReloadBits2000 = (byte)((this.VRAMTemp & 0x0C00) >> 10);
-            this.PPUToggle = !this.PPUToggle;
+            if (!FixScroll2)
+                ReloadBits2000 = (byte)((VRamTemp & 0x0C00) >> 10);
+            else if (CurrentScanLine >= 240)
+                ReloadBits2000 = (byte)((VRamTemp & 0x0C00) >> 10);
+            PpuToggle = !PpuToggle;
         }
-        public void Write2007(byte Value)
+
+        public void Write2007(byte value)
         {
-            int ADD = this.VRAMAddress;
-            if (ADD >= 0x4000)
-                ADD -= 0x4000;
-            else if (ADD >= 0x3F20 & ADD < 0x4000)
-                ADD -= 0x20;
-            if (ADD < 0x2000)
+            int add = VRamAddress;
+            if (add >= 0x4000)
+                add -= 0x4000;
+            else if (add >= 0x3F20 & add < 0x4000)
+                add -= 0x20;
+            if (add < 0x2000)
             {
-                this._Nes.MEMORY.MAP.WriteCHR((ushort)ADD, Value);
+                _engine.Memory.Map.WriteChr((ushort) add, value);
             }
-            else if ((ADD >= 0x2000) && (ADD < 0x3F00))
+            else if ((add >= 0x2000) && (add < 0x3F00))
             {
-                if (ADD >= 0x3000)
-                    ADD -= 0x1000;
-                int vr = (ADD & 0x2C00);
-                if (!this.IsMapperMirroring)
+                if (add >= 0x3000)
+                    add -= 0x1000;
+                var vr = (add & 0x2C00);
+                if (!IsMapperMirroring)
                 {
-                    if (this._Nes.MEMORY.MAP.Cartridge.Mirroring == MIRRORING.HORIZONTAL)
+                    if (_engine.Memory.Map.Cartridge.Mirroring == Mirroring.Horizontal)
                     {
-                        if (vr == 0x2000)
-                            this.VRAM[ADD - 0x2000] = Value;
-                        else if (vr == 0x2400)
-                            this.VRAM[(ADD - 0x400) - 0x2000] = Value;
-                        else if (vr == 0x2800)
+                        switch (vr)
                         {
-                            this.VRAM[ADD - 0x400 - 0x2000] = Value;
-                            this.VRAM[ADD - 0x2000] = Value;
-                        }
-                        else if (vr == 0x2C00)
-                        {
-                            this.VRAM[(ADD - 0x800) - 0x2000] = Value;
-                            this.VRAM[ADD - 0x2000] = Value;
+                            case 0x2000:
+                                VRam[add - 0x2000] = value;
+                                break;
+                            case 0x2400:
+                                VRam[(add - 0x400) - 0x2000] = value;
+                                break;
+                            case 0x2800:
+                                VRam[add - 0x400 - 0x2000] = value;
+                                VRam[add - 0x2000] = value;
+                                break;
+                            case 0x2C00:
+                                VRam[(add - 0x800) - 0x2000] = value;
+                                VRam[add - 0x2000] = value;
+                                break;
                         }
                     }
-                    else if (this._Nes.MEMORY.MAP.Cartridge.Mirroring == MIRRORING.VERTICAL)
+                    else if (_engine.Memory.Map.Cartridge.Mirroring == Mirroring.Vertical)
                     {
-                        if (vr == 0x2000)
-                            this.VRAM[ADD - 0x2000] = Value;
-                        else if (vr == 0x2400)
-                            this.VRAM[ADD - 0x2000] = Value;
-                        else if (vr == 0x2800)
+                        switch (vr)
                         {
-                            this.VRAM[ADD - 0x800 - 0x2000] = Value;
-                            this.VRAM[ADD - 0x2000] = Value;
-                        }
-                        else if (vr == 0x2C00)
-                        {
-                            this.VRAM[(ADD - 0x800) - 0x2000] = Value;
-                            this.VRAM[ADD - 0x2000] = Value;
+                            case 0x2000:
+                                VRam[add - 0x2000] = value;
+                                break;
+                            case 0x2400:
+                                VRam[add - 0x2000] = value;
+                                break;
+                            case 0x2800:
+                                VRam[add - 0x800 - 0x2000] = value;
+                                VRam[add - 0x2000] = value;
+                                break;
+                            case 0x2C00:
+                                VRam[(add - 0x800) - 0x2000] = value;
+                                VRam[add - 0x2000] = value;
+                                break;
                         }
                     }
-                    else if (this._Nes.MEMORY.MAP.Cartridge.Mirroring == MIRRORING.ONE_SCREEN)
+                    else if (_engine.Memory.Map.Cartridge.Mirroring == Mirroring.OneScreen)
                     {
-                        if (this._Nes.MEMORY.MAP.Cartridge.MirroringBase == 0x2000)
+                        switch (_engine.Memory.Map.Cartridge.MirroringBase)
                         {
-                            if (vr == 0x2000)
-                                this.VRAM[ADD - 0x2000] = Value;
-                            else if (vr == 0x2400)
-                                this.VRAM[ADD - 0x400 - 0x2000] = Value;
-                            else if (vr == 0x2800)
-                                this.VRAM[ADD - 0x800 - 0x2000] = Value;
-                            else if (vr == 0x2C00)
-                                this.VRAM[ADD - 0xC00 - 0x2000] = Value;
-                        }
-                        else if (this._Nes.MEMORY.MAP.Cartridge.MirroringBase == 0x2400)
-                        {
-                            if (vr == 0x2000)
-                                this.VRAM[ADD + 0x400 - 0x2000] = Value;
-                            else if (vr == 0x2400)
-                                this.VRAM[ADD - 0x2000] = Value;
-                            else if (vr == 0x2800)
-                                this.VRAM[ADD - 0x400 - 0x2000] = Value;
-                            else if (vr == 0x2C00)
-                                this.VRAM[ADD - 0x800 - 0x2000] = Value;
+                            case 0x2000:
+                                switch (vr)
+                                {
+                                    case 0x2000:
+                                        VRam[add - 0x2000] = value;
+                                        break;
+                                    case 0x2400:
+                                        VRam[add - 0x400 - 0x2000] = value;
+                                        break;
+                                    case 0x2800:
+                                        VRam[add - 0x800 - 0x2000] = value;
+                                        break;
+                                    case 0x2C00:
+                                        VRam[add - 0xC00 - 0x2000] = value;
+                                        break;
+                                }
+                                break;
+                            case 0x2400:
+                                switch (vr)
+                                {
+                                    case 0x2000:
+                                        VRam[add + 0x400 - 0x2000] = value;
+                                        break;
+                                    case 0x2400:
+                                        VRam[add - 0x2000] = value;
+                                        break;
+                                    case 0x2800:
+                                        VRam[add - 0x400 - 0x2000] = value;
+                                        break;
+                                    case 0x2C00:
+                                        VRam[add - 0x800 - 0x2000] = value;
+                                        break;
+                                }
+                                break;
                         }
                     }
                     else
                     {
-                        this.VRAM[ADD - 0x2000] = Value;
+                        VRam[add - 0x2000] = value;
                     }
                 }
                 else
-                { this.VRAM[ADD - 0x2000] = Value; }
-            }
-            else if ((ADD >= 0x3F00) && (ADD < 0x3F20))
-            {
-                this.VRAM[ADD - 0x2000] = Value;
-                if ((ADD & 0x7) == 0)
                 {
-                    this.VRAM[(ADD - 0x2000) ^ 0x10] = (byte)(Value & 0x3F);
+                    VRam[add - 0x2000] = value;
                 }
             }
-            this.VRAMAddress += (ushort)this.VRAMAddressIncrement;
+            else if ((add >= 0x3F00) && (add < 0x3F20))
+            {
+                VRam[add - 0x2000] = value;
+                if ((add & 0x7) == 0)
+                {
+                    VRam[(add - 0x2000) ^ 0x10] = (byte)(value & 0x3F);
+                }
+            }
+            VRamAddress += (ushort) VRamAddressIncrement;
         }
+
         public byte Read2007()
         {
-            byte returnedValue = 0;
-            int ADD = this.VRAMAddress;
-            if (ADD >= 0x4000)
-                ADD -= 0x4000;
-            else if (ADD >= 0x3F20 & ADD < 0x4000)
-                ADD -= 0x20;
-            if (ADD < 0x3f00)
+            byte returnedValue;
+            int add = VRamAddress;
+            if (add >= 0x4000)
+                add -= 0x4000;
+            else if (add >= 0x3F20 & add < 0x4000)
+                add -= 0x20;
+            if (add < 0x3f00)
             {
-                returnedValue = this.VRAMReadBuffer;
-                if (ADD >= 0x2000)
+                returnedValue = VRamReadBuffer;
+                if (add >= 0x2000)
                 {
-                    if (ADD >= 0x3000)
-                        ADD -= 0x1000;
-                    this.VRAMReadBuffer = this.VRAM[ADD - 0x2000];
+                    if (add >= 0x3000)
+                        add -= 0x1000;
+                    VRamReadBuffer = VRam[add - 0x2000];
                 }
                 else
                 {
-                    this.VRAMReadBuffer = this._Nes.MEMORY.MAP.ReadCHR((ushort)(ADD));
+                    VRamReadBuffer = _engine.Memory.Map.ReadChr((ushort)(add));
                 }
             }
             else
             {
-                returnedValue = this.VRAM[ADD - 0x2000];
+                returnedValue = VRam[add - 0x2000];
             }
-            this.VRAMAddress += (ushort)this.VRAMAddressIncrement;
+            VRamAddress += (ushort) VRamAddressIncrement;
             return returnedValue;
         }
-        public void Write4014(byte Value)
+
+        public void Write4014(byte value)
         {
-            if (this.CurrentScanLine >= 240)
+            if (CurrentScanLine < 240)
             {
-                for (int i = 0; i < 0x100; i++)
-                {
-                    this.SPRRAM[i] = this._Nes.MEMORY.Read((ushort)((Value * 0x100) + i));
-                    this._Nes.CPU.CycleCounter += 2;
-                }
+                return;
+            }
+            for (var i = 0; i < 0x100; i++)
+            {
+                SprRam[i] = _engine.Memory.Read((ushort) ((value*0x100) + i));
+                _engine.Cpu.CycleCounter += 2;
             }
         }
+
         #endregion
+
         //Properties
-        public IGraphicDevice OutputDevice
-        { get { return this._Video; } set { this._Video = value; } }
-        public int FPS
-        { get { return this._FPS; } set { this._FPS = value; } }
-        public bool NoLimiter
-        { get { return this._NoLimiter; } set { this._NoLimiter = value; } }
     }
 }

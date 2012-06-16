@@ -1,225 +1,224 @@
-﻿/*
-This file is part of My Nes
-A Nintendo Entertainment System Emulator.
-
- Copyright © 2009 - 2010 Ala Hadid (AHD)
-
-My Nes is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-My Nes is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-using System.Drawing;
-using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-
+using System.Windows.Forms;
 using NesHd.Core.Debugger;
 
 namespace NesHd.Core.Output.Video.Devices
 {
     public unsafe class VideoGdi : IGraphicDevice
     {
-        bool _IsRendering = false;
-        bool _CanRender = true;
-        Bitmap bmp;
-        Control _Surface;
-        Graphics GR;
-        BitmapData bmpData;
-        int Screen_W = 0;
-        int Screen_H = 0;
-        int Screen_X = 0;
-        int Screen_Y = 0;
-        string TextToRender = "";
-        int TextApperance = 200;
-        int ScanlinesToCut = 0;
-        int _Scanlines = 0;
-        int* numPtr;
-        int[] Buffer;
+        private readonly int[] _buffer;
+        private readonly int _scanlinesToCut;
+        private readonly int _scanlines;
+        private readonly Control _surface;
+        private readonly Bitmap _bitmap;
+        private Graphics _graphics;
+        private int Screen_H;
+        private int Screen_W;
+        private int Screen_X;
+        private int Screen_Y;
 
-        public VideoGdi(TVFORMAT TvFormat, Control Surface)
+        private int _textApperance = 200;
+        private string _textToRender = "";
+        private bool _canRender = true;
+        private bool _isRendering;
+        private BitmapData _bitmapData;
+        private int* _numPtr;
+
+        public VideoGdi(TVFORMAT tvFormat, Control surface)
         {
-            if (Surface == null)
+            if (surface == null)
                 return;
             Debug.WriteLine(this, "Initializeing GDI ...", DebugStatus.None);
-            switch (TvFormat)
+            switch (tvFormat)
             {
                 case TVFORMAT.NTSC:
-                    this.ScanlinesToCut = 8;
-                    this._Scanlines = 224;
-                    this.bmp = new Bitmap(256, 224);
+                    _scanlinesToCut = 8;
+                    _scanlines = 224;
+                    _bitmap = new Bitmap(256, 224);
                     break;
                 case TVFORMAT.PAL:
-                    this.ScanlinesToCut = 0;
-                    this._Scanlines = 240;
-                    this.bmp = new Bitmap(256, 240);
+                    _scanlinesToCut = 0;
+                    _scanlines = 240;
+                    _bitmap = new Bitmap(256, 240);
                     break;
             }
-            this.Buffer = new int[256 * this._Scanlines];
-            this._Surface = Surface;
-            this.UpdateSize(0, 0, this._Surface.Width + 1, this._Surface.Height + 1);
+            _buffer = new int[256*_scanlines];
+            _surface = surface;
+            UpdateSize(0, 0, _surface.Width + 1, _surface.Height + 1);
             Debug.WriteLine(this, "Video device " + @"""" + "GDI" + @"""" + " Ok !!", DebugStatus.Cool);
         }
+
+        #region IGraphicDevice Members
+
         public string Name
         {
             get { return "Windows GDI"; }
         }
+
         public string Description
         {
-            get { return "Render the video using System.Drawing\nYou can not switch to fullscreen with this mode. This mode is perfect (best quality) and accurate but needs pc power and not recommanded for old pcs."; }
-        }
-        public unsafe void Begin()
-        {
-            if (this._CanRender)
+            get
             {
-                this._IsRendering = true;
+                return
+                    "Render the video using System.Drawing\nYou can not switch to fullscreen with this mode. This mode is perfect (best quality) and accurate but needs pc power and not recommanded for old pcs.";
             }
         }
-        public unsafe void AddScanline(int Line, int[] ScanlineBuffer)
+
+        public void Begin()
         {
-            if (this._CanRender & this._IsRendering)
+            if (_canRender)
+            {
+                _isRendering = true;
+            }
+        }
+
+        public void AddScanline(int line, int[] scanlineBuffer)
+        {
+            if (_canRender & _isRendering)
             {
                 //Check if we should cut this line 
-                if (Line > this.ScanlinesToCut & Line < (this._Scanlines + this.ScanlinesToCut))
+                if (line > _scanlinesToCut & line < (_scanlines + _scanlinesToCut))
                 {
-                    int liner = ((Line - this.ScanlinesToCut) * 256);
+                    var liner = ((line - _scanlinesToCut)*256);
                     //Set the scanline into the buffer
-                    for (int i = 0; i < 256; i++)
-                        this.Buffer[liner + i] = ScanlineBuffer[i];
+                    for (var i = 0; i < 256; i++)
+                        _buffer[liner + i] = scanlineBuffer[i];
                 }
             }
         }
-        public unsafe void DrawPixel(int X, int Y, int Color)
+
+        public void DrawPixel(int x, int y, int color)
         {
-            if (this._CanRender & this._IsRendering)
+            if (_canRender & _isRendering)
             {
                 //Check if we should cut this line 
-                if (Y >= this.ScanlinesToCut & Y < (this._Scanlines + this.ScanlinesToCut))
+                if (y >= _scanlinesToCut & y < (_scanlines + _scanlinesToCut))
                 {
-                    int liner = ((Y - this.ScanlinesToCut) * 256) + X;
-                    this.Buffer[liner] = Color;
-                    liner++;
+                    var liner = ((y - _scanlinesToCut)*256) + x;
+                    _buffer[liner] = color;
                 }
             }
         }
+
         public void RenderFrame()
         {
-            if (this._CanRender & this._IsRendering)
+            if (_canRender & _isRendering)
             {
-                this.bmpData = this.bmp.LockBits(new Rectangle(0, 0, 256, this._Scanlines),
-                    ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
-                this.numPtr = (int*)this.bmpData.Scan0;
-                for (int i = 0; i < this.Buffer.Length; i++)
+                _bitmapData = _bitmap.LockBits(new Rectangle(0, 0, 256, _scanlines),
+                                       ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
+                _numPtr = (int*) _bitmapData.Scan0;
+                for (var i = 0; i < _buffer.Length; i++)
                 {
-                    this.numPtr[i] = this.Buffer[i];
+                    _numPtr[i] = _buffer[i];
                 }
-                this.bmp.UnlockBits(this.bmpData);
+                _bitmap.UnlockBits(_bitmapData);
                 //Draw it !!
-                this.GR.DrawImage(this.bmp, 0, 0, this._Surface.Size.Width, this._Surface.Size.Height);
+                _graphics.DrawImage(_bitmap, 0, 0, _surface.Size.Width, _surface.Size.Height);
                 //Draw the text
-                if (this.TextApperance > 0)
+                if (_textApperance > 0)
                 {
-                    this.GR.DrawString(this.TextToRender, new System.Drawing.Font("Tohama", 16, FontStyle.Bold),
-                       new SolidBrush(Color.White), new PointF(30, this._Surface.Height - 50));
-                    this.TextApperance--;
+                    _graphics.DrawString(_textToRender, new Font("Tohama", 16, FontStyle.Bold),
+                                  new SolidBrush(Color.White), new PointF(30, _surface.Height - 50));
+                    _textApperance--;
                 }
             }
-            this._IsRendering = false;
+            _isRendering = false;
         }
-        public void TakeSnapshot(string SnapPath, string Format)
+
+        public void TakeSnapshot(string snapPath, string format)
         {
-            switch (Format)
+            switch (format)
             {
                 case ".bmp":
-                    this.bmp.Save(SnapPath, ImageFormat.Bmp);
-                    this._CanRender = true;
+                    _bitmap.Save(snapPath, ImageFormat.Bmp);
+                    _canRender = true;
                     break;
                 case ".gif":
-                    this.bmp.Save(SnapPath, ImageFormat.Gif);
-                    this._CanRender = true;
+                    _bitmap.Save(snapPath, ImageFormat.Gif);
+                    _canRender = true;
                     break;
                 case ".jpg":
-                    this.bmp.Save(SnapPath, ImageFormat.Jpeg);
-                    this._CanRender = true;
+                    _bitmap.Save(snapPath, ImageFormat.Jpeg);
+                    _canRender = true;
                     break;
                 case ".png":
-                    this.bmp.Save(SnapPath, ImageFormat.Png);
-                    this._CanRender = true;
+                    _bitmap.Save(snapPath, ImageFormat.Png);
+                    _canRender = true;
                     break;
                 case ".tiff":
-                    this.bmp.Save(SnapPath, ImageFormat.Tiff);
-                    this._CanRender = true;
+                    _bitmap.Save(snapPath, ImageFormat.Tiff);
+                    _canRender = true;
                     break;
             }
         }
-        public void DrawText(string Text, int Frames)
+
+        public void DrawText(string text, int frames)
         {
-            this.TextToRender = Text;
-            this.TextApperance = Frames;
+            _textToRender = text;
+            _textApperance = frames;
             //This draw is useful when the nes is paused.
-            if (this._Surface != null & !this._IsRendering)
+            if (_surface != null & !_isRendering)
             {
-                if (this.TextApperance > 0)
+                if (_textApperance > 0)
                 {
-                    Graphics GR = this._Surface.CreateGraphics();
-                    GR.DrawString(this.TextToRender, new System.Drawing.Font("Tohama", 16, FontStyle.Bold),
-                        new SolidBrush(Color.White), new PointF(30, this._Surface.Height - 50));
-                    this.TextApperance--;
+                    var graphics = _surface.CreateGraphics();
+                    graphics.DrawString(_textToRender, new Font("Tohama", 16, FontStyle.Bold),
+                                  new SolidBrush(Color.White), new PointF(30, _surface.Height - 50));
+                    _textApperance--;
                 }
             }
         }
+
         public void ChangeSettings()
         {
             MessageBox.Show("Currently there's no settings for this mode.");
         }
+
         public void Clear()
         {
-            this.GR.Clear(Color.Black);
+            _graphics.Clear(Color.Black);
         }
-        public void UpdateSize(int X, int Y, int W, int H)
+
+        public void UpdateSize(int x, int y, int w, int h)
         {
-            this.Screen_W = W;
-            this.Screen_H = H;
-            this.Screen_X = X;
-            this.Screen_Y = Y;
-            this.GR = this._Surface.CreateGraphics();
-            this.GR.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            this.GR.Clear(Color.Black);
+            Screen_W = w;
+            Screen_H = h;
+            Screen_X = x;
+            Screen_Y = y;
+            _graphics = _surface.CreateGraphics();
+            _graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            _graphics.Clear(Color.Black);
         }
+
         public bool IsSizable
-        { get { return true; } }
+        {
+            get { return true; }
+        }
+
         public bool IsRendering
         {
-            get { return this._IsRendering; }
+            get { return _isRendering; }
         }
+
         public bool CanRender
         {
-            get { return this._CanRender; }
-            set { this._CanRender = value; }
+            get { return _canRender; }
+            set { _canRender = value; }
         }
+
         public bool FullScreen
         {
-            get
-            {
-                return false;
-            }
-            set
-            {
-
-            }
+            get { return false; }
+            set { }
         }
+
         public bool SupportFullScreen
         {
             get { return false; }
         }
+
+        #endregion
     }
 }
