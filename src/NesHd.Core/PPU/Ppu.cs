@@ -67,7 +67,11 @@ namespace NesHd.Core.PPU
         private double _currentFrameTime;
         private double _lastFrameTime;
 
-        private int _transparentColor = Color.FromArgb(255, 166, 202, 240).ToArgb();
+        private readonly int _transparentColor = Color.FromArgb(255, 166, 202, 240).ToArgb();
+        private readonly Cartridge _cartridge;
+        public int[][] Bitmap { get; set; }
+        public int BitmapWidth { get; set; }
+        public int BitmapOffset { get; set; }
 
         /// <summary>
         /// The picture unit
@@ -78,6 +82,8 @@ namespace NesHd.Core.PPU
         public Ppu(TvFormat tv, PaletteFormat paletteFormat, NesEngine engine)
         {
             _engine = engine;
+            _cartridge = _engine.Memory.Map.Cartridge;
+
             VRam = new byte[0x2000];
             SprRam = new byte[0x100];
             SetTvFormat(tv, paletteFormat);
@@ -107,15 +113,14 @@ namespace NesHd.Core.PPU
                 {
                     theByte = 63;
                 }
-                for (var i = 0; i < 256; i++)
+                var theY= CurrentScanLine * _cartridge.Multi;
+                for (var x = 0; x < 256 * _cartridge.Multi; x += _cartridge.Multi)
                 {
-                    var x = i * 4;
-                    var y = CurrentScanLine * 4;
-                    for (var x1 = 0; x1 < 4; x1++)
+                    for (var x1 = 0; x1 < _cartridge.Multi; x1++)
                     {
-                        for (var y1 = 0; y1 < 4; y1++)
+                        for (var y1 = 0; y1 < _cartridge.Multi; y1++)
                         {
-                            OutputDevice.DrawAbsolutePixel(x + x1, y + y1, Palette[theByte]);
+                            OutputDevice.DrawAbsolutePixel(x + x1, theY + y1, Palette[theByte]);
                         }
                     }
                 }
@@ -132,11 +137,11 @@ namespace NesHd.Core.PPU
                 if (!BackgroundClipping)
                     for (var i = 0; i < 8; i++)
                     {
-                        var x = i * 4;
-                        var y = CurrentScanLine * 4;
-                        for (var x1 = 0; x1 < 4; x1++)
+                        var x = i * _cartridge.Multi;
+                        var y = CurrentScanLine * _cartridge.Multi;
+                        for (var x1 = 0; x1 < _cartridge.Multi; x1++)
                         {
-                            for (var y1 = 0; y1 < 4; y1++)
+                            for (var y1 = 0; y1 < _cartridge.Multi; y1++)
                             {
                                 OutputDevice.DrawAbsolutePixel(x + x1, y + y1, Palette[theByte]);
                             }
@@ -355,7 +360,7 @@ namespace NesHd.Core.PPU
 
             if (DrawHdTile(i, spriteOffset, lineToDraw))
             {
-                return;
+                //return;
             }
 
 
@@ -407,7 +412,7 @@ namespace NesHd.Core.PPU
                     {
                         if ((SprRam[i + 3] + j) < 256)
                         {
-                            OutputDevice.DrawPixel((SprRam[i + 3]) + j, CurrentScanLine,
+                            OutputDevice.DrawAbsolutePixel((SprRam[i + 3]) + j, CurrentScanLine,
                                                    Palette[(0x3f & VRam[0x1F10 + pixelColor])]);
                             if (i == 0)
                             {
@@ -434,24 +439,24 @@ namespace NesHd.Core.PPU
             var start = (ushort)(spriteOffset + lineToDraw);
             var mustInvert = (SprRam[i + 2] & 0x40) == 0x40;
 
-            var absPos = start + _engine.Memory.Map.Cartridge.BitmapOffset;
-            if (absPos >= _engine.Memory.Map.Cartridge.BitmapOffset && absPos < _engine.Memory.Map.Cartridge.BitmapOffset + 4000)
+            var absPos = start + BitmapOffset;
+            if (absPos >= BitmapOffset && absPos < BitmapOffset + 4000)
             {
-                var offset = absPos - _engine.Memory.Map.Cartridge.BitmapOffset;
+                var offset = absPos - BitmapOffset;
 
                 for (var j = 0; j < 8; j++)
                 {
-                    var x = GetX(offset, (mustInvert ? 7 - j : j), _engine.Memory.Map.Cartridge.Multi);
-                    var y = GetY(offset, _engine.Memory.Map.Cartridge.BitmapWidth, _engine.Memory.Map.Cartridge.Multi);
+                    var x = GetX(offset, (mustInvert ? 7 - j : j), _cartridge.Multi);
+                    var y = GetY(offset, BitmapWidth, _cartridge.Multi);
 
-                    var x1 = (SprRam[i + 3] + j) * _engine.Memory.Map.Cartridge.Multi;
-                    var y1 = CurrentScanLine * _engine.Memory.Map.Cartridge.Multi;
+                    var x1 = (SprRam[i + 3] + j) * _cartridge.Multi;
+                    var y1 = CurrentScanLine * _cartridge.Multi;
 
-                    for (var x2 = 0; x2 < _engine.Memory.Map.Cartridge.Multi; x2++)
+                    for (var x2 = 0; x2 < _cartridge.Multi; x2++)
                     {
-                        for (var y2 = 0; y2 < _engine.Memory.Map.Cartridge.Multi; y2++)
+                        for (var y2 = 0; y2 < _cartridge.Multi; y2++)
                         {
-                            var pixelColor = _engine.Memory.Map.Cartridge.Bitmap[x + x2][y + y2];
+                            var pixelColor = Bitmap[x + x2][y + y2];
                             if (pixelColor != _transparentColor)
                             {
                                 OutputDevice.DrawAbsolutePixel(x1 + x2, y1 + y2, pixelColor);
@@ -567,7 +572,7 @@ namespace NesHd.Core.PPU
                     endColumn = (HScroll / 8) + 1;
                 }
                 //Next Try: Forcing two page only: 0x2000 and 0x2400				
-                switch (_engine.Memory.Map.Cartridge.Mirroring)
+                switch (_cartridge.Mirroring)
                 {
                     case Mirroring.Horizontal:
                         switch (nameTableBase)
@@ -595,7 +600,7 @@ namespace NesHd.Core.PPU
                         }
                         break;
                     case Mirroring.OneScreen:
-                        nameTableBase = (int)_engine.Memory.Map.Cartridge.MirroringBase;
+                        nameTableBase = (int)_cartridge.MirroringBase;
                         break;
                 }
                 for (var currentTileColumn = startColumn; currentTileColumn < endColumn; currentTileColumn++)
@@ -650,37 +655,36 @@ namespace NesHd.Core.PPU
                     }
 
                     var start = (ushort)(tileDataOffset + (virtualScanline % 8));
-                    var absPos = start + _engine.Memory.Map.Cartridge.BitmapOffset;
+                    var absPos = start + BitmapOffset;
 
-                    if (absPos >= _engine.Memory.Map.Cartridge.BitmapOffset && absPos < _engine.Memory.Map.Cartridge.BitmapOffset + 8000)
+                    if (absPos >= BitmapOffset && absPos < BitmapOffset + 8000)
                     {
-                        var offset = absPos - _engine.Memory.Map.Cartridge.BitmapOffset;
-                        var w = _engine.Memory.Map.Cartridge.BitmapWidth;
+                        var offset = absPos - BitmapOffset;
 
                         for (var i = startTilePixel; i < endTilePixel; i++)
                         {
-                            var x = GetX(offset, i, _engine.Memory.Map.Cartridge.Multi);
-                            var y = GetY(offset, w, _engine.Memory.Map.Cartridge.Multi);
+                            var x = GetX(offset, i, _cartridge.Multi);
+                            var y = GetY(offset, BitmapWidth, _cartridge.Multi);
 
                             var x1 = 0;
                             var y1 = 0;
 
                             if (vScrollSide == 0)
                             {
-                                x1 = ((8 * currentTileColumn) - HScroll + i) * _engine.Memory.Map.Cartridge.Multi;
-                                y1 = (CurrentScanLine) * _engine.Memory.Map.Cartridge.Multi;
+                                x1 = ((8 * currentTileColumn) - HScroll + i) * _cartridge.Multi;
+                                y1 = (CurrentScanLine) * _cartridge.Multi;
                             }
                             else if (((8 * currentTileColumn) + (256 - HScroll) + i) < 256)
                             {
-                                x1 = ((8 * currentTileColumn) + (256 - HScroll) + i) * _engine.Memory.Map.Cartridge.Multi;
-                                y1 = (CurrentScanLine) * _engine.Memory.Map.Cartridge.Multi;
+                                x1 = ((8 * currentTileColumn) + (256 - HScroll) + i) * _cartridge.Multi;
+                                y1 = (CurrentScanLine) * _cartridge.Multi;
                             }
 
-                            for (var x2 = 0; x2 < _engine.Memory.Map.Cartridge.Multi; x2++)
+                            for (var x2 = 0; x2 < _cartridge.Multi; x2++)
                             {
-                                for (var y2 = 0; y2 < _engine.Memory.Map.Cartridge.Multi; y2++)
+                                for (var y2 = 0; y2 < _cartridge.Multi; y2++)
                                 {
-                                    var pixelColor = _engine.Memory.Map.Cartridge.Bitmap[x + x2][y + y2];
+                                    var pixelColor = Bitmap[x + x2][y + y2];
 
                                     if (pixelColor == _transparentColor)
                                     {
@@ -690,13 +694,8 @@ namespace NesHd.Core.PPU
                                 }
                             }
                         }
-                        continue;
+                        //continue;
                     }
-
-
-
-
-
 
                     for (var i = startTilePixel; i < endTilePixel; i++)
                     {
@@ -741,14 +740,14 @@ namespace NesHd.Core.PPU
                             {
                                 if (vScrollSide == 0)
                                 {
-                                    OutputDevice.DrawPixel((8 * currentTileColumn) - HScroll + i, CurrentScanLine,
+                                    OutputDevice.DrawAbsolutePixel((8 * currentTileColumn) - HScroll + i, CurrentScanLine,
                                                      Palette[(0x3f & VRam[0x1f00 + pixelColor])]);
                                 }
                                 else
                                 {
                                     if (((8 * currentTileColumn) + (256 - HScroll) + i) < 256)
                                     {
-                                        OutputDevice.DrawPixel((8 * currentTileColumn) + (256 - HScroll) + i, CurrentScanLine,
+                                        OutputDevice.DrawAbsolutePixel((8 * currentTileColumn) + (256 - HScroll) + i, CurrentScanLine,
                                                          Palette[(0x3f & VRam[0x1f00 + pixelColor])]);
                                     }
                                 }
@@ -990,7 +989,7 @@ namespace NesHd.Core.PPU
                 var vr = (add & 0x2C00);
                 if (!IsMapperMirroring)
                 {
-                    if (_engine.Memory.Map.Cartridge.Mirroring == Mirroring.Horizontal)
+                    if (_cartridge.Mirroring == Mirroring.Horizontal)
                     {
                         switch (vr)
                         {
@@ -1010,7 +1009,7 @@ namespace NesHd.Core.PPU
                                 break;
                         }
                     }
-                    else if (_engine.Memory.Map.Cartridge.Mirroring == Mirroring.Vertical)
+                    else if (_cartridge.Mirroring == Mirroring.Vertical)
                     {
                         switch (vr)
                         {
@@ -1030,9 +1029,9 @@ namespace NesHd.Core.PPU
                                 break;
                         }
                     }
-                    else if (_engine.Memory.Map.Cartridge.Mirroring == Mirroring.OneScreen)
+                    else if (_cartridge.Mirroring == Mirroring.OneScreen)
                     {
-                        switch (_engine.Memory.Map.Cartridge.MirroringBase)
+                        switch (_cartridge.MirroringBase)
                         {
                             case 0x2000:
                                 switch (vr)

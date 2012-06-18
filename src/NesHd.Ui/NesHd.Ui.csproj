@@ -147,11 +147,11 @@
     <Compile Include="WinForms\Frm_ControlsSettings.Designer.cs">
       <DependentUpon>Frm_ControlsSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="WinForms\Frm_VideoOption.cs">
+    <Compile Include="WinForms\VideoOptionForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WinForms\Frm_VideoOption.Designer.cs">
-      <DependentUpon>Frm_VideoOption.cs</DependentUpon>
+    <Compile Include="WinForms\VideoOptionForm.Designer.cs">
+      <DependentUpon>VideoOptionForm.cs</DependentUpon>
     </Compile>
     <Compile Include="WinForms\Frm_Debugger.cs">
       <SubType>Form</SubType>
@@ -215,8 +215,8 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinForms\Frm_VideoOption.resx">
-      <DependentUpon>Frm_VideoOption.cs</DependentUpon>
+    <EmbeddedResource Include="WinForms\VideoOptionForm.resx">
+      <DependentUpon>VideoOptionForm.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

@@ -55,7 +55,14 @@ namespace NesHd.Core
         /// <param name="romPath">The INES rom path</param>
         public bool LoadRom(string romPath)
         {
-            return Memory.LoadCart(romPath);
+            if (Memory.LoadCart(romPath))
+            {
+                Ppu.Bitmap = Memory.Map.Cartridge.Bitmap;
+                Ppu.BitmapOffset = Memory.Map.Cartridge.BitmapOffset;
+                Ppu.BitmapWidth = Memory.Map.Cartridge.BitmapWidth;
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

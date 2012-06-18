@@ -96,7 +96,7 @@ namespace NesHd.Core.Memory
         public int BitmapOffset { get; set; }
         public int BitmapWidth { get; set; }
         public int[][] Bitmap { get; set; }
-        public int Multi = 4;
+        public byte Multi = 4;
 
         public bool LoadCart(string filePath)
         {

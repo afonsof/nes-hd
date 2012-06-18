@@ -278,12 +278,12 @@ namespace NesHd.Ui.WinForms
                             _engine.SetupOutput(gdih, mon);
                             break;
                         case GraphicDevices.SlimDx:
-                            var sl = new VideoSlimDx(Program.Settings.TV, panel1);
+                            var sl = new VideoSlimDx(Program.Settings.TV, panel1, _engine.Memory.Map.Cartridge.Multi);
                             _engine.SetupOutput(sl, mon);
                             break;
                         default:
                             Program.Settings.GFXDevice = GraphicDevices.SlimDx;
-                            var sl1 = new VideoSlimDx(Program.Settings.TV, panel1);
+                            var sl1 = new VideoSlimDx(Program.Settings.TV, panel1, _engine.Memory.Map.Cartridge.Multi);
                             _engine.SetupOutput(sl1, mon);
                             break;
                     }
@@ -954,8 +954,8 @@ namespace NesHd.Ui.WinForms
             if (_engine != null)
                 _engine.Pause();
             //Show the dialog
-            var OP = new Frm_VideoOption();
-            OP.ShowDialog(this);
+            var optionForm = new VideoOptionForm(_engine.Memory.Map.Cartridge.Multi);
+            optionForm.ShowDialog(this);
             //Applay the options if the Nes is null
             if (_engine != null)
             {
@@ -989,7 +989,7 @@ namespace NesHd.Ui.WinForms
                         _engine.Ppu.OutputDevice = gdih;
                         break;
                     case GraphicDevices.SlimDx:
-                        var sli = new VideoSlimDx(Program.Settings.TV, panel1);
+                        var sli = new VideoSlimDx(Program.Settings.TV, panel1, _engine.Memory.Map.Cartridge.Multi);
                         _engine.Ppu.OutputDevice = sli;
                         break;
                 }

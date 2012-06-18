@@ -7,11 +7,11 @@ using NesHd.Core.Output.Video.Devices.SlimDX;
 
 namespace NesHd.Ui.WinForms
 {
-    public partial class Frm_VideoOption : Form
+    public partial class VideoOptionForm : Form
     {
-        private bool _Ok;
+        private byte _multi;
 
-        public Frm_VideoOption()
+        public VideoOptionForm(byte multi)
         {
             InitializeComponent();
             //Load the settings
@@ -19,20 +19,18 @@ namespace NesHd.Ui.WinForms
             comboBox1_Size.SelectedItem = Program.Settings.Size;
             comboBox1_VideoMode.SelectedItem = Program.Settings.GFXDevice.ToString();
             checkBox1.Checked = Program.Settings.Fullscreen;
+            _multi = multi;
         }
 
-        public bool OK
-        {
-            get { return _Ok; }
-        }
+        public bool Ok { get; private set; }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void Button2Click(object sender, EventArgs e)
         {
             Close();
         }
 
         //save 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1Click(object sender, EventArgs e)
         {
             //TV format
             switch (comboBox1_Tv.SelectedItem.ToString())
@@ -64,15 +62,15 @@ namespace NesHd.Ui.WinForms
             //SAVE
             Program.Settings.Save();
             Close();
-            _Ok = true;
+            Ok = true;
         }
 
-        private void comboBox1_VideoMode_SelectedIndexChanged(object sender, EventArgs e)
+        private void ComboBox1VideoModeSelectedIndexChanged(object sender, EventArgs e)
         {
             switch (comboBox1_VideoMode.SelectedItem.ToString())
             {
                 case "SlimDX":
-                    var sl = new VideoSlimDx(TvFormat.Ntsc, Program.MainForm.panel1);
+                    var sl = new VideoSlimDx(TvFormat.Ntsc, Program.MainForm.panel1, _multi);
                     richTextBox1_DrawerDescription.Text = sl.Description;
                     break;
                 case "GDI":
@@ -91,7 +89,7 @@ namespace NesHd.Ui.WinForms
             switch (comboBox1_VideoMode.SelectedItem.ToString())
             {
                 case "SlimDX":
-                    var sl = new VideoSlimDx(TvFormat.Ntsc, Program.MainForm.panel1);
+                    var sl = new VideoSlimDx(TvFormat.Ntsc, Program.MainForm.panel1, _multi);
                     sl.ChangeSettings();
                     break;
                 case "GDI":
