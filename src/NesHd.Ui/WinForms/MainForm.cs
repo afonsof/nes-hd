@@ -30,6 +30,7 @@ namespace NesHd.Ui.WinForms
         private ThreadStart _myThreadCreator;
         private bool _startActions = true;
         private int _stateIndex;
+        private string _romFileName;
 
         #region Functions
 
@@ -88,9 +89,9 @@ namespace NesHd.Ui.WinForms
             var i = 1;
             foreach (var recc in Program.Settings.Recents)
             {
-                var it = new ToolStripMenuItem {Text = Path.GetFileNameWithoutExtension(recc)};
+                var it = new ToolStripMenuItem { Text = Path.GetFileNameWithoutExtension(recc) };
                 switch (i) //This for the recent item shortcut key
-                    //So that user can press CTRL + item No
+                //So that user can press CTRL + item No
                 {
                     case 1:
                         it.ShortcutKeys = (((Keys.Control |
@@ -136,6 +137,7 @@ namespace NesHd.Ui.WinForms
 
         public void OpenRom(string romPath)
         {
+            _romFileName = romPath;
             if (File.Exists(romPath))
             {
                 #region Check if archive
@@ -166,7 +168,7 @@ namespace NesHd.Ui.WinForms
                         ar.ShowDialog(this);
                         if (ar.Ok)
                         {
-                            string[] fil = {ar.SelectedRom};
+                            string[] fil = { ar.SelectedRom };
                             _extractor.ExtractFiles(Path.GetTempPath(), fil);
                             romPath = Path.GetTempPath() + ar.SelectedRom;
                         }
@@ -264,7 +266,7 @@ namespace NesHd.Ui.WinForms
                             break;
                     }
                     //The output devices
-                    var mon = new SoundDeviceGeneral16(statusStrip1) {Stereo = Program.Settings.Stereo};
+                    var mon = new SoundDeviceGeneral16(statusStrip1) { Stereo = Program.Settings.Stereo };
                     switch (Program.Settings.GFXDevice)
                     {
                         case GraphicDevices.Gdi:
@@ -820,13 +822,16 @@ namespace NesHd.Ui.WinForms
         {
             if (_engine != null)
                 _engine.Pause();
-            var op = new OpenFileDialog();
-            op.Title = "Open INES rom";
-            op.Filter =
-                "All Supported Files |*.nes;*.NES;*.7z;*.7Z;*.rar;*.RAR;*.zip;*.ZIP|INES rom (*.nes)|*.nes;*.NES|Archives (*.7z *.rar *.zip)|*.7z;*.7Z;*.rar;*.RAR;*.zip;*.ZIP";
-            op.Multiselect = false;
+            var op = new OpenFileDialog
+                         {
+                             Title = "Open INES rom",
+                             Filter =
+                                 "All Supported Files |*.nes;*.NES;*.7z;*.7Z;*.rar;*.RAR;*.zip;*.ZIP|INES rom (*.nes)|*.nes;*.NES|Archives (*.7z *.rar *.zip)|*.7z;*.7Z;*.rar;*.RAR;*.zip;*.ZIP",
+                             Multiselect = false
+                         };
             if (op.ShowDialog(this) == DialogResult.OK)
             {
+                _romFileName = op.FileName;
                 OpenRom(op.FileName);
             }
             if (_engine != null)
@@ -1089,7 +1094,7 @@ namespace NesHd.Ui.WinForms
                 IT.Checked = false;
             }
             //Check selected
-            var SIT = (ToolStripMenuItem) e.ClickedItem;
+            var SIT = (ToolStripMenuItem)e.ClickedItem;
             SIT.Checked = true;
             //Get state index
             _stateIndex = Convert.ToInt32(SIT.Text.Substring(SIT.Text.Length - 1, 1));
@@ -1306,7 +1311,7 @@ namespace NesHd.Ui.WinForms
                 MessageBox.Show("Not a S-RAM !!");
                 return;
             }
-            var sav = new SaveFileDialog {Title = "Save S-RAM", Filter = "Save file (*.sav)|*.sav"};
+            var sav = new SaveFileDialog { Title = "Save S-RAM", Filter = "Save file (*.sav)|*.sav" };
             if (sav.ShowDialog(this) == DialogResult.OK)
                 _engine.SaveSram(sav.FileName);
             if (_engine != null)
@@ -1332,8 +1337,8 @@ namespace NesHd.Ui.WinForms
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    var x = (e.X*256)/panel1.Width;
-                    var y = (e.Y*((_engine.TvFormat == TvFormat.Ntsc) ? 224 : 240))/panel1.Height;
+                    var x = (e.X * 256) / panel1.Width;
+                    var y = (e.Y * ((_engine.TvFormat == TvFormat.Ntsc) ? 224 : 240)) / panel1.Height;
                     _engine.Memory.Zapper.PullTrigger(true, x, y);
                 }
             }
@@ -1368,6 +1373,67 @@ namespace NesHd.Ui.WinForms
             {
                 Debugger.WriteLine("M # " + map.ToString(CultureInfo.InvariantCulture) + " " + @"""" +
                                    NesHeaderReader.GetMapperName(map) + @"""", DebugStatus.None);
+            }
+        }
+
+        private void MergeImageToRomToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            if (_engine != null)
+            {
+                _engine.Pause();
+            }
+            if (_romFileName == null)
+            {
+                MessageBox.Show("You must open a ROM first.");
+                return;
+            }
+            var op = new OpenFileDialog
+                         {
+                             Title = "Open image rom",
+                             Filter =
+                                 "All Supported Files |*.jpg;*.JPG;*.bmp;*.BMP;*.png;*.PNG",
+                             Multiselect = false
+                         };
+            if (op.ShowDialog(this) == DialogResult.OK)
+            {
+                var offsetValue = 16;
+                var offsetTiles = 32784;
+
+                using (var reader = File.OpenRead(_romFileName))
+                {
+                    var nesHeader = new byte[16];
+                    reader.Read(nesHeader, 0, 16);
+
+                    offsetValue += 4096 * nesHeader[4] * 4;
+                    offsetValue += 1024 * nesHeader[5] * 8;
+
+                    reader.Seek(offsetValue, SeekOrigin.Begin);
+                }
+
+                using (var writer = File.OpenWrite(_romFileName))
+                {
+                    writer.Seek(offsetValue, SeekOrigin.Begin);
+
+                    var hookOffset = BitConverter.GetBytes(Convert.ToInt32(offsetTiles));
+                    foreach (var b in hookOffset)
+                    {
+                        writer.WriteByte(b);
+                    }
+
+                    var imageSize = BitConverter.GetBytes((int)new FileInfo(op.FileName).Length);
+                    foreach (var b in imageSize)
+                    {
+                        writer.WriteByte(b);
+                    }
+
+                    var imageBytes = File.ReadAllBytes(op.FileName);
+                    writer.Write(imageBytes, 0, imageBytes.Length);
+                }
+                OpenRom(_romFileName);
+            }
+            if (_engine != null)
+            {
+                _engine.Resume();
             }
         }
     }

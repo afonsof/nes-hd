@@ -113,7 +113,7 @@ namespace NesHd.Core.PPU
                 {
                     theByte = 63;
                 }
-                var theY= CurrentScanLine * _cartridge.Multi;
+                var theY = CurrentScanLine * _cartridge.Multi;
                 for (var x = 0; x < 256 * _cartridge.Multi; x += _cartridge.Multi)
                 {
                     for (var x1 = 0; x1 < _cartridge.Multi; x1++)
@@ -684,13 +684,20 @@ namespace NesHd.Core.PPU
                             {
                                 for (var y2 = 0; y2 < _cartridge.Multi; y2++)
                                 {
-                                    var pixelColor = Bitmap[x + x2][y + y2];
-
-                                    if (pixelColor == _transparentColor)
+                                    try
                                     {
-                                        continue;
+                                        var pixelColor = Bitmap[x + x2][y + y2];
+                                        if (pixelColor == _transparentColor)
+                                        {
+                                            continue;
+                                        }
+                                        OutputDevice.DrawAbsolutePixel(x1 + x2, y1 + y2, pixelColor);
                                     }
-                                    OutputDevice.DrawAbsolutePixel(x1 + x2, y1 + y2, pixelColor);
+                                    catch
+                                    {
+
+                                    }
+
                                 }
                             }
                         }

@@ -55,6 +55,7 @@ namespace NesHd.Ui.WinForms
             this.openRomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.recentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.browserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mergeImageToRomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.saveSRAMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
@@ -101,6 +102,7 @@ namespace NesHd.Ui.WinForms
             this.indexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
             this.commandLinesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.supportedMappersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutNesHdToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -113,7 +115,6 @@ namespace NesHd.Ui.WinForms
             this.panel1 = new System.Windows.Forms.Panel();
             this.timer_FPS = new System.Windows.Forms.Timer(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.supportedMappersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -138,6 +139,7 @@ namespace NesHd.Ui.WinForms
             this.openRomToolStripMenuItem,
             this.recentToolStripMenuItem,
             this.browserToolStripMenuItem,
+            this.mergeImageToRomToolStripMenuItem,
             this.toolStripSeparator5,
             this.saveSRAMToolStripMenuItem,
             this.toolStripSeparator11,
@@ -159,14 +161,14 @@ namespace NesHd.Ui.WinForms
             this.openRomToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openRomToolStripMenuItem.Image")));
             this.openRomToolStripMenuItem.Name = "openRomToolStripMenuItem";
             this.openRomToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openRomToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.openRomToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.openRomToolStripMenuItem.Text = "&Open rom";
             this.openRomToolStripMenuItem.Click += new System.EventHandler(this.OpenRomToolStripMenuItemClick);
             // 
             // recentToolStripMenuItem
             // 
             this.recentToolStripMenuItem.Name = "recentToolStripMenuItem";
-            this.recentToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.recentToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.recentToolStripMenuItem.Text = "Recent";
             this.recentToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.RecentToolStripMenuItemDropDownItemClicked);
             // 
@@ -175,54 +177,62 @@ namespace NesHd.Ui.WinForms
             this.browserToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("browserToolStripMenuItem.Image")));
             this.browserToolStripMenuItem.Name = "browserToolStripMenuItem";
             this.browserToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.B)));
-            this.browserToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.browserToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.browserToolStripMenuItem.Text = "&Browser";
             this.browserToolStripMenuItem.Click += new System.EventHandler(this.BrowserToolStripMenuItemClick);
+            // 
+            // mergeImageToRomToolStripMenuItem
+            // 
+            this.mergeImageToRomToolStripMenuItem.Name = "mergeImageToRomToolStripMenuItem";
+            this.mergeImageToRomToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
+            this.mergeImageToRomToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.mergeImageToRomToolStripMenuItem.Text = "Merge image to rom...";
+            this.mergeImageToRomToolStripMenuItem.Click += new System.EventHandler(this.MergeImageToRomToolStripMenuItemClick);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(170, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(208, 6);
             // 
             // saveSRAMToolStripMenuItem
             // 
             this.saveSRAMToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveSRAMToolStripMenuItem.Image")));
             this.saveSRAMToolStripMenuItem.Name = "saveSRAMToolStripMenuItem";
             this.saveSRAMToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveSRAMToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.saveSRAMToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.saveSRAMToolStripMenuItem.Text = "&Save SRAM";
             this.saveSRAMToolStripMenuItem.Click += new System.EventHandler(this.SaveSramToolStripMenuItemClick);
             // 
             // toolStripSeparator11
             // 
             this.toolStripSeparator11.Name = "toolStripSeparator11";
-            this.toolStripSeparator11.Size = new System.Drawing.Size(170, 6);
+            this.toolStripSeparator11.Size = new System.Drawing.Size(208, 6);
             // 
             // romInfoToolStripMenuItem
             // 
             this.romInfoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("romInfoToolStripMenuItem.Image")));
             this.romInfoToolStripMenuItem.Name = "romInfoToolStripMenuItem";
             this.romInfoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Q)));
-            this.romInfoToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.romInfoToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.romInfoToolStripMenuItem.Text = "&Rom info";
             this.romInfoToolStripMenuItem.Click += new System.EventHandler(this.RomInfoToolStripMenuItemClick);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(170, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(208, 6);
             // 
             // loadSateToolStripMenuItem
             // 
             this.loadSateToolStripMenuItem.Name = "loadSateToolStripMenuItem";
-            this.loadSateToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.loadSateToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.loadSateToolStripMenuItem.Text = "&Load sate      F9";
             this.loadSateToolStripMenuItem.Click += new System.EventHandler(this.LoadSateToolStripMenuItemClick);
             // 
             // saveStateToolStripMenuItem
             // 
             this.saveStateToolStripMenuItem.Name = "saveStateToolStripMenuItem";
-            this.saveStateToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.saveStateToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.saveStateToolStripMenuItem.Text = "&Save state     F6";
             this.saveStateToolStripMenuItem.Click += new System.EventHandler(this.SaveStateToolStripMenuItemClick);
             // 
@@ -240,7 +250,7 @@ namespace NesHd.Ui.WinForms
             this.slot8ToolStripMenuItem,
             this.slot9ToolStripMenuItem});
             this.stateSlotToolStripMenuItem.Name = "stateSlotToolStripMenuItem";
-            this.stateSlotToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.stateSlotToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.stateSlotToolStripMenuItem.Text = "State slot";
             this.stateSlotToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.stateSlotToolStripMenuItem_DropDownItemClicked);
             // 
@@ -309,28 +319,28 @@ namespace NesHd.Ui.WinForms
             // toolStripSeparator8
             // 
             this.toolStripSeparator8.Name = "toolStripSeparator8";
-            this.toolStripSeparator8.Size = new System.Drawing.Size(170, 6);
+            this.toolStripSeparator8.Size = new System.Drawing.Size(208, 6);
             // 
             // recordAudioToolStripMenuItem
             // 
             this.recordAudioToolStripMenuItem.Image = global::NesHd.Ui.Properties.Resources.Record;
             this.recordAudioToolStripMenuItem.Name = "recordAudioToolStripMenuItem";
             this.recordAudioToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F7;
-            this.recordAudioToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.recordAudioToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.recordAudioToolStripMenuItem.Text = "&Record audio";
             this.recordAudioToolStripMenuItem.Click += new System.EventHandler(this.RecordAudioToolStripMenuItemClick);
             // 
             // toolStripSeparator9
             // 
             this.toolStripSeparator9.Name = "toolStripSeparator9";
-            this.toolStripSeparator9.Size = new System.Drawing.Size(170, 6);
+            this.toolStripSeparator9.Size = new System.Drawing.Size(208, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("exitToolStripMenuItem.Image")));
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.exitToolStripMenuItem.Text = "&Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItemClick);
             // 
@@ -537,6 +547,13 @@ namespace NesHd.Ui.WinForms
             this.commandLinesToolStripMenuItem.Text = "Command lines";
             this.commandLinesToolStripMenuItem.Click += new System.EventHandler(this.CommandLinesToolStripMenuItemClick);
             // 
+            // supportedMappersToolStripMenuItem
+            // 
+            this.supportedMappersToolStripMenuItem.Name = "supportedMappersToolStripMenuItem";
+            this.supportedMappersToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.supportedMappersToolStripMenuItem.Text = "Supported mappers";
+            this.supportedMappersToolStripMenuItem.Click += new System.EventHandler(this.SupportedMappersToolStripMenuItemClick);
+            // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
@@ -629,13 +646,6 @@ namespace NesHd.Ui.WinForms
             // 
             this.timer1.Interval = 5000;
             this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
-            // 
-            // supportedMappersToolStripMenuItem
-            // 
-            this.supportedMappersToolStripMenuItem.Name = "supportedMappersToolStripMenuItem";
-            this.supportedMappersToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.supportedMappersToolStripMenuItem.Text = "Supported mappers";
-            this.supportedMappersToolStripMenuItem.Click += new System.EventHandler(this.SupportedMappersToolStripMenuItemClick);
             // 
             // MainForm
             // 
@@ -730,6 +740,7 @@ namespace NesHd.Ui.WinForms
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
         private System.Windows.Forms.ToolStripMenuItem showMenuAndStatusStripToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem supportedMappersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mergeImageToRomToolStripMenuItem;
     }
 }
 

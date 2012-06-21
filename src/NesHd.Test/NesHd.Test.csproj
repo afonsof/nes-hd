@@ -49,7 +49,7 @@
     <Compile Include="UnitTest1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\NesHd.Core\NesHd.Core.csproj">
+    <ProjectReference Include="..\NesHd.Core\NesHd.Core.csproj">
       <Project>{7AE1F4DC-359A-4625-B8A6-EB9C54DF5AF0}</Project>
       <Name>NesHd.Core</Name>
     </ProjectReference>
